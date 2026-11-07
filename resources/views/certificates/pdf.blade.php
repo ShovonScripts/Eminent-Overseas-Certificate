@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <title>{{ $c->certificate_no ?? 'Certificate Preview' }}</title>
 <style>
+    @font-face {
+        font-family: 'NotoJP';
+        font-weight: normal;
+        src: url('{{ storage_path('fonts/notojp_normal_47bedc5b8344a9f3589c91ab34658f4f.ttf') }}') format('truetype');
+    }
+    @font-face {
+        font-family: 'NotoJP';
+        font-weight: bold;
+        src: url('{{ storage_path('fonts/notojp_bold_479bec163307bb377a5591f9a8e403bb.ttf') }}') format('truetype');
+    }
+
     @page {
         size: 210mm 297mm;
         margin: 0;

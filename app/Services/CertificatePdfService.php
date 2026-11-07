@@ -58,18 +58,30 @@ class CertificatePdfService
                 'dpi' => 150,
             ]);
 
+        // Clear any previous font cache to pick up the new font paths
+        $cacheFile = storage_path('fonts/fonts.json');
+        if (file_exists($cacheFile)) {
+            @unlink($cacheFile);
+        }
+
         $fontMetrics = $pdf->getFontMetrics();
 
-        foreach ([
-            'normal' => (string) config('school.fonts.regular'),
-            'bold' => (string) config('school.fonts.bold'),
-        ] as $weight => $file) {
-            if (is_file($file)) {
-                $fontMetrics->registerFont(
-                    ['family' => 'NotoJP', 'weight' => $weight, 'style' => 'normal'],
-                    str_replace('\\', '/', $file),
-                );
-            }
+        // Register Noto Sans JP fonts from storage/fonts directory
+        $regularPath = storage_path('fonts/notojp_normal_47bedc5b8344a9f3589c91ab34658f4f.ttf');
+        $boldPath = storage_path('fonts/notojp_bold_479bec163307bb377a5591f9a8e403bb.ttf');
+
+        if (is_file($regularPath)) {
+            $fontMetrics->registerFont(
+                ['family' => 'NotoJP', 'weight' => 'normal', 'style' => 'normal'],
+                str_replace('\\', '/', $regularPath),
+            );
+        }
+
+        if (is_file($boldPath)) {
+            $fontMetrics->registerFont(
+                ['family' => 'NotoJP', 'weight' => 'bold', 'style' => 'normal'],
+                str_replace('\\', '/', $boldPath),
+            );
         }
 
         return $pdf->output();

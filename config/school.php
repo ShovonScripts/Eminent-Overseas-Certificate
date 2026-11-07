@@ -10,8 +10,8 @@ return [
     'verify_base_url' => env('CERTIFICATE_VERIFY_BASE_URL', rtrim((string) env('APP_URL', 'http://localhost'), '/').'/verify'),
     'number_prefix' => env('CERTIFICATE_NUMBER_PREFIX', 'EOC'),
     'fonts' => [
-        'regular' => resource_path('fonts/NotoSansJP-Regular.ttf'),
-        'bold' => resource_path('fonts/NotoSansJP-Bold.ttf'),
+        'regular' => storage_path('fonts/notojp_normal_47bedc5b8344a9f3589c91ab34658f4f.ttf'),
+        'bold' => storage_path('fonts/notojp_bold_479bec163307bb377a5591f9a8e403bb.ttf'),
     ],
     'images' => [
         'background' => public_path('images/certificate/background.png'),
