@@ -108,12 +108,13 @@
         vertical-align: middle;
     }
     .institution-name {
-        font-size: 12pt;
+        font-family: 'Times-Roman', 'NotoJP', serif;
+        font-size: 14pt;
         font-weight: bold;
-        letter-spacing: 1.4px;
-        color: #102C2A;
+        letter-spacing: 2px;
+        color: #073A2F;
         text-transform: uppercase;
-        margin-bottom: 0.5mm;
+        margin-bottom: 0.7mm;
     }
     .cert-title-japanese {
         font-size: 22pt;
@@ -169,12 +170,13 @@
 
     /* Section Headers */
     .section-header {
-        font-size: 9pt;
+        font-size: 8.6pt;
         font-weight: bold;
-        color: #143B35;
+        color: #FFFFFF;
+        background: #10392F;
         letter-spacing: 0.5px;
-        border-bottom: 1.1pt solid #143B35;
-        padding-bottom: 0.8mm;
+        border-left: 1.2mm solid #C49A47;
+        padding: 1mm 2mm;
         margin: 1.8mm 0 1mm;
         text-transform: uppercase;
     }
@@ -188,85 +190,91 @@
     table.particulars-table td {
         padding: 1.2mm 1.6mm;
         vertical-align: middle;
-        font-size: 8.8pt;
+        font-size: 7.8pt;
         line-height: 1.15;
-        border-bottom: 0.6pt solid #D5DDE3;
+        border-bottom: 0.65pt solid #AEBBB3;
     }
     table.particulars-table td.field-label {
         width: 25%;
-        color: #143B35;
+        color: #123D31;
         font-weight: bold;
-        background: #F2F6F4;
+        background: #E3ECE6;
         white-space: nowrap;
-        font-size: 8.2pt;
-        border-right: 0.6pt solid #D5DDE3;
+        font-size: 7.2pt;
+        border-right: 0.65pt solid #AEBBB3;
     }
     table.particulars-table td.field-val {
         width: 25%;
-        color: #101820;
-        border-right: 0.6pt solid #D5DDE3;
+        color: #111B17;
+        border-right: 0.65pt solid #AEBBB3;
     }
     table.particulars-table td.field-val-wide {
         width: 75%;
         color: #0F172A;
     }
     .name-primary {
-        font-size: 14pt;
+        font-size: 15pt;
         font-weight: bold;
-        color: #102C2A;
+        color: #0A342B;
     }
     .name-secondary {
-        font-size: 7.8pt;
-        color: #475569;
-        font-weight: normal;
+        font-size: 10pt;
+        color: #34443C;
+        font-weight: bold;
         margin-left: 1.8mm;
     }
-    .contact-row td { background: #F7F9F8; }
+    .student-name-row td {
+        padding-top: 1.8mm;
+        padding-bottom: 1.8mm;
+        background: #FFFFFF;
+        border-bottom: 1pt solid #C49A47;
+    }
+    .contact-row td { background: #F1F5F2; }
 
     /* Attendance Records Matrix */
     table.attendance-matrix {
         width: 100%;
         border-collapse: collapse;
         margin: 1.5mm 0 2mm;
-        font-size: 8.2pt;
+        font-size: 7.4pt;
         page-break-inside: avoid;
     }
     table.attendance-matrix th, 
     table.attendance-matrix td {
-        border: 0.5pt solid #CBD5E1;
+        border: 0.6pt solid #AEBBB3;
         padding: 1.1mm 0.6mm;
         text-align: center;
         vertical-align: middle;
         line-height: 1.2;
     }
     table.attendance-matrix th {
-        background: #143B35;
+        background: #10392F;
         color: #FFFFFF;
         font-weight: bold;
-        font-size: 7.6pt;
+        font-size: 7.1pt;
     }
     table.attendance-matrix td.matrix-row-title {
         width: 28%;
         text-align: left;
         padding-left: 2mm;
         font-weight: bold;
-        color: #143B35;
-        background: #F2F6F4;
+        color: #123D31;
+        background: #E3ECE6;
         white-space: nowrap;
     }
     table.attendance-matrix th.sum-column {
-        background: #102C2A;
+        background: #102539;
         color: #F5D58A;
         width: 15%;
     }
     table.attendance-matrix td.sum-cell {
-        background: #FEF3C7;
-        color: #78350F;
+        background: #F4E7BF;
+        color: #453100;
         font-weight: bold;
     }
     table.attendance-matrix td.sum-rate {
-        background: #FEF3C7;
-        color: #065F46;
+        background: #F4E7BF;
+        color: #123D31;
         font-weight: bold;
         font-size: 8.4pt;
     }
@@ -288,20 +296,14 @@
         padding-right: 2mm;
     }
     .auth-qr-block img {
-        width: 19mm;
-        height: 19mm;
+        width: 23mm;
+        height: 23mm;
         display: block;
     }
-    .auth-qr-text {
-        font-size: 7.2pt;
-        color: #1F2937;
-        margin-top: 1mm;
-        line-height: 1.15;
-    }
-    .auth-qr-code {
-        font-weight: bold;
-        font-size: 8pt;
-        color: #143B35;
+    .auth-qr-placeholder {
+        width: 23mm;
+        height: 23mm;
+        border: 0.7pt dashed #9BA8A1;
     }
     .auth-instructors-block {
         width: 53%;
@@ -448,7 +450,7 @@
     {{-- Academic & Student Particulars: 4-Column Balanced Grid --}}
     <div class="section-header">学習者及び修了課程事項 / Academic & Student Particulars</div>
     <table class="particulars-table">
-        <tr>
+        <tr class="student-name-row">
             <td class="field-label">学生氏名 / Name</td>
             <td class="field-val-wide" colspan="3">
                 <span class="name-primary">{{ $c->student_name_en }}</span>
@@ -550,15 +552,8 @@
             <td class="auth-qr-block">
                 @if ($qrBase64)
                     <img src="data:image/svg+xml;base64,{{ $qrBase64 }}" alt="QR Code">
-                    <div class="auth-qr-text">
-                        <div class="auth-qr-code">{{ $c->certificate_no }}</div>
-                        <div>スキャン照会 / Scan to Verify</div>
-                        <div style="font-size: 6.2pt; color: #64748B;">{{ $c->verification_code }}</div>
-                    </div>
                 @else
-                    <div style="font-size: 7pt; color: #94A3B8; border: 0.5pt dashed #CBD5E1; padding: 5mm 2mm; text-align: center;">
-                        QR Verification<br>(Issued Only)
-                    </div>
+                    <div class="auth-qr-placeholder"></div>
                 @endif
             </td>
 
