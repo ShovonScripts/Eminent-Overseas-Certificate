@@ -28,7 +28,7 @@
         margin: 0;
         padding: 0;
         font-family: 'NotoJP', sans-serif;
-        color: #0F172A;
+        color: #101820;
         font-size: 8pt;
         line-height: 1.25;
         background-color: #FFFFFF;
@@ -52,20 +52,18 @@
         margin: 3mm;
         min-height: 250mm;
         padding: 10mm 16mm 6mm;
-        border: 1.2pt solid #B08A45;
-        outline: 0.5pt solid #D9C69E;
-        outline-offset: -3mm;
     }
 
     /* Top Metadata Bar */
     .top-bar {
         width: 100%;
-        margin-bottom: 2mm;
+        margin-bottom: 2.5mm;
     }
     .top-bar td {
         vertical-align: middle;
-        font-size: 8pt;
-        color: #334155;
+        font-size: 8.5pt;
+        color: #1F2937;
+        background: #FFFFFF;
     }
     .top-bar-left {
         text-align: left;
@@ -77,8 +75,8 @@
     .top-bar-right {
         text-align: right;
         font-weight: bold;
-        color: #1E3A8A;
-        font-size: 8.2pt;
+        color: #143B35;
+        font-size: 8.8pt;
         letter-spacing: 0.5px;
     }
 
@@ -86,6 +84,9 @@
     .header-layout {
         width: 100%;
         margin-bottom: 2mm;
+        padding: 1mm 0 1.5mm;
+        background: #FFFFFF;
+        border-bottom: 0.8pt solid #D7C28A;
     }
     .header-logo-col {
         width: 20%;
@@ -93,8 +94,8 @@
         vertical-align: middle;
     }
     .header-logo-col img {
-        max-height: 16mm;
-        max-width: 37mm;
+        max-height: 20mm;
+        max-width: 38mm;
     }
     .header-center-col {
         width: 60%;
@@ -107,10 +108,10 @@
         vertical-align: middle;
     }
     .institution-name {
-        font-size: 11pt;
+        font-size: 12pt;
         font-weight: bold;
         letter-spacing: 1.4px;
-        color: #0B192C;
+        color: #102C2A;
         text-transform: uppercase;
         margin-bottom: 0.5mm;
     }
@@ -118,7 +119,7 @@
         font-size: 22pt;
         font-weight: bold;
         letter-spacing: 6px;
-        color: #0B192C;
+        color: #102C2A;
         margin: 0.8mm 0 0.5mm;
         line-height: 1.15;
     }
@@ -126,54 +127,55 @@
         font-size: 9pt;
         font-weight: bold;
         letter-spacing: 1.4px;
-        color: #A16207;
+        color: #8A5A08;
         text-transform: uppercase;
         margin-bottom: 0.3mm;
     }
     .issue-date-box {
-        font-size: 7pt;
+        font-size: 8pt;
         color: #334155;
+        background: #FFFFFF;
         line-height: 1.35;
         text-align: right;
     }
     .issue-date-box strong {
-        font-size: 7.5pt;
-        color: #0F172A;
+        font-size: 8.5pt;
+        color: #101820;
     }
 
     /* Statement Section */
     .statement-container {
         text-align: center;
-        background: #F8FAFC;
+        background: #FFFFFF;
         border-top: 0.75pt solid #CBD5E1;
         border-bottom: 0.75pt solid #CBD5E1;
-        padding: 1.5mm 4mm;
-        margin: 0.8mm auto 1.8mm;
+        padding: 1.6mm 4mm;
+        margin: 0.8mm auto 2mm;
         width: 100%;
-        border: 0.7pt solid #D9C69E;
+        border: 0.9pt solid #B08A45;
     }
     .statement-text-ja {
-        font-size: 8.8pt;
-        font-weight: 500;
-        color: #0F172A;
+        font-size: 9pt;
+        font-weight: bold;
+        color: #101820;
         line-height: 1.35;
     }
     .statement-text-en {
-        font-size: 7.8pt;
-        color: #334155;
+        font-size: 8pt;
+        color: #263238;
         margin-top: 0.4mm;
         line-height: 1.25;
     }
 
     /* Section Headers */
     .section-header {
-        font-size: 8.4pt;
+        font-size: 9pt;
         font-weight: bold;
-        color: #1E3A8A;
+        color: #143B35;
         letter-spacing: 0.5px;
-        border-bottom: 0.9pt solid #1E3A8A;
-        padding-bottom: 0.6mm;
-        margin: 1.5mm 0 0.8mm;
+        border-bottom: 1.1pt solid #143B35;
+        padding-bottom: 0.8mm;
+        margin: 1.8mm 0 1mm;
         text-transform: uppercase;
     }
 
@@ -184,77 +186,77 @@
         margin-bottom: 1.5mm;
     }
     table.particulars-table td {
-        padding: 1mm 1.4mm;
+        padding: 1.2mm 1.6mm;
         vertical-align: middle;
-        font-size: 7.7pt;
+        font-size: 8.8pt;
         line-height: 1.15;
-        border-bottom: 0.5pt solid #E2E8F0;
+        border-bottom: 0.6pt solid #D5DDE3;
     }
     table.particulars-table td.field-label {
         width: 25%;
-        color: #1E3A8A;
+        color: #143B35;
         font-weight: bold;
-        background: #F8FAFC;
+        background: #F2F6F4;
         white-space: nowrap;
-        font-size: 7.3pt;
-        border-right: 0.5pt solid #E2E8F0;
+        font-size: 8.2pt;
+        border-right: 0.6pt solid #D5DDE3;
     }
     table.particulars-table td.field-val {
         width: 25%;
-        color: #0F172A;
-        border-right: 0.5pt solid #E2E8F0;
+        color: #101820;
+        border-right: 0.6pt solid #D5DDE3;
     }
     table.particulars-table td.field-val-wide {
         width: 75%;
         color: #0F172A;
     }
     .name-primary {
-        font-size: 11pt;
+        font-size: 14pt;
         font-weight: bold;
-        color: #0B192C;
+        color: #102C2A;
     }
     .name-secondary {
-        font-size: 7.2pt;
+        font-size: 7.8pt;
         color: #475569;
         font-weight: normal;
         margin-left: 1.8mm;
     }
-    .contact-row td { background: #FBFAF7; }
+    .contact-row td { background: #F7F9F8; }
 
     /* Attendance Records Matrix */
     table.attendance-matrix {
         width: 100%;
         border-collapse: collapse;
-        margin: 1mm 0 1.4mm;
-        font-size: 7.6pt;
+        margin: 1.5mm 0 2mm;
+        font-size: 8.2pt;
         page-break-inside: avoid;
     }
     table.attendance-matrix th, 
     table.attendance-matrix td {
         border: 0.5pt solid #CBD5E1;
-        padding: 1mm 0.6mm;
+        padding: 1.1mm 0.6mm;
         text-align: center;
         vertical-align: middle;
         line-height: 1.2;
     }
     table.attendance-matrix th {
-        background: #1E3A8A;
+        background: #143B35;
         color: #FFFFFF;
         font-weight: bold;
-        font-size: 7.4pt;
+        font-size: 7.6pt;
     }
     table.attendance-matrix td.matrix-row-title {
         width: 28%;
         text-align: left;
         padding-left: 2mm;
         font-weight: bold;
-        color: #1E3A8A;
-        background: #F8FAFC;
+        color: #143B35;
+        background: #F2F6F4;
         white-space: nowrap;
     }
     table.attendance-matrix th.sum-column {
-        background: #0B192C;
-        color: #FBBF24;
+        background: #102C2A;
+        color: #F5D58A;
         width: 15%;
     }
     table.attendance-matrix td.sum-cell {
@@ -273,11 +275,12 @@
     table.auth-layout {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 1.8mm;
+        margin-top: 2.5mm;
         page-break-inside: avoid;
     }
     table.auth-layout td {
         vertical-align: bottom;
+        background: #FFFFFF;
     }
     .auth-qr-block {
         width: 25%;
@@ -285,20 +288,20 @@
         padding-right: 2mm;
     }
     .auth-qr-block img {
-        width: 18mm;
-        height: 18mm;
+        width: 19mm;
+        height: 19mm;
         display: block;
     }
     .auth-qr-text {
-        font-size: 6.4pt;
-        color: #334155;
-        margin-top: 0.8mm;
+        font-size: 7.2pt;
+        color: #1F2937;
+        margin-top: 1mm;
         line-height: 1.15;
     }
     .auth-qr-code {
         font-weight: bold;
-        font-size: 7pt;
-        color: #1E3A8A;
+        font-size: 8pt;
+        color: #143B35;
     }
     .auth-instructors-block {
         width: 53%;
@@ -310,12 +313,12 @@
         vertical-align: middle;
     }
     .auth-seal-block img {
-        width: 19mm;
-        height: 19mm;
+        width: 20mm;
+        height: 20mm;
     }
     .auth-seal-caption {
-        font-size: 6.6pt;
-        color: #475569;
+        font-size: 7.2pt;
+        color: #334155;
         margin-top: 0.8mm;
     }
 
@@ -333,21 +336,21 @@
     .signature-ruler {
         border-bottom: 0.8pt solid #1E3A8A;
         margin-bottom: 1.5mm;
-        height: 5.5mm;
+        height: 6.5mm;
     }
     .instructor-full-name {
-        font-size: 8pt;
+        font-size: 8.2pt;
         font-weight: bold;
-        color: #0B192C;
+        color: #102C2A;
     }
     .instructor-prof-title {
-        font-size: 6.8pt;
-        color: #1E3A8A;
+        font-size: 7pt;
+        color: #143B35;
         margin-top: 0.3mm;
     }
     .instructor-email-addr {
-        font-size: 6.2pt;
-        color: #475569;
+        font-size: 6.8pt;
+        color: #334155;
         margin-top: 0.2mm;
     }
 
@@ -355,11 +358,12 @@
     .institutional-footer {
         border-top: 0.6pt solid #CBD5E1;
         margin-top: 1.8mm;
-        padding-top: 0.8mm;
+        padding: 1mm 2mm 0;
         text-align: center;
-        font-size: 6.8pt;
-        color: #334155;
+        font-size: 7.2pt;
+        color: #263238;
         line-height: 1.35;
+        background: #FFFFFF;
     }
     .institutional-footer strong {
         color: #0F172A;
