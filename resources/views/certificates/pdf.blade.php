@@ -448,10 +448,10 @@
     </div>
 
     {{-- Academic & Student Particulars: 4-Column Balanced Grid --}}
-    <div class="section-header">学習者及び修了課程事項 / Academic & Student Particulars</div>
+    <div class="section-header">学生情報・修了課程 / Academic & Student Particulars</div>
     <table class="particulars-table">
         <tr class="student-name-row">
-            <td class="field-label">学生氏名 / Name</td>
+            <td class="field-label">学生氏名 / Student Name</td>
             <td class="field-val-wide" colspan="3">
                 <span class="name-primary">{{ $c->student_name_en }}</span>
                 @if ($c->student_name_ja)
@@ -476,27 +476,27 @@
         </tr>
         @endif
         <tr>
-            <td class="field-label">コース名称 / Course Name</td>
+            <td class="field-label">コース名 / Course Name</td>
             <td class="field-val"><strong>{{ $c->course->name_ja }}</strong> / {{ $c->course->name_en }}</td>
-            <td class="field-label">終了目標 / Aim Level</td>
+            <td class="field-label">修了目標 / JLPT Level</td>
             <td class="field-val"><strong>{{ $c->course->aim_level_ja }}</strong> / {{ $c->course->aim_level_en }}</td>
         </tr>
         <tr>
             <td class="field-label">学習期間 / Study Period</td>
             <td class="field-val">{{ \App\Support\JapaneseDate::range($c->study_start, $c->study_end) }}</td>
-            <td class="field-label">総履修時間 / Total Hours</td>
+            <td class="field-label">総授業時間 / Total Hours</td>
             <td class="field-val"><strong>{{ $c->course->total_hours }}時間</strong> / {{ $c->course->total_hours }} Hours</td>
         </tr>
         <tr>
-            <td class="field-label">学習日程 / Schedule</td>
+            <td class="field-label">授業日程 / Class Schedule</td>
             <td class="field-val">1日{{ $c->hours_per_day }}時間 週{{ $c->days_per_week }}日 ({{ $c->hours_per_day }}h/day, {{ $c->days_per_week }}d/wk)</td>
-            <td class="field-label">授業日 / Class Days</td>
+            <td class="field-label">授業曜日 / Class Days</td>
             <td class="field-val">{{ implode('、', $c->classDaysJapanese()) }} ({{ implode(', ', $c->class_days ?? []) }})</td>
         </tr>
         <tr>
             <td class="field-label">使用教材 / Book Name</td>
             <td class="field-val">{{ $c->course->book_ja }} / {{ $c->course->book_en }}</td>
-            <td class="field-label">他の休み / Holidays</td>
+            <td class="field-label">休日 / Holidays</td>
             <td class="field-val">{{ $c->national_holidays ?: '—' }}</td>
         </tr>
         <tr>
