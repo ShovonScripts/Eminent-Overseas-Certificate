@@ -50,8 +50,8 @@
     .page {
         position: relative;
         margin: 3mm;
-        min-height: 267mm;
-        padding: 12mm 16mm 8mm;
+        min-height: 250mm;
+        padding: 10mm 16mm 6mm;
         border: 1.2pt solid #B08A45;
         outline: 0.5pt solid #D9C69E;
         outline-offset: -3mm;
@@ -93,7 +93,7 @@
         vertical-align: middle;
     }
     .header-logo-col img {
-        max-height: 19mm;
+        max-height: 16mm;
         max-width: 37mm;
     }
     .header-center-col {
@@ -115,7 +115,7 @@
         margin-bottom: 0.5mm;
     }
     .cert-title-japanese {
-        font-size: 25pt;
+        font-size: 22pt;
         font-weight: bold;
         letter-spacing: 6px;
         color: #0B192C;
@@ -147,19 +147,19 @@
         background: #F8FAFC;
         border-top: 0.75pt solid #CBD5E1;
         border-bottom: 0.75pt solid #CBD5E1;
-        padding: 2mm 4mm;
-        margin: 1mm auto 2.5mm;
+        padding: 1.5mm 4mm;
+        margin: 0.8mm auto 1.8mm;
         width: 100%;
         border: 0.7pt solid #D9C69E;
     }
     .statement-text-ja {
-        font-size: 9.5pt;
+        font-size: 8.8pt;
         font-weight: 500;
         color: #0F172A;
         line-height: 1.35;
     }
     .statement-text-en {
-        font-size: 8.2pt;
+        font-size: 7.8pt;
         color: #334155;
         margin-top: 0.4mm;
         line-height: 1.25;
@@ -167,13 +167,13 @@
 
     /* Section Headers */
     .section-header {
-        font-size: 9pt;
+        font-size: 8.4pt;
         font-weight: bold;
         color: #1E3A8A;
         letter-spacing: 0.5px;
         border-bottom: 0.9pt solid #1E3A8A;
         padding-bottom: 0.6mm;
-        margin: 2mm 0 1mm;
+        margin: 1.5mm 0 0.8mm;
         text-transform: uppercase;
     }
 
@@ -184,10 +184,10 @@
         margin-bottom: 1.5mm;
     }
     table.particulars-table td {
-        padding: 1.4mm 1.8mm;
+        padding: 1mm 1.4mm;
         vertical-align: middle;
-        font-size: 8.2pt;
-        line-height: 1.25;
+        font-size: 7.7pt;
+        line-height: 1.15;
         border-bottom: 0.5pt solid #E2E8F0;
     }
     table.particulars-table td.field-label {
@@ -196,7 +196,7 @@
         font-weight: bold;
         background: #F8FAFC;
         white-space: nowrap;
-        font-size: 7.8pt;
+        font-size: 7.3pt;
         border-right: 0.5pt solid #E2E8F0;
     }
     table.particulars-table td.field-val {
@@ -209,12 +209,12 @@
         color: #0F172A;
     }
     .name-primary {
-        font-size: 13pt;
+        font-size: 11pt;
         font-weight: bold;
         color: #0B192C;
     }
     .name-secondary {
-        font-size: 8.2pt;
+        font-size: 7.2pt;
         color: #475569;
         font-weight: normal;
         margin-left: 1.8mm;
@@ -225,14 +225,14 @@
     table.attendance-matrix {
         width: 100%;
         border-collapse: collapse;
-        margin: 1.2mm 0 2mm;
-        font-size: 8pt;
+        margin: 1mm 0 1.4mm;
+        font-size: 7.6pt;
         page-break-inside: avoid;
     }
     table.attendance-matrix th, 
     table.attendance-matrix td {
         border: 0.5pt solid #CBD5E1;
-        padding: 1.2mm 0.7mm;
+        padding: 1mm 0.6mm;
         text-align: center;
         vertical-align: middle;
         line-height: 1.2;
@@ -241,7 +241,7 @@
         background: #1E3A8A;
         color: #FFFFFF;
         font-weight: bold;
-        font-size: 7.8pt;
+        font-size: 7.4pt;
     }
     table.attendance-matrix td.matrix-row-title {
         width: 28%;
@@ -273,7 +273,7 @@
     table.auth-layout {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 2.5mm;
+        margin-top: 1.8mm;
         page-break-inside: avoid;
     }
     table.auth-layout td {
@@ -285,8 +285,8 @@
         padding-right: 2mm;
     }
     .auth-qr-block img {
-        width: 21mm;
-        height: 21mm;
+        width: 18mm;
+        height: 18mm;
         display: block;
     }
     .auth-qr-text {
@@ -310,8 +310,8 @@
         vertical-align: middle;
     }
     .auth-seal-block img {
-        width: 22mm;
-        height: 22mm;
+        width: 19mm;
+        height: 19mm;
     }
     .auth-seal-caption {
         font-size: 6.6pt;
@@ -333,20 +333,20 @@
     .signature-ruler {
         border-bottom: 0.8pt solid #1E3A8A;
         margin-bottom: 1.5mm;
-        height: 7.5mm;
+        height: 5.5mm;
     }
     .instructor-full-name {
-        font-size: 9pt;
+        font-size: 8pt;
         font-weight: bold;
         color: #0B192C;
     }
     .instructor-prof-title {
-        font-size: 7.4pt;
+        font-size: 6.8pt;
         color: #1E3A8A;
         margin-top: 0.3mm;
     }
     .instructor-email-addr {
-        font-size: 6.8pt;
+        font-size: 6.2pt;
         color: #475569;
         margin-top: 0.2mm;
     }
@@ -354,8 +354,8 @@
     /* Institutional Footer */
     .institutional-footer {
         border-top: 0.6pt solid #CBD5E1;
-        margin-top: 2.5mm;
-        padding-top: 1.2mm;
+        margin-top: 1.8mm;
+        padding-top: 0.8mm;
         text-align: center;
         font-size: 6.8pt;
         color: #334155;

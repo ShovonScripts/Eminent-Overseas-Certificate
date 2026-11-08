@@ -16,6 +16,8 @@ class SettingsController extends Controller
 {
     public function edit(): View
     {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
         $settings = Settings::pluck('value', 'key')->toArray();
 
         return view('admin.settings.edit', [
@@ -25,6 +27,8 @@ class SettingsController extends Controller
 
     public function update(Request $request, AdminActivityLogger $logger): RedirectResponse
     {
+        abort_unless($request->user()?->isSuperAdmin(), 403);
+
         $oldSettings = Settings::pluck('value', 'key')->toArray();
 
         $validated = $request->validate([
