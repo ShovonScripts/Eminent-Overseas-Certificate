@@ -44,17 +44,22 @@
     }
     .page {
         position: relative;
-        padding: 14mm 18mm 10mm 18mm;
+        margin: 3mm;
+        min-height: 291mm;
+        padding: 12mm 16mm 8mm;
+        border: 1.2pt solid #B08A45;
+        outline: 0.5pt solid #D9C69E;
+        outline-offset: -3mm;
     }
 
     /* Top Metadata Bar */
     .top-bar {
         width: 100%;
-        margin-bottom: 1.5mm;
+        margin-bottom: 2mm;
     }
     .top-bar td {
         vertical-align: middle;
-        font-size: 7.2pt;
+        font-size: 8pt;
         color: #334155;
     }
     .top-bar-left {
@@ -68,14 +73,14 @@
         text-align: right;
         font-weight: bold;
         color: #1E3A8A;
-        font-size: 7.8pt;
+        font-size: 8.2pt;
         letter-spacing: 0.5px;
     }
 
     /* Header Section */
     .header-layout {
         width: 100%;
-        margin-bottom: 1.8mm;
+        margin-bottom: 2mm;
     }
     .header-logo-col {
         width: 20%;
@@ -83,8 +88,8 @@
         vertical-align: middle;
     }
     .header-logo-col img {
-        max-height: 14mm;
-        max-width: 34mm;
+        max-height: 19mm;
+        max-width: 37mm;
     }
     .header-center-col {
         width: 60%;
@@ -97,7 +102,7 @@
         vertical-align: middle;
     }
     .institution-name {
-        font-size: 10.5pt;
+        font-size: 11pt;
         font-weight: bold;
         letter-spacing: 1.4px;
         color: #0B192C;
@@ -105,7 +110,7 @@
         margin-bottom: 0.5mm;
     }
     .cert-title-japanese {
-        font-size: 20pt;
+        font-size: 25pt;
         font-weight: bold;
         letter-spacing: 6px;
         color: #0B192C;
@@ -113,7 +118,7 @@
         line-height: 1.15;
     }
     .cert-title-english {
-        font-size: 8.5pt;
+        font-size: 9pt;
         font-weight: bold;
         letter-spacing: 1.4px;
         color: #A16207;
@@ -137,18 +142,19 @@
         background: #F8FAFC;
         border-top: 0.75pt solid #CBD5E1;
         border-bottom: 0.75pt solid #CBD5E1;
-        padding: 1.8mm 3.5mm;
-        margin: 1mm auto 2mm;
+        padding: 2mm 4mm;
+        margin: 1mm auto 2.5mm;
         width: 100%;
+        border: 0.7pt solid #D9C69E;
     }
     .statement-text-ja {
-        font-size: 8.5pt;
+        font-size: 9.5pt;
         font-weight: 500;
         color: #0F172A;
         line-height: 1.35;
     }
     .statement-text-en {
-        font-size: 7.4pt;
+        font-size: 8.2pt;
         color: #334155;
         margin-top: 0.4mm;
         line-height: 1.25;
@@ -156,7 +162,7 @@
 
     /* Section Headers */
     .section-header {
-        font-size: 8.2pt;
+        font-size: 9pt;
         font-weight: bold;
         color: #1E3A8A;
         letter-spacing: 0.5px;
@@ -175,7 +181,7 @@
     table.particulars-table td {
         padding: 1.4mm 1.8mm;
         vertical-align: middle;
-        font-size: 7.8pt;
+        font-size: 8.2pt;
         line-height: 1.25;
         border-bottom: 0.5pt solid #E2E8F0;
     }
@@ -185,7 +191,7 @@
         font-weight: bold;
         background: #F8FAFC;
         white-space: nowrap;
-        font-size: 7.5pt;
+        font-size: 7.8pt;
         border-right: 0.5pt solid #E2E8F0;
     }
     table.particulars-table td.field-val {
@@ -198,7 +204,7 @@
         color: #0F172A;
     }
     .name-primary {
-        font-size: 9.6pt;
+        font-size: 13pt;
         font-weight: bold;
         color: #0B192C;
     }
@@ -208,13 +214,14 @@
         font-weight: normal;
         margin-left: 1.8mm;
     }
+    .contact-row td { background: #FBFAF7; }
 
     /* Attendance Records Matrix */
     table.attendance-matrix {
         width: 100%;
         border-collapse: collapse;
         margin: 1.2mm 0 2mm;
-        font-size: 7.6pt;
+        font-size: 8pt;
         page-break-inside: avoid;
     }
     table.attendance-matrix th, 
@@ -229,7 +236,7 @@
         background: #1E3A8A;
         color: #FFFFFF;
         font-weight: bold;
-        font-size: 7.4pt;
+        font-size: 7.8pt;
     }
     table.attendance-matrix td.matrix-row-title {
         width: 28%;
@@ -445,8 +452,18 @@
             <td class="field-label">生年月日 / Date of Birth</td>
             <td class="field-val">{{ \App\Support\JapaneseDate::full($c->student_date_of_birth) }}</td>
             <td class="field-label">性別 / Sex</td>
-            <td class="field-val">{{ $c->studentGenderJapanese() }} / {{ $c->student_gender->label() }}</td>
+            <td class="field-val">{{ $c->studentGenderJapanese() }}{{ $c->student_gender ? ' / '.$c->student_gender->label() : '' }}</td>
         </tr>
+        @if ($c->student_email || $c->student_phone)
+        <tr class="contact-row">
+            <td class="field-label">連絡先 / Contact</td>
+            <td class="field-val-wide" colspan="3">
+                @if ($c->student_email) <strong>Email</strong> &nbsp;{{ $c->student_email }} @endif
+                @if ($c->student_email && $c->student_phone) &nbsp;&nbsp;|&nbsp;&nbsp; @endif
+                @if ($c->student_phone) <strong>Phone</strong> &nbsp;{{ $c->student_phone }} @endif
+            </td>
+        </tr>
+        @endif
         <tr>
             <td class="field-label">コース名称 / Course Name</td>
             <td class="field-val"><strong>{{ $c->course->name_ja }}</strong> / {{ $c->course->name_en }}</td>
