@@ -89,16 +89,26 @@ class CertificatePdfService
 
     private function dataUri(string $path): ?string
     {
+        if (str_starts_with($path, '/storage/')) {
+            $path = Storage::disk('public')->path(substr($path, strlen('/storage/')));
+        } elseif (str_starts_with($path, 'storage/')) {
+            $path = Storage::disk('public')->path(substr($path, strlen('storage/')));
+        }
+
         if (! is_file($path)) {
             return null;
         }
 
-        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+        $mime = mime_content_type($path) ?: match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             'png' => 'image/png',
             'jpg', 'jpeg' => 'image/jpeg',
             'svg' => 'image/svg+xml',
-            default => 'application/octet-stream',
+            default => null,
         };
+
+        if (! in_array($mime, ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'], true)) {
+            return null;
+        }
 
         return 'data:'.$mime.';base64,'.base64_encode((string) file_get_contents($path));
     }

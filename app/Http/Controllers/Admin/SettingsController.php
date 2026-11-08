@@ -34,9 +34,9 @@ class SettingsController extends Controller
             'school_email' => ['required', 'email', 'max:255'],
             'verify_base_url' => ['required', 'url', 'max:255'],
             'number_prefix' => ['required', 'string', 'max:10'],
-            'logo_path' => ['nullable', 'file', 'image', 'max:2048'],
-            'background_path' => ['nullable', 'file', 'image', 'max:2048'],
-            'seal_path' => ['nullable', 'file', 'image', 'max:2048'],
+            'logo_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
+            'background_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
+            'seal_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
         ]);
 
         foreach ($validated as $key => $value) {

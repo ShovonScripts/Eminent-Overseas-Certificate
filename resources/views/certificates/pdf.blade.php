@@ -35,17 +35,22 @@
         -webkit-font-smoothing: antialiased;
     }
     .bg {
-        position: fixed;
-        top: 0;
-        left: 0;
+        position: absolute;
+        top: -3mm;
+        left: -3mm;
         width: 210mm;
         height: 297mm;
-        z-index: -1000;
+        z-index: 0;
+        display: block;
+    }
+    .page-content {
+        position: relative;
+        z-index: 1;
     }
     .page {
         position: relative;
         margin: 3mm;
-        min-height: 291mm;
+        min-height: 267mm;
         padding: 12mm 16mm 8mm;
         border: 1.2pt solid #B08A45;
         outline: 0.5pt solid #D9C69E;
@@ -377,15 +382,15 @@
 </style>
 </head>
 <body>
-@if ($images['background'])
-    <img class="bg" src="{{ $images['background'] }}" alt="">
-@endif
-
-@if ($draft)
-    <div class="draft-overlay">DRAFT / 下書き</div>
-@endif
-
 <div class="page">
+    @if ($images['background'])
+        <img class="bg" src="{{ $images['background'] }}" alt="">
+    @endif
+    <div class="page-content">
+    @if ($draft)
+        <div class="draft-overlay">DRAFT / 下書き</div>
+    @endif
+
     {{-- Top Metadata Row --}}
     <table class="top-bar">
         <tr>
@@ -587,6 +592,7 @@
         <strong>{{ $school['name'] }}</strong> &middot; {{ $school['address'] }}<br>
         Tel: {{ $school['phone'] }} &nbsp;|&nbsp; Email: {{ $school['email'] }} &nbsp;|&nbsp; Accredited Japanese Language Course Certification
     </div>
+</div>
 </div>
 </body>
 </html>

@@ -32,6 +32,12 @@ Route::get('/verify/{code}', [VerifyController::class, 'show'])
     ->where('code', '[0-9A-HJKMNP-TV-Z]{26}')
     ->name('verify.show');
 
+// Accept verification links issued before the /verify path was included.
+Route::get('/{code}', [VerifyController::class, 'show'])
+    ->middleware('throttle:verify')
+    ->where('code', '[0-9A-HJKMNP-TV-Z]{26}')
+    ->name('verify.short');
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
