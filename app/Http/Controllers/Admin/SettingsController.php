@@ -41,14 +41,33 @@ class SettingsController extends Controller
             'logo_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
             'background_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
             'seal_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
+            'reset_logo' => ['nullable', 'boolean'],
+            'reset_background' => ['nullable', 'boolean'],
+            'reset_seal' => ['nullable', 'boolean'],
         ]);
 
+        $resetMap = [
+            'reset_logo' => 'logo_path',
+            'reset_background' => 'background_path',
+            'reset_seal' => 'seal_path',
+        ];
+
+        foreach ($resetMap as $flag => $settingKey) {
+            if ($request->boolean($flag)) {
+                Settings::where('key', $settingKey)->delete();
+            }
+        }
+
         foreach ($validated as $key => $value) {
+            if (array_key_exists($key, $resetMap) || $value === null) {
+                continue;
+            }
+
             if ($value instanceof UploadedFile) {
                 $path = $value->store('images/certificate', 'public');
                 Settings::set($key, '/storage/'.$path);
             } else {
-                Settings::set($key, $value);
+                Settings::set($key, (string) $value);
             }
         }
 

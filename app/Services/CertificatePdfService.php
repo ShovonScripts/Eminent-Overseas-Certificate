@@ -36,11 +36,17 @@ class CertificatePdfService
             ? $this->qr->svgBase64($certificate->verifyUrl())
             : null;
 
+        $tempDir = storage_path('app/temp');
+        if (! is_dir($tempDir)) {
+            @mkdir($tempDir, 0755, true);
+        }
+
         $schoolConfig = config('school');
         $images = [
             'background' => $this->dataUri($this->resolveImagePath('background_path', $schoolConfig['images']['background'])),
             'logo' => $this->dataUri($this->resolveImagePath('logo_path', $schoolConfig['images']['logo'])),
             'seal' => $this->dataUri($this->resolveImagePath('seal_path', $schoolConfig['images']['seal'])),
+            'divider' => $this->dataUri((string) ($schoolConfig['images']['divider'] ?? public_path('images/certificate/divider.png'))),
         ];
 
         $pdf = Pdf::loadView('certificates.pdf', [
@@ -54,7 +60,7 @@ class CertificatePdfService
             ->setOption([
                 'font_dir' => storage_path('fonts'),
                 'font_cache' => storage_path('fonts'),
-                'temp_dir' => storage_path('app/temp'),
+                'temp_dir' => $tempDir,
                 'chroot' => base_path(),
                 'default_font' => 'NotoJP',
                 'is_remote_enabled' => false,
@@ -70,9 +76,9 @@ class CertificatePdfService
 
         $fontMetrics = $pdf->getFontMetrics();
 
-        // Register Noto Sans JP fonts from storage/fonts directory
-        $regularPath = storage_path('fonts/notojp_normal_47bedc5b8344a9f3589c91ab34658f4f.ttf');
-        $boldPath = storage_path('fonts/notojp_bold_479bec163307bb377a5591f9a8e403bb.ttf');
+        // Register Noto Sans JP static fonts from configured resource paths
+        $regularPath = (string) ($schoolConfig['fonts']['regular'] ?? resource_path('fonts/NotoSansJP-Regular.ttf'));
+        $boldPath = (string) ($schoolConfig['fonts']['bold'] ?? resource_path('fonts/NotoSansJP-Bold.ttf'));
 
         if (is_file($regularPath)) {
             $fontMetrics->registerFont(
@@ -85,6 +91,18 @@ class CertificatePdfService
             $fontMetrics->registerFont(
                 ['family' => 'NotoJP', 'weight' => 'bold', 'style' => 'normal'],
                 str_replace('\\', '/', $boldPath),
+            );
+        }
+
+        $oldEnglishPath = resource_path('fonts/OldEnglish.ttf');
+        if (is_file($oldEnglishPath)) {
+            $fontMetrics->registerFont(
+                ['family' => 'OldEnglish', 'weight' => 'normal', 'style' => 'normal'],
+                str_replace('\\', '/', $oldEnglishPath),
+            );
+            $fontMetrics->registerFont(
+                ['family' => 'OldEnglish', 'weight' => 'bold', 'style' => 'normal'],
+                str_replace('\\', '/', $oldEnglishPath),
             );
         }
 

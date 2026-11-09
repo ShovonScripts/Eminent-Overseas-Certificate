@@ -96,8 +96,12 @@
                         @if ($settings['logo_path'] ?? false)
                             <div class="current-asset">
                                 <img src="{{ asset($settings['logo_path']) }}" alt="Current logo" style="max-height: 56px;">
-                                <span>Current logo active</span>
+                                <span>Custom logo active</span>
                             </div>
+                            <label class="check" style="margin-bottom: 6px;">
+                                <input type="checkbox" name="reset_logo" value="1">
+                                <span>Reset to default logo</span>
+                            </label>
                         @endif
                         <input id="logo_path" class="input" name="logo_path" type="file" accept="image/*">
                         <div class="help">PNG or JPG, max 2MB. Recommended: 300x300px transparent PNG</div>
@@ -108,8 +112,12 @@
                         @if ($settings['background_path'] ?? false)
                             <div class="current-asset">
                                 <img src="{{ asset($settings['background_path']) }}" alt="Current background" style="max-height: 56px;">
-                                <span>Current border template</span>
+                                <span>Custom border template active</span>
                             </div>
+                            <label class="check" style="margin-bottom: 6px;">
+                                <input type="checkbox" name="reset_background" value="1">
+                                <span>Reset to default border background</span>
+                            </label>
                         @endif
                         <input id="background_path" class="input" name="background_path" type="file" accept="image/*">
                         <div class="help">PNG or JPG, max 2MB. Recommended: A4 2480x3508px portrait</div>
@@ -120,8 +128,12 @@
                         @if ($settings['seal_path'] ?? false)
                             <div class="current-asset">
                                 <img src="{{ asset($settings['seal_path']) }}" alt="Current seal" style="max-height: 56px;">
-                                <span>Current seal active</span>
+                                <span>Custom seal active</span>
                             </div>
+                            <label class="check" style="margin-bottom: 6px;">
+                                <input type="checkbox" name="reset_seal" value="1">
+                                <span>Reset to default seal</span>
+                            </label>
                         @endif
                         <input id="seal_path" class="input" name="seal_path" type="file" accept="image/*">
                         <div class="help">PNG or JPG, max 2MB. Recommended: 300x300px transparent PNG</div>

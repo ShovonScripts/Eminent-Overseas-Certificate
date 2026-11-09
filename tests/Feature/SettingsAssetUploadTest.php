@@ -74,4 +74,30 @@ class SettingsAssetUploadTest extends TestCase
         $this->get('/admin/settings')->assertForbidden();
         $this->put('/admin/settings', [])->assertForbidden();
     }
+
+    public function test_admin_can_reset_custom_graphical_assets_to_defaults(): void
+    {
+        Storage::fake('public');
+        $this->actingAs(User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]));
+
+        Settings::set('logo_path', '/storage/images/certificate/custom-logo.png');
+        Settings::set('background_path', '/storage/images/certificate/custom-bg.png');
+        Settings::set('seal_path', '/storage/images/certificate/custom-seal.png');
+
+        $this->put('/admin/settings', [
+            'school_name' => 'Eminent Overseas & Consultants',
+            'school_address' => 'Dhaka, Bangladesh',
+            'school_phone' => '+880 1700 000000',
+            'school_email' => 'certificates@example.test',
+            'verify_base_url' => 'https://example.test/verify',
+            'number_prefix' => 'EOC',
+            'reset_logo' => '1',
+            'reset_background' => '1',
+            'reset_seal' => '1',
+        ])->assertRedirect('/admin/settings');
+
+        $this->assertNull(Settings::get('logo_path'));
+        $this->assertNull(Settings::get('background_path'));
+        $this->assertNull(Settings::get('seal_path'));
+    }
 }

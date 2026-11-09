@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Certificate;
+use App\Models\Course;
 use App\Models\Instructor;
 use App\Services\CertificatePdfService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,7 +24,7 @@ class CertificatePageCountTest extends TestCase
         $pdfBinary = app(CertificatePdfService::class)->render($certificate);
         preg_match_all('/\/Type\s*\/Page\b/', $pdfBinary, $matches);
         $pageCount = count($matches[0]);
-        
+
         $this->assertSame(1, $pageCount, "Standard certificate must be strictly 1 page, was {$pageCount}");
     }
 
@@ -46,7 +47,7 @@ class CertificatePageCountTest extends TestCase
         $pdfBinary = app(CertificatePdfService::class)->render($certificate);
         preg_match_all('/\/Type\s*\/Page\b/', $pdfBinary, $matches);
         $pageCount = count($matches[0]);
-        
+
         $this->assertSame(1, $pageCount, "8 months certificate must be strictly 1 page, was {$pageCount}");
     }
 
@@ -69,7 +70,7 @@ class CertificatePageCountTest extends TestCase
         $pdfBinary = app(CertificatePdfService::class)->render($certificate);
         preg_match_all('/\/Type\s*\/Page\b/', $pdfBinary, $matches);
         $pageCount = count($matches[0]);
-        
+
         $this->assertSame(1, $pageCount, "12 months certificate must be strictly 1 page, was {$pageCount}");
     }
 
@@ -108,7 +109,50 @@ class CertificatePageCountTest extends TestCase
         $pdfBinary = app(CertificatePdfService::class)->render($certificate);
         preg_match_all('/\/Type\s*\/Page\b/', $pdfBinary, $matches);
         $pageCount = count($matches[0]);
-        
+
         $this->assertSame(1, $pageCount, "Extreme content certificate must be strictly 1 page, was {$pageCount}");
+    }
+
+    public function test_demo_seeder_12_months_certificate_is_strictly_one_page(): void
+    {
+        $course = Course::factory()->create([
+            'name_en' => 'Basic Level',
+            'name_ja' => '基礎コース',
+            'level_code' => 'N5',
+            'aim_level_en' => 'JLPT N5',
+            'aim_level_ja' => 'JLPT N5',
+            'total_hours' => 180,
+            'book_en' => 'Minna no Nihongo',
+            'book_ja' => 'みんなの日本語',
+            'learning_context' => [['ja' => '日本で働く', 'en' => 'Work in Japan']],
+        ]);
+
+        $certificate = Certificate::factory()
+            ->withInstructors()
+            ->issued()
+            ->create([
+                'course_id' => $course->id,
+                'student_name_en' => 'Demo Student 2',
+                'student_name_ja' => 'デモ学生 2',
+                'study_start' => '2025-01-01',
+                'study_end' => '2025-12-31',
+                'national_holidays' => '1月1日; 5月1日; 8月15日',
+                'issued_on' => '2026-11-07',
+            ]);
+
+        for ($m = 1; $m <= 12; $m++) {
+            $certificate->attendances()->create([
+                'year' => 2025,
+                'month' => $m,
+                'class_hours' => 36,
+                'attendance_hours' => 36,
+            ]);
+        }
+
+        $pdfBinary = app(CertificatePdfService::class)->render($certificate);
+        preg_match_all('/\/Type\s*\/Page\b/', $pdfBinary, $matches);
+        $pageCount = count($matches[0]);
+
+        $this->assertSame(1, $pageCount, "Demo seeder 12 months certificate must be strictly 1 page, was {$pageCount}");
     }
 }
