@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Enums\CertificateStatus;
 use App\Models\Certificate;
 use App\Models\VerificationLog;
+use App\Services\SchoolConfig;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,7 +17,7 @@ class VerifyController extends Controller
 {
     public function form(): View
     {
-        return view('verify.form', ['school' => config('school')]);
+        return view('verify.form', ['school' => SchoolConfig::get()]);
     }
 
     public function lookup(Request $request): RedirectResponse
@@ -89,7 +90,7 @@ class VerifyController extends Controller
         return response()
             ->view($view, [
                 'certificate' => $certificate,
-                'school' => config('school'),
+                'school' => SchoolConfig::get(),
                 'code' => $code,
             ], $result === 'not_found' ? 404 : 200)
             ->withHeaders([

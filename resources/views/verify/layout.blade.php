@@ -292,7 +292,7 @@
 <body>
     <div class="brand">
         <div class="brand-badge">
-            <img src="{{ asset('images/certificate/logo.png') }}" alt="{{ $school['name'] }}">
+            <img src="{{ asset($school['images']['logo']) }}" alt="{{ $school['name'] }}">
         </div>
         <div class="name">{{ $school['name'] }}</div>
         <div class="sub">Official Credential Verification Portal</div>

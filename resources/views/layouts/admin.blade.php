@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') &middot; {{ config('school.name') }}</title>
+    <title>@yield('title', 'Dashboard') &middot; {{ $schoolConfig['name'] }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -14,9 +14,9 @@
 <div class="admin-shell">
     <aside class="sidebar" id="admin-sidebar">
         <div class="identity">
-            <img src="{{ asset('images/certificate/logo.png') }}" alt="{{ config('school.name') }}">
+            <img src="{{ asset($schoolConfig['images']['logo']) }}" alt="{{ $schoolConfig['name'] }}">
             <div>
-                <div class="name">{{ config('school.name') }}</div>
+                <div class="name">{{ $schoolConfig['name'] }}</div>
                 <div class="role">{{ $user?->isSuperAdmin() ? 'Super Admin' : 'Staff' }}</div>
             </div>
         </div>

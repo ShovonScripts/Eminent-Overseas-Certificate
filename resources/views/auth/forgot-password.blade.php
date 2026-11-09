@@ -6,9 +6,9 @@
     <div class="auth-page">
         <section class="auth-art">
             <div class="brand-lockup">
-                <img src="{{ asset('images/certificate/logo.png') }}" alt="{{ config('school.name') }}">
+                <img src="{{ asset($schoolConfig['images']['logo']) }}" alt="{{ $schoolConfig['name'] }}">
                 <div>
-                    <div class="name">{{ config('school.name') }}</div>
+                    <div class="name">{{ $schoolConfig['name'] }}</div>
                     <div class="sub">Certificate Administration Portal</div>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                     <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                <span>Authorized Staff Access Only &middot; {{ config('school.address') }}</span>
+                <span>Authorized Staff Access Only &middot; {{ $schoolConfig['address'] }}</span>
             </div>
         </section>
 

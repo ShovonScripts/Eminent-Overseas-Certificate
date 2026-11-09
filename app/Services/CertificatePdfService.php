@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Certificate;
+use App\Models\Settings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,16 +36,19 @@ class CertificatePdfService
             ? $this->qr->svgBase64($certificate->verifyUrl())
             : null;
 
+        $schoolConfig = config('school');
+        $images = [
+            'background' => $this->dataUri($this->resolveImagePath('background_path', $schoolConfig['images']['background'])),
+            'logo' => $this->dataUri($this->resolveImagePath('logo_path', $schoolConfig['images']['logo'])),
+            'seal' => $this->dataUri($this->resolveImagePath('seal_path', $schoolConfig['images']['seal'])),
+        ];
+
         $pdf = Pdf::loadView('certificates.pdf', [
             'c' => $certificate,
-            'school' => config('school'),
+            'school' => $schoolConfig,
             'qrBase64' => $qrBase64,
             'draft' => $draft,
-            'images' => [
-                'background' => $this->dataUri((string) config('school.images.background')),
-                'logo' => $this->dataUri((string) config('school.images.logo')),
-                'seal' => $this->dataUri((string) config('school.images.seal')),
-            ],
+            'images' => $images,
         ])
             ->setPaper('a4', 'portrait')
             ->setOption([
@@ -85,6 +89,16 @@ class CertificatePdfService
         }
 
         return $pdf->output();
+    }
+
+    private function resolveImagePath(string $settingsKey, string $fallbackPath): string
+    {
+        $dbPath = Settings::get($settingsKey);
+        if ($dbPath) {
+            return $dbPath;
+        }
+
+        return $fallbackPath;
     }
 
     private function dataUri(string $path): ?string

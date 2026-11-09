@@ -93,9 +93,9 @@
 <body>
     <div class="portal-card">
         <div class="brand-badge">
-            <img src="{{ asset('images/certificate/logo.png') }}" alt="{{ config('school.name') }}">
+            <img src="{{ asset($schoolConfig['images']['logo']) }}" alt="{{ $schoolConfig['name'] }}">
         </div>
-        <h1>{{ config('school.name') }}</h1>
+        <h1>{{ $schoolConfig['name'] }}</h1>
         <p>Official Bilingual Certificate Issuing & Public Verification Portal</p>
         <div class="actions">
             <a href="{{ route('verify.form') }}" class="btn btn-primary">Open Verification Service &rarr;</a>
