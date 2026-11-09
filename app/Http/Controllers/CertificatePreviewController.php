@@ -6,20 +6,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Certificate;
 use App\Services\CertificateIssuer;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Http\Response;
 
 class CertificatePreviewController extends Controller
 {
-    public function __invoke(Certificate $certificate, CertificateIssuer $issuer): StreamedResponse
+    public function __invoke(Certificate $certificate, CertificateIssuer $issuer): Response
     {
         $this->authorize('view', $certificate);
 
+        $pdfContent = $issuer->preview($certificate);
         $filename = 'preview-'.($certificate->certificate_no ?? $certificate->id).'.pdf';
 
-        return response()->streamDownload(
-            fn () => print $issuer->preview($certificate),
-            $filename,
-            ['Content-Type' => 'application/pdf'],
-        );
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
     }
 }

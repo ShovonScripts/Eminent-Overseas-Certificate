@@ -42,9 +42,10 @@ class CertificateDownloadTest extends TestCase
         $response = $this->actingAs($staff)
             ->get("/certificates/{$certificate->id}/preview")
             ->assertOk()
-            ->assertHeader('content-type', 'application/pdf');
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'inline; filename="preview-'.$certificate->id.'.pdf"');
 
-        $this->assertStringStartsWith('%PDF', $response->streamedContent());
+        $this->assertStringStartsWith('%PDF', $response->getContent());
     }
 
     public function test_a_draft_certificate_cannot_be_downloaded(): void
