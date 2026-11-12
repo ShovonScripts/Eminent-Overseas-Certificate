@@ -21,6 +21,7 @@ class DemoCertificateSeeder extends Seeder
 
         if (! $staff || ! $course || $instructors->count() < 2) {
             $this->command->error('Required data missing. Please seed courses, instructors, and super admin first.');
+
             return;
         }
 
@@ -29,12 +30,12 @@ class DemoCertificateSeeder extends Seeder
         for ($i = 1; $i <= 2; $i++) {
             $cert = Certificate::create([
                 'course_id' => $course->id,
-                'student_name_en' => 'Demo Student ' . $i,
-                'student_name_ja' => 'デモ学生 ' . $i,
+                'student_name_en' => 'Demo Student '.$i,
+                'student_name_ja' => 'デモ学生 '.$i,
                 'student_date_of_birth' => '2000-01-01',
                 'student_gender' => 'male',
-                'student_email' => 'demo' . $i . '@example.com',
-                'student_phone' => '+880171111111' . $i,
+                'student_email' => 'demo'.$i.'@example.com',
+                'student_phone' => '+880171111111'.$i,
                 'study_start' => '2025-01-01',
                 'study_end' => '2025-12-31',
                 'hours_per_day' => 3,

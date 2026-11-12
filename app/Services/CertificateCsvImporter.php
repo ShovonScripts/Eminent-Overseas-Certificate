@@ -203,7 +203,7 @@ class CertificateCsvImporter
         }
 
         $instructors = $this->instructors($row['instructors']);
-        $holidays = $this->suggester->parseHolidays($row['national_holidays'] ?? null, $start->year);
+        $holidays = $this->suggester->parseHolidays($row['national_holidays'] ?? null, $start->year, $end->year);
         $suggested = $this->suggester->suggest($start, $end, $classDays, $hoursPerDay, $holidays);
         $attendance = $this->attendance($row, $monthColumns, $suggested);
 

@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Settings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class CertificatePdfService
 {
@@ -20,10 +21,16 @@ class CertificatePdfService
 
         Storage::disk('local')->put($path, $binary);
 
-        $certificate->update([
-            'pdf_path' => $path,
-            'pdf_sha256' => hash('sha256', $binary),
-        ]);
+        try {
+            $certificate->update([
+                'pdf_path' => $path,
+                'pdf_sha256' => hash('sha256', $binary),
+            ]);
+        } catch (Throwable $exception) {
+            Storage::disk('local')->delete($path);
+
+            throw $exception;
+        }
 
         return $path;
     }
@@ -67,12 +74,6 @@ class CertificatePdfService
                 'is_font_subsetting_enabled' => true,
                 'dpi' => 150,
             ]);
-
-        // Clear any previous font cache to pick up the new font paths
-        $cacheFile = storage_path('fonts/fonts.json');
-        if (file_exists($cacheFile)) {
-            @unlink($cacheFile);
-        }
 
         $fontMetrics = $pdf->getFontMetrics();
 

@@ -70,6 +70,21 @@ class CertificateIssueTest extends TestCase
         app(CertificateIssuer::class)->issue($certificate);
     }
 
+    public function test_it_refuses_to_issue_when_total_class_hours_are_zero(): void
+    {
+        $certificate = Certificate::factory()->withInstructors()->create();
+        $certificate->attendances()->create([
+            'year' => 2025,
+            'month' => 6,
+            'class_hours' => 0,
+            'attendance_hours' => 0,
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        app(CertificateIssuer::class)->issue($certificate->fresh());
+    }
+
     public function test_it_refuses_an_issue_date_before_the_study_end(): void
     {
         $certificate = Certificate::factory()

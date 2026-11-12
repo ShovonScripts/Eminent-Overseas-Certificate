@@ -8,7 +8,9 @@ use App\Enums\CertificateStatus;
 use App\Models\Certificate;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class CertificateIssuer
 {
@@ -25,45 +27,68 @@ class CertificateIssuer
             throw ValidationException::withMessages(['certificate' => 'Save the certificate before issuing it.']);
         }
 
-        $certificate->refresh()->load(['attendances', 'instructors', 'course']);
+        $pdfPath = null;
 
-        if (! $certificate->isDraft()) {
-            throw ValidationException::withMessages(['certificate' => 'Only draft certificates can be issued.']);
+        try {
+            DB::transaction(function () use ($certificate, $user, &$pdfPath): void {
+                // Lock the row so two concurrent issue requests cannot both proceed.
+                $locked = Certificate::query()
+                    ->whereKey($certificate->getKey())
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $locked || ! $locked->isDraft()) {
+                    throw ValidationException::withMessages(['certificate' => 'Only draft certificates can be issued.']);
+                }
+
+                $certificate->refresh()->load(['attendances', 'instructors', 'course']);
+
+                $this->validateForIssue($certificate);
+
+                $totalClass = (int) $certificate->attendances->sum('class_hours');
+                $totalAttendance = (int) $certificate->attendances->sum('attendance_hours');
+
+                if ($totalClass <= 0) {
+                    throw ValidationException::withMessages([
+                        'attendances' => 'Total class hours must be greater than zero before issuing.',
+                    ]);
+                }
+
+                $rate = round($totalAttendance / $totalClass * 100, 2);
+
+                $certificate->fill([
+                    'total_class_hours' => $totalClass,
+                    'total_attendance_hours' => $totalAttendance,
+                    'attendance_rate' => $rate,
+                ]);
+
+                if (blank($certificate->certificate_no)) {
+                    $certificate->certificate_no = $this->numbers->make($certificate->issued_on);
+                }
+
+                if (blank($certificate->verification_code)) {
+                    $certificate->verification_code = $this->codes->make();
+                }
+
+                $certificate->save();
+
+                // The PDF is generated while the certificate is still a draft so
+                // the immutability observer permits the pdf_path / pdf_sha256 update.
+                $pdfPath = $this->pdf->generate($certificate);
+
+                $certificate->forceFill([
+                    'status' => CertificateStatus::Issued,
+                    'issued_at' => now(),
+                    'issued_by' => $user?->id,
+                ])->save();
+            });
+        } catch (Throwable $exception) {
+            if ($pdfPath !== null && Storage::disk('local')->exists($pdfPath)) {
+                Storage::disk('local')->delete($pdfPath);
+            }
+
+            throw $exception;
         }
-
-        $this->validateForIssue($certificate);
-
-        $totalClass = (int) $certificate->attendances->sum('class_hours');
-        $totalAttendance = (int) $certificate->attendances->sum('attendance_hours');
-        $rate = $totalClass > 0 ? round($totalAttendance / $totalClass * 100, 2) : 0;
-
-        $certificate->fill([
-            'total_class_hours' => $totalClass,
-            'total_attendance_hours' => $totalAttendance,
-            'attendance_rate' => $rate,
-        ]);
-
-        if (blank($certificate->certificate_no)) {
-            $certificate->certificate_no = $this->numbers->make($certificate->issued_on);
-        }
-
-        if (blank($certificate->verification_code)) {
-            $certificate->verification_code = $this->codes->make();
-        }
-
-        $certificate->save();
-
-        // The PDF is generated while the certificate is still a draft so the
-        // immutability observer permits the pdf_path / pdf_sha256 update.
-        $this->pdf->generate($certificate);
-
-        DB::transaction(function () use ($certificate, $user): void {
-            $certificate->forceFill([
-                'status' => CertificateStatus::Issued,
-                'issued_at' => now(),
-                'issued_by' => $user?->id,
-            ])->save();
-        });
 
         return $certificate->refresh();
     }
@@ -96,8 +121,9 @@ class CertificateIssuer
      */
     public function suggestMonthlyHours(Certificate $certificate): array
     {
-        $year = $certificate->study_start?->year ?? now()->year;
-        $holidays = $this->suggester->parseHolidays($certificate->national_holidays, $year);
+        $startYear = $certificate->study_start?->year ?? now()->year;
+        $endYear = $certificate->study_end?->year ?? $startYear;
+        $holidays = $this->suggester->parseHolidays($certificate->national_holidays, $startYear, $endYear);
 
         return $this->suggester->suggest(
             $certificate->study_start,

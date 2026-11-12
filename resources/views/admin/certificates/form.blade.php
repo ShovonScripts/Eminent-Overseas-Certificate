@@ -406,6 +406,16 @@
                 if (days) document.getElementById('days_per_week').value = days;
             });
 
+            form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
+
+                    if (checked > 0) {
+                        document.getElementById('days_per_week').value = checked;
+                    }
+                });
+            });
+
             suggestButton.addEventListener('click', async () => {
                 suggestError.style.display = 'none';
                 suggestButton.disabled = true;

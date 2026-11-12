@@ -6,8 +6,10 @@ namespace App\Http\Requests;
 
 use App\Enums\Gender;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
+use Throwable;
 
 class CertificateRequest extends FormRequest
 {
@@ -55,7 +57,7 @@ class CertificateRequest extends FormRequest
             'hours_per_day' => ['required', 'integer', 'min:1', 'max:12'],
             'days_per_week' => ['required', 'integer', 'min:1', 'max:7'],
             'class_days' => ['required', 'array', 'min:1'],
-            'class_days.*' => ['string', 'in:'.implode(',', self::WEEKDAYS)],
+            'class_days.*' => ['string', 'distinct', 'in:'.implode(',', self::WEEKDAYS)],
             'national_holidays' => ['nullable', 'string', 'max:2000'],
             'issued_on' => ['required', 'date', 'after_or_equal:study_end'],
             'instructors' => ['required', 'array', 'min:1', 'max:2'],
@@ -81,6 +83,24 @@ class CertificateRequest extends FormRequest
                     return;
                 }
 
+                $classDays = $this->input('class_days');
+                $daysPerWeek = $this->input('days_per_week');
+
+                if (
+                    is_array($classDays)
+                    && $classDays !== []
+                    && is_numeric($daysPerWeek)
+                    && count($classDays) !== (int) $daysPerWeek
+                ) {
+                    $validator->errors()->add(
+                        'days_per_week',
+                        'Days per week must match the number of selected class days.',
+                    );
+                }
+
+                $startKey = $this->monthKey($this->input('study_start'));
+                $endKey = $this->monthKey($this->input('study_end'));
+
                 $seen = [];
 
                 foreach ($rows as $index => $row) {
@@ -93,7 +113,7 @@ class CertificateRequest extends FormRequest
                     $class = (int) ($row['class_hours'] ?? 0);
                     $attendance = (int) ($row['attendance_hours'] ?? 0);
 
-                    $key = $year.'-'.$month;
+                    $key = sprintf('%04d-%02d', $year, $month);
 
                     if (isset($seen[$key])) {
                         $validator->errors()->add(
@@ -104,6 +124,17 @@ class CertificateRequest extends FormRequest
 
                     $seen[$key] = true;
 
+                    if (
+                        $startKey !== null
+                        && $endKey !== null
+                        && ($key < $startKey || $key > $endKey)
+                    ) {
+                        $validator->errors()->add(
+                            "attendances.{$index}.month",
+                            'Each attendance month must fall within the study period.',
+                        );
+                    }
+
                     if ($attendance > $class) {
                         $validator->errors()->add(
                             "attendances.{$index}.attendance_hours",
@@ -113,6 +144,19 @@ class CertificateRequest extends FormRequest
                 }
             },
         ];
+    }
+
+    private function monthKey(mixed $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m');
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**

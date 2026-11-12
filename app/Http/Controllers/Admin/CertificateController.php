@@ -198,7 +198,7 @@ class CertificateController extends Controller
         $start = CarbonImmutable::parse($data['study_start']);
         $end = CarbonImmutable::parse($data['study_end']);
 
-        $holidays = $suggester->parseHolidays($data['national_holidays'] ?? null, $start->year);
+        $holidays = $suggester->parseHolidays($data['national_holidays'] ?? null, $start->year, $end->year);
 
         $monthly = $suggester->suggest(
             $start,

@@ -48,15 +48,17 @@ class AttendanceSuggester
 
     /**
      * Parse a free-text holiday list such as "6月9日; 6月11日; 8月16日; 10月1日"
-     * into ISO dates for the given year. Also accepts Y-m-d lines.
+     * into ISO dates for every year the study period spans. Also accepts Y-m-d lines.
      *
      * @return array<int, string>
      */
-    public function parseHolidays(?string $text, int $year): array
+    public function parseHolidays(?string $text, int $startYear, ?int $endYear = null): array
     {
         if (blank($text)) {
             return [];
         }
+
+        $endYear = max($startYear, $endYear ?? $startYear);
 
         $parts = preg_split('/[;\n,]+/u', $text) ?: [];
         $dates = [];
@@ -75,7 +77,9 @@ class AttendanceSuggester
             }
 
             if (preg_match('/^(\d{1,2})月(\d{1,2})日$/u', $part, $m)) {
-                $dates[] = sprintf('%04d-%02d-%02d', $year, (int) $m[1], (int) $m[2]);
+                for ($year = $startYear; $year <= $endYear; $year++) {
+                    $dates[] = sprintf('%04d-%02d-%02d', $year, (int) $m[1], (int) $m[2]);
+                }
             }
         }
 

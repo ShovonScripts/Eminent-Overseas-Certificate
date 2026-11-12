@@ -72,6 +72,47 @@ class AdminCertificateTest extends TestCase
         $this->assertDatabaseCount('certificates', 0);
     }
 
+    public function test_days_per_week_must_match_the_selected_class_days(): void
+    {
+        Storage::fake('local');
+
+        $staff = User::factory()->create(['role' => User::ROLE_STAFF]);
+        $course = Course::factory()->create();
+        $instructors = Instructor::factory()->count(2)->create();
+
+        $payload = $this->payload($course, $instructors);
+        $payload['days_per_week'] = 2;
+
+        $this->actingAs($staff)
+            ->post('/admin/certificates', $payload)
+            ->assertSessionHasErrors('days_per_week');
+
+        $this->assertDatabaseCount('certificates', 0);
+    }
+
+    public function test_attendance_months_must_fall_within_the_study_period(): void
+    {
+        Storage::fake('local');
+
+        $staff = User::factory()->create(['role' => User::ROLE_STAFF]);
+        $course = Course::factory()->create();
+        $instructors = Instructor::factory()->count(2)->create();
+
+        $payload = $this->payload($course, $instructors);
+        $payload['attendances'][0] = [
+            'year' => 2024,
+            'month' => 5,
+            'class_hours' => 33,
+            'attendance_hours' => 33,
+        ];
+
+        $this->actingAs($staff)
+            ->post('/admin/certificates', $payload)
+            ->assertSessionHasErrors('attendances.0.month');
+
+        $this->assertDatabaseCount('certificates', 0);
+    }
+
     public function test_suggest_returns_a_row_per_month(): void
     {
         $staff = User::factory()->create(['role' => User::ROLE_STAFF]);
