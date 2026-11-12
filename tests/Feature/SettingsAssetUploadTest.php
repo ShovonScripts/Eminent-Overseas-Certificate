@@ -33,11 +33,12 @@ class SettingsAssetUploadTest extends TestCase
             'logo_path' => UploadedFile::fake()->image('logo.png', 400, 300),
             'background_path' => UploadedFile::fake()->image('background.jpg', 2480, 3508),
             'seal_path' => UploadedFile::fake()->image('seal.png', 600, 600),
+            'divider_path' => UploadedFile::fake()->image('divider.png', 1400, 20),
         ]);
 
         $response->assertRedirect('/admin/settings');
 
-        foreach (['logo_path', 'background_path', 'seal_path'] as $key) {
+        foreach (['logo_path', 'background_path', 'seal_path', 'divider_path'] as $key) {
             $storedPath = Settings::get($key);
             $this->assertStringStartsWith('/storage/images/certificate/', $storedPath);
             Storage::disk('public')->assertExists(substr($storedPath, strlen('/storage/')));
@@ -49,7 +50,7 @@ class SettingsAssetUploadTest extends TestCase
             ->assertHeader('content-type', 'application/pdf');
         $pdf = $response->streamedContent();
 
-        $this->assertGreaterThanOrEqual(3, substr_count($pdf, '/Subtype /Image'));
+        $this->assertGreaterThanOrEqual(4, substr_count($pdf, '/Subtype /Image'));
     }
 
     public function test_settings_reject_unsupported_graphical_asset_types(): void
@@ -83,6 +84,7 @@ class SettingsAssetUploadTest extends TestCase
         Settings::set('logo_path', '/storage/images/certificate/custom-logo.png');
         Settings::set('background_path', '/storage/images/certificate/custom-bg.png');
         Settings::set('seal_path', '/storage/images/certificate/custom-seal.png');
+        Settings::set('divider_path', '/storage/images/certificate/custom-divider.png');
 
         $this->put('/admin/settings', [
             'school_name' => 'Eminent Overseas & Consultants',
@@ -94,10 +96,23 @@ class SettingsAssetUploadTest extends TestCase
             'reset_logo' => '1',
             'reset_background' => '1',
             'reset_seal' => '1',
+            'reset_divider' => '1',
         ])->assertRedirect('/admin/settings');
 
         $this->assertNull(Settings::get('logo_path'));
         $this->assertNull(Settings::get('background_path'));
         $this->assertNull(Settings::get('seal_path'));
+        $this->assertNull(Settings::get('divider_path'));
+    }
+
+    public function test_settings_cache_is_invalidated_when_values_change(): void
+    {
+        Settings::set('number_prefix', 'OLD');
+        $this->assertSame('OLD', Settings::get('number_prefix'));
+
+        Settings::set('number_prefix', 'NEW');
+
+        $this->assertSame('NEW', Settings::get('number_prefix'));
+        $this->assertSame('NEW', Settings::values()['number_prefix']);
     }
 }

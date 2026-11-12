@@ -124,6 +124,22 @@
                     </div>
 
                     <div class="field">
+                        <label for="divider_path">Gold Header Divider</label>
+                        @if ($settings['divider_path'] ?? false)
+                            <div class="current-asset">
+                                <img src="{{ asset($settings['divider_path']) }}" alt="Current divider" style="max-height: 56px;">
+                                <span>Custom divider active</span>
+                            </div>
+                            <label class="check" style="margin-bottom: 6px;">
+                                <input type="checkbox" name="reset_divider" value="1">
+                                <span>Reset to default divider</span>
+                            </label>
+                        @endif
+                        <input id="divider_path" class="input" name="divider_path" type="file" accept="image/*">
+                        <div class="help">PNG, max 2MB. Recommended: wide tapered gold line (e.g. 1400x20px).</div>
+                    </div>
+
+                    <div class="field">
                         <label for="seal_path">Official School Seal / Stamp</label>
                         @if ($settings['seal_path'] ?? false)
                             <div class="current-asset">

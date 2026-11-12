@@ -11,18 +11,13 @@ class SchoolConfig
     public static function get(): array
     {
         $config = config('school');
+        $settings = Settings::values();
 
-        $config['images']['logo'] = self::resolveImage('logo_path', $config['images']['logo']);
-        $config['images']['background'] = self::resolveImage('background_path', $config['images']['background']);
-        $config['images']['seal'] = self::resolveImage('seal_path', $config['images']['seal']);
+        $config['images']['logo'] = $settings['logo_path'] ?? ($config['images']['logo'] ?? null);
+        $config['images']['background'] = $settings['background_path'] ?? ($config['images']['background'] ?? null);
+        $config['images']['seal'] = $settings['seal_path'] ?? ($config['images']['seal'] ?? null);
+        $config['images']['divider'] = $settings['divider_path'] ?? ($config['images']['divider'] ?? public_path('images/certificate/divider.png'));
 
         return $config;
-    }
-
-    private static function resolveImage(string $settingsKey, string $fallback): string
-    {
-        $dbPath = Settings::get($settingsKey);
-
-        return $dbPath ?: $fallback;
     }
 }

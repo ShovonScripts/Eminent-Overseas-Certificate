@@ -18,7 +18,7 @@ class SettingsController extends Controller
     {
         abort_unless(auth()->user()?->isSuperAdmin(), 403);
 
-        $settings = Settings::pluck('value', 'key')->toArray();
+        $settings = Settings::values();
 
         return view('admin.settings.edit', [
             'settings' => $settings,
@@ -29,7 +29,7 @@ class SettingsController extends Controller
     {
         abort_unless($request->user()?->isSuperAdmin(), 403);
 
-        $oldSettings = Settings::pluck('value', 'key')->toArray();
+        $oldSettings = Settings::values();
 
         $validated = $request->validate([
             'school_name' => ['required', 'string', 'max:255'],
@@ -41,15 +41,18 @@ class SettingsController extends Controller
             'logo_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
             'background_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
             'seal_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
+            'divider_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],
             'reset_logo' => ['nullable', 'boolean'],
             'reset_background' => ['nullable', 'boolean'],
             'reset_seal' => ['nullable', 'boolean'],
+            'reset_divider' => ['nullable', 'boolean'],
         ]);
 
         $resetMap = [
             'reset_logo' => 'logo_path',
             'reset_background' => 'background_path',
             'reset_seal' => 'seal_path',
+            'reset_divider' => 'divider_path',
         ];
 
         foreach ($resetMap as $flag => $settingKey) {
@@ -57,6 +60,8 @@ class SettingsController extends Controller
                 Settings::where('key', $settingKey)->delete();
             }
         }
+
+        Settings::flushCache();
 
         foreach ($validated as $key => $value) {
             if (array_key_exists($key, $resetMap) || $value === null) {
@@ -71,7 +76,7 @@ class SettingsController extends Controller
             }
         }
 
-        $newSettings = Settings::pluck('value', 'key')->toArray();
+        $newSettings = Settings::values();
 
         $logger->logSettingsChanged($oldSettings, $newSettings, $request);
 

@@ -13,7 +13,7 @@ class LoadSettings
 {
     public function handle(Request $request, Closure $next)
     {
-        $settings = Settings::pluck('value', 'key')->toArray();
+        $settings = Settings::values();
         $school = Config::get('school', []);
         $images = $school['images'] ?? [];
 
@@ -24,11 +24,12 @@ class LoadSettings
             'email' => $settings['school_email'] ?? $school['email'],
             'verify_base_url' => $settings['verify_base_url'] ?? $school['verify_base_url'],
             'number_prefix' => $settings['number_prefix'] ?? $school['number_prefix'],
-            'images' => [
-                'logo' => $settings['logo_path'] ?? $images['logo'],
-                'background' => $settings['background_path'] ?? $images['background'],
-                'seal' => $settings['seal_path'] ?? $images['seal'],
-            ],
+            'images' => array_replace($images, [
+                'logo' => $settings['logo_path'] ?? ($images['logo'] ?? null),
+                'background' => $settings['background_path'] ?? ($images['background'] ?? null),
+                'seal' => $settings['seal_path'] ?? ($images['seal'] ?? null),
+                'divider' => $settings['divider_path'] ?? ($images['divider'] ?? null),
+            ]),
         ]));
 
         return $next($request);
