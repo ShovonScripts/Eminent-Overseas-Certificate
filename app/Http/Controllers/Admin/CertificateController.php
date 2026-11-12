@@ -16,6 +16,7 @@ use App\Services\AdminActivityLogger;
 use App\Services\AttendanceSuggester;
 use App\Services\CertificateCsvImporter;
 use App\Services\CertificateIssuer;
+use App\Services\CertificateTotals;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -121,11 +122,11 @@ class CertificateController extends Controller
         ]);
     }
 
-    public function store(CertificateRequest $request, AdminActivityLogger $logger): RedirectResponse
+    public function store(CertificateRequest $request, AdminActivityLogger $logger, CertificateTotals $totals): RedirectResponse
     {
         $this->authorize('create', Certificate::class);
 
-        $certificate = $this->persist(new Certificate, $request->validated());
+        $certificate = $this->persist(new Certificate, $request->validated(), $totals);
 
         $logger->logCreated('App\Models\Certificate', $certificate->id, $certificate->toArray(), $request);
 
@@ -157,13 +158,13 @@ class CertificateController extends Controller
         ]);
     }
 
-    public function update(CertificateRequest $request, Certificate $certificate, AdminActivityLogger $logger): RedirectResponse
+    public function update(CertificateRequest $request, Certificate $certificate, AdminActivityLogger $logger, CertificateTotals $totals): RedirectResponse
     {
         $this->authorize('update', $certificate);
 
         $oldValues = $certificate->toArray();
 
-        $this->persist($certificate, $request->validated());
+        $this->persist($certificate, $request->validated(), $totals);
 
         $logger->logUpdated('App\Models\Certificate', $certificate->id, $oldValues, $certificate->fresh()->toArray(), $request);
 
@@ -268,9 +269,9 @@ class CertificateController extends Controller
     /**
      * @param  array<string, mixed>  $data
      */
-    private function persist(Certificate $certificate, array $data): Certificate
+    private function persist(Certificate $certificate, array $data, CertificateTotals $totals): Certificate
     {
-        return DB::transaction(function () use ($certificate, $data): Certificate {
+        return DB::transaction(function () use ($certificate, $data, $totals): Certificate {
             $certificate->fill(Arr::only($data, [
                 'course_id',
                 'student_name_en',
@@ -300,6 +301,8 @@ class CertificateController extends Controller
                     'attendance_hours' => (int) $row['attendance_hours'],
                 ]);
             }
+
+            $totals->apply($certificate->load('attendances'));
 
             $sync = [];
 

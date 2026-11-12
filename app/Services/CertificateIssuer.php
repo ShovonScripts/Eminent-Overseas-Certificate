@@ -19,6 +19,7 @@ class CertificateIssuer
         private readonly VerificationCodeGenerator $codes,
         private readonly CertificatePdfService $pdf,
         private readonly AttendanceSuggester $suggester,
+        private readonly CertificateTotals $totals,
     ) {}
 
     public function issue(Certificate $certificate, ?User $user = null): Certificate
@@ -45,22 +46,15 @@ class CertificateIssuer
 
                 $this->validateForIssue($certificate);
 
-                $totalClass = (int) $certificate->attendances->sum('class_hours');
-                $totalAttendance = (int) $certificate->attendances->sum('attendance_hours');
+                $totals = $this->totals->calculate($certificate->attendances);
 
-                if ($totalClass <= 0) {
+                if ($totals['total_class_hours'] <= 0) {
                     throw ValidationException::withMessages([
                         'attendances' => 'Total class hours must be greater than zero before issuing.',
                     ]);
                 }
 
-                $rate = round($totalAttendance / $totalClass * 100, 2);
-
-                $certificate->fill([
-                    'total_class_hours' => $totalClass,
-                    'total_attendance_hours' => $totalAttendance,
-                    'attendance_rate' => $rate,
-                ]);
+                $certificate->fill($totals);
 
                 if (blank($certificate->certificate_no)) {
                     $certificate->certificate_no = $this->numbers->make($certificate->issued_on);

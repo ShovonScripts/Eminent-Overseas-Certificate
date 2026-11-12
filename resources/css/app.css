@@ -1322,6 +1322,36 @@ table.table .actions .btn:first-child {
     color: #059669;
 }
 
+.attendance-totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: #F8FAFC;
+    border-top: 1px solid var(--color-border);
+}
+
+.attendance-totals .item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+}
+
+.attendance-totals .label {
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.attendance-totals strong {
+    color: var(--color-foreground);
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+}
+
 /* ========== Two-Factor & Security ========== */
 .two-factor-setup {
     display: grid;

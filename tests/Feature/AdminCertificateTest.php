@@ -39,6 +39,9 @@ class AdminCertificateTest extends TestCase
         $this->assertCount(2, $certificate->attendances);
         $this->assertCount(2, $certificate->instructors);
         $this->assertSame(33, $certificate->attendances->first()->class_hours);
+        $this->assertSame(72, $certificate->total_class_hours);
+        $this->assertSame(69, $certificate->total_attendance_hours);
+        $this->assertEquals(95.83, (float) $certificate->attendance_rate);
 
         $updated = $payload;
         $updated['national_holidays'] = '10月1日; 12月25日';
@@ -52,6 +55,9 @@ class AdminCertificateTest extends TestCase
 
         $this->assertSame('10月1日; 12月25日', $certificate->national_holidays);
         $this->assertSame(30, $certificate->attendances->first()->attendance_hours);
+        $this->assertSame(72, $certificate->total_class_hours);
+        $this->assertSame(66, $certificate->total_attendance_hours);
+        $this->assertEquals(91.67, (float) $certificate->attendance_rate);
     }
 
     public function test_attendance_must_not_exceed_class_hours(): void

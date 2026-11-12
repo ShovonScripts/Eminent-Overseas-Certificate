@@ -30,9 +30,9 @@
         padding: 0;
         width: 210mm;
         font-family: 'NotoJP', sans-serif;
-        color: #000000;
-        font-size: 8.2pt;
-        line-height: 11.2pt;
+        color: #111111;
+        font-size: 8pt;
+        line-height: 10.2pt;
         background-color: #FFFFFF;
     }
 
@@ -48,7 +48,7 @@
     .page {
         position: relative;
         z-index: 1;
-        padding: 7mm 16mm 7mm;
+        padding: 9mm 16mm 8mm;
     }
 
     .draft-overlay {
@@ -67,12 +67,12 @@
     /* ===== HEADER ===== */
     .header-block {
         text-align: center;
-        margin-bottom: 3.2mm;
+        margin-bottom: 1.6mm;
     }
 
     .header-logo {
-        height: 16.5mm;
-        margin: 0 auto 0.8mm;
+        height: 15mm;
+        margin: 0 auto 0.6mm;
         text-align: center;
         font-size: 0;
         line-height: 0;
@@ -81,44 +81,44 @@
     .header-logo img {
         width: auto;
         height: auto;
-        max-width: 36mm;
-        max-height: 16.5mm;
+        max-width: 40mm;
+        max-height: 15mm;
         display: block;
         margin: 0 auto;
     }
 
     .institution-name {
         font-family: 'OldEnglish', 'Times-Bold', 'Times-Roman', 'NotoJP', serif;
-        font-size: 16pt;
+        font-size: 15.5pt;
         font-weight: bold;
-        color: #000000;
+        color: #111111;
         letter-spacing: 0.4px;
-        line-height: 18pt;
-        margin-bottom: 0.5mm;
+        line-height: 17pt;
+        margin-bottom: 0.6mm;
     }
 
     .cert-title-ja {
-        font-size: 20pt;
+        font-size: 19pt;
         font-weight: bold;
-        color: #000000;
+        color: #111111;
         letter-spacing: 2px;
-        line-height: 23pt;
-        margin-bottom: 0.5mm;
+        line-height: 21.5pt;
+        margin-bottom: 0.6mm;
     }
 
     .cert-title-en {
-        font-size: 8.6pt;
+        font-size: 8.2pt;
         font-weight: normal;
-        color: #000000;
-        letter-spacing: 0.5px;
+        color: #4A4235;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        line-height: 10.5pt;
-        margin-bottom: 1.5mm;
+        line-height: 9.8pt;
+        margin-bottom: 1.8mm;
     }
 
     .gold-divider-wrap {
         width: 156mm;
-        height: 1.8mm;
+        height: 1.4mm;
         margin: 0 auto;
         text-align: center;
         font-size: 0;
@@ -127,7 +127,7 @@
 
     .gold-divider-img {
         width: 156mm;
-        height: 1.8mm;
+        height: 1.4mm;
         display: block;
         margin: 0 auto;
     }
@@ -135,117 +135,134 @@
     .gold-divider-fallback {
         width: 154mm;
         height: 0;
-        border-top: 1.2pt solid #C49A3A;
-        margin: 0.4mm auto 0;
+        border-top: 1pt solid #C49A3A;
+        margin: 0.3mm auto 0;
     }
 
     /* ===== STATEMENT ===== */
     .statement-block {
         text-align: center;
-        font-size: 8.4pt;
-        line-height: 11.6pt;
-        color: #000000;
-        margin: 0 auto 3.2mm;
-        width: 100%;
+        font-size: 8.2pt;
+        line-height: 11.2pt;
+        color: #222222;
+        margin: 0 auto 1.6mm;
+        width: 165mm;
     }
 
-    /* ===== METADATA KEY-VALUE TABLES (STUDENT & COURSE) ===== */
-    .details-block {
-        margin-bottom: 3.2mm;
+    .statement-block .ja {
+        margin-bottom: 0.9mm;
     }
 
-    .course-block {
-        margin-bottom: 3.5mm;
+    .statement-block .en {
+        font-size: 8pt;
+        line-height: 10.8pt;
+        color: #333333;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+        margin-top: 1.6mm;
+        page-break-inside: avoid;
+    }
+
+    .section-title {
+        font-size: 6.8pt;
+        font-weight: bold;
+        letter-spacing: 0.9px;
+        line-height: 9pt;
+        text-transform: uppercase;
+        color: #8B6F3E;
+        border-bottom: 0.5pt solid #D9CFB8;
+        padding-bottom: 0.8mm;
+        margin-bottom: 1.2mm;
     }
 
     table.meta-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 8.2pt;
-        line-height: 11pt;
-        color: #000000;
+        font-size: 8pt;
+        line-height: 10.2pt;
+        color: #111111;
     }
 
     table.meta-table td {
-        padding: 0.4mm 0;
+        padding: 0.3mm 0;
         vertical-align: top;
         text-align: left;
+        border-bottom: 0.4pt solid #F0EBE0;
+    }
+
+    table.meta-table tr:last-child td {
+        border-bottom: 0;
     }
 
     table.meta-table.student-meta td.meta-label {
-        width: 39mm;
-        padding-right: 2mm;
+        width: 42mm;
+        padding-right: 3mm;
         white-space: nowrap;
-        color: #000000;
+        color: #5A5348;
     }
 
     table.meta-table.course-meta td.meta-label {
-        width: 67.5mm;
-        padding-right: 2.5mm;
+        width: 66mm;
+        padding-right: 3mm;
         white-space: nowrap;
-        color: #000000;
+        color: #5A5348;
     }
 
     table.meta-table td.meta-value {
-        color: #000000;
+        color: #111111;
     }
 
     .student-name {
         font-weight: bold;
-        font-size: 9pt;
-        color: #000000;
     }
 
     .meta-subnote {
-        color: #000000;
+        color: #5A5348;
     }
 
     /* ===== ATTENDANCE TABLE ===== */
     .attendance-section {
-        margin-bottom: 3.2mm;
+        margin-top: 1.6mm;
         page-break-inside: avoid;
-    }
-
-    .attendance-caption {
-        text-align: center;
-        font-size: 8.2pt;
-        line-height: 10.5pt;
-        color: #000000;
-        margin-bottom: 0.9mm;
     }
 
     table.attendance-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 8.2pt;
+        font-size: 7.8pt;
+        line-height: 9.6pt;
     }
 
     table.attendance-table.compact {
-        font-size: 7.5pt;
+        font-size: 7.2pt;
     }
 
     table.attendance-table.very-compact {
-        font-size: 6.7pt;
+        font-size: 6.6pt;
     }
 
     table.attendance-table th,
     table.attendance-table td {
-        border: 0.75pt solid #000000;
-        padding: 1mm 0.7mm;
+        border: 0.5pt solid #C9BFA8;
+        padding: 0.55mm 0.7mm;
         text-align: center;
         vertical-align: middle;
-        line-height: 9pt;
-        color: #000000;
+        line-height: 9.4pt;
+        color: #222222;
     }
 
     table.attendance-table.very-compact th,
     table.attendance-table.very-compact td {
-        padding: 0.85mm 0.35mm;
-        line-height: 8.2pt;
+        padding: 0.8mm 0.35mm;
+        line-height: 8.6pt;
     }
 
-    table.attendance-table th {
-        font-weight: normal;
+    table.attendance-table thead th {
+        background-color: #F5F0E4;
+        color: #4A4235;
+        font-weight: bold;
     }
 
     table.attendance-table td.row-label {
@@ -253,6 +270,8 @@
         padding-left: 1.5mm;
         white-space: nowrap;
         width: 31%;
+        background-color: #FBF8F1;
+        color: #4A4235;
     }
 
     table.attendance-table.compact td.row-label {
@@ -269,43 +288,64 @@
         white-space: nowrap;
     }
 
+    table.attendance-table td.sum {
+        font-weight: bold;
+        background-color: #FBF8F1;
+    }
+
     .holidays-line {
-        margin-top: 1.2mm;
-        font-size: 8pt;
-        line-height: 10.8pt;
-        color: #000000;
+        margin-top: 1.4mm;
+        font-size: 7.8pt;
+        line-height: 10.4pt;
+        color: #222222;
     }
 
     .holidays-label {
-        color: #000000;
+        color: #5A5348;
     }
 
     /* ===== INSTRUCTORS & GOLD SEAL ===== */
+    .auth-section {
+        margin-top: 1.6mm;
+        page-break-inside: avoid;
+    }
+
+    .signature-space {
+        height: 14mm;
+    }
+
+    .signature-line {
+        width: 52mm;
+        height: 0;
+        border-top: 0.6pt solid #4A4235;
+        margin: 0 auto 0.9mm;
+    }
+
     table.auth-row {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 2mm;
-        margin-bottom: 3mm;
-        page-break-inside: avoid;
     }
 
     table.auth-row td {
         vertical-align: middle;
         text-align: center;
+        padding-top: 0.5mm;
     }
 
     td.instructor-col {
         width: 37%;
-        padding: 0 2mm;
+        padding-left: 2mm;
+        padding-right: 2mm;
     }
 
     td.seal-col {
         width: 26%;
-        padding: 0 1mm;
+        padding-left: 1mm;
+        padding-right: 1mm;
     }
 
     .seal-wrap {
-        height: 22mm;
+        height: 18mm;
         margin: 0 auto;
         text-align: center;
         font-size: 0;
@@ -315,8 +355,8 @@
     .seal-img {
         width: auto;
         height: auto;
-        max-width: 28mm;
-        max-height: 22mm;
+        max-width: 27mm;
+        max-height: 18mm;
         display: block;
         margin: 0 auto;
     }
@@ -324,22 +364,22 @@
     .instructor-name {
         font-size: 8.8pt;
         font-weight: bold;
-        color: #000000;
+        color: #111111;
         line-height: 11pt;
     }
 
     .instructor-title {
-        font-size: 8pt;
-        color: #000000;
-        margin-top: 0.3mm;
-        line-height: 10.5pt;
+        font-size: 7.6pt;
+        color: #4A4235;
+        margin-top: 0.4mm;
+        line-height: 10pt;
     }
 
     .instructor-mail {
-        font-size: 7.4pt;
-        color: #000000;
-        margin-top: 0.3mm;
-        line-height: 10pt;
+        font-size: 7.2pt;
+        color: #4A4235;
+        margin-top: 0.4mm;
+        line-height: 9.8pt;
     }
 
     .mail-link {
@@ -351,50 +391,53 @@
     table.footer-row {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 1.5mm;
+        margin-top: 1.2mm;
+        border-top: 0.5pt solid #D9CFB8;
         page-break-inside: avoid;
+    }
+
+    table.footer-row td {
+        padding-top: 1mm;
+        vertical-align: bottom;
     }
 
     td.footer-spacer {
         width: 26mm;
-        vertical-align: bottom;
     }
 
     td.footer-center {
         text-align: center;
-        vertical-align: bottom;
-        font-size: 8pt;
-        line-height: 10.8pt;
-        color: #000000;
+        font-size: 7.8pt;
+        line-height: 10.4pt;
+        color: #222222;
     }
 
     td.footer-qr {
         width: 22mm;
         padding-right: 4mm;
         text-align: center;
-        vertical-align: bottom;
     }
 
     .qr-box {
-        width: 14mm;
-        height: 14mm;
+        width: 13mm;
+        height: 13mm;
         padding: 0.5mm;
-        margin: 0 auto 0.4mm;
-        border: 0.5pt solid #CBD5E1;
+        margin: 0 auto 0.5mm;
+        border: 0.5pt solid #C9BFA8;
         background-color: #FFFFFF;
         font-size: 0;
         line-height: 0;
     }
 
     .qr-img {
-        width: 14mm;
-        height: 14mm;
+        width: 13mm;
+        height: 13mm;
         display: block;
     }
 
     .qr-placeholder {
-        width: 14mm;
-        height: 14mm;
+        width: 13mm;
+        height: 13mm;
         padding: 0.5mm;
         border: 0.7pt dashed #9CA3AF;
         margin: 0 auto 0.4mm;
@@ -438,11 +481,16 @@
         $last = array_pop($items);
         return implode(', ', $items) . $conjunction . $last;
     };
-    $classDaysJa = $formatList($jaDays, ' そして ');
+    $classDaysJa = implode('、', $jaDays);
     $classDaysEn = $formatList($enDays, ' and ');
 
     $monthCount = $c->attendances->count();
     $tableSizeClass = $monthCount > 9 ? 'very-compact' : ($monthCount > 6 ? 'compact' : '');
+    $totalClassHours = (int) $c->attendances->sum('class_hours');
+    $totalAttendanceHours = (int) $c->attendances->sum('attendance_hours');
+    $totalAttendanceRate = $totalClassHours > 0
+        ? (int) round($totalAttendanceHours / $totalClassHours * 100)
+        : 0;
 
     $contextJa = implode('、', array_filter($c->course->learningContextJapanese()));
     $contextEn = implode(', ', array_filter($c->course->learningContextEnglish()));
@@ -475,12 +523,13 @@
 
     {{-- Official Certification Statement --}}
     <div class="statement-block">
-        下記の者は、本校において日本語学習課程を修了したことをここに証明します。<br>
-        This is to certify that the following student has successfully completed the Japanese language course at our institution.
+        <div class="ja">下記の者は、本校において日本語学習課程を修了したことをここに証明します。</div>
+        <div class="en">This is to certify that the following student has successfully completed the Japanese language course at our institution.</div>
     </div>
 
     {{-- Student & Schedule Details --}}
-    <div class="details-block">
+    <div class="section">
+        <div class="section-title">学生情報 / Student Information</div>
         <table class="meta-table student-meta">
             <tr>
                 <td class="meta-label">学生氏名 / Name:</td>
@@ -513,8 +562,8 @@
     </div>
 
     {{-- Monthly Attendance Matrix --}}
-    <div class="attendance-section">
-        <div class="attendance-caption">学習期間 / Study Period:</div>
+    <div class="section attendance-section">
+        <div class="section-title">出席記録 / Attendance Record</div>
         <table class="attendance-table {{ $tableSizeClass }}">
             <thead>
                 <tr>
@@ -531,21 +580,21 @@
                     @foreach ($c->attendances as $a)
                         <td>{{ $a->class_hours }}</td>
                     @endforeach
-                    <td>{{ $c->total_class_hours }}</td>
+                    <td class="sum">{{ $totalClassHours }}</td>
                 </tr>
                 <tr>
                     <td class="row-label">出席時間 / Attendance Hour</td>
                     @foreach ($c->attendances as $a)
                         <td>{{ $a->attendance_hours }}</td>
                     @endforeach
-                    <td>{{ $c->total_attendance_hours }}</td>
+                    <td class="sum">{{ $totalAttendanceHours }}</td>
                 </tr>
                 <tr>
                     <td class="row-label">出席率 / Attendance Rate (%)</td>
                     @foreach ($c->attendances as $a)
                         <td>{{ $a->attendanceRate() }}%</td>
                     @endforeach
-                    <td>{{ round((float) $c->attendance_rate) }}%</td>
+                    <td class="sum">{{ $totalAttendanceRate }}%</td>
                 </tr>
             </tbody>
         </table>
@@ -555,7 +604,8 @@
     </div>
 
     {{-- Course Completion & Issue Details --}}
-    <div class="course-block">
+    <div class="section">
+        <div class="section-title">履修情報 / Course Details</div>
         <table class="meta-table course-meta">
             <tr>
                 <td class="meta-label">履修内容 / Learning Context:</td>
@@ -576,7 +626,7 @@
             <tr>
                 <td class="meta-label">総履修時間 / Course Completion Time:</td>
                 <td class="meta-value">
-                    {{ $c->course->total_hours }} 時間 / {{ $c->course->total_hours }} Hours
+                    {{ $totalClassHours }} 時間 / {{ $totalClassHours }} Hours
                     @if ($c->study_start && $c->study_end)
                         <span class="meta-subnote">({{ \App\Support\JapaneseDate::range($c->study_start, $c->study_end) }})</span>
                     @endif
@@ -584,7 +634,7 @@
             </tr>
             <tr>
                 <td class="meta-label">当該コース終了目標レベル / Learning Aim Level:</td>
-                <td class="meta-value">{{ $c->course->aim_level_ja }} / {{ $c->course->aim_level_en }}</td>
+                <td class="meta-value">{{ $c->course->aim_level_ja }}@if ($c->course->aim_level_en !== $c->course->aim_level_ja) / {{ $c->course->aim_level_en }}@endif</td>
             </tr>
             <tr>
                 <td class="meta-label">使用教材 / Book Name:</td>
@@ -592,7 +642,7 @@
             </tr>
             @if ($c->issued_on)
                 <tr>
-                    <td class="meta-label">発行日 / Date of Issued:</td>
+                    <td class="meta-label">発行日 / Date of Issue:</td>
                     <td class="meta-value">{{ \App\Support\JapaneseDate::full($c->issued_on) }}</td>
                 </tr>
             @endif
@@ -600,10 +650,14 @@
     </div>
 
     {{-- Dual Instructors & Center Gold Seal --}}
-    <table class="auth-row">
-        <tr>
-            <td class="instructor-col">
+    <div class="section auth-section">
+        <div class="section-title">署名 / Signatures and Seal</div>
+        <table class="auth-row">
+            <tr>
+                <td class="instructor-col">
                 @if ($leftInstructor)
+                    <div class="signature-space"></div>
+                    <div class="signature-line"></div>
                     <div class="instructor-name">{{ $leftInstructor->name }}</div>
                     <div class="instructor-title">{{ $leftInstructor->title }}</div>
                     @if ($leftInstructor->email)
@@ -620,6 +674,8 @@
             </td>
             <td class="instructor-col">
                 @if ($rightInstructor)
+                    <div class="signature-space"></div>
+                    <div class="signature-line"></div>
                     <div class="instructor-name">{{ $rightInstructor->name }}</div>
                     <div class="instructor-title">{{ $rightInstructor->title }}</div>
                     @if ($rightInstructor->email)
@@ -627,8 +683,9 @@
                     @endif
                 @endif
             </td>
-        </tr>
-    </table>
+            </tr>
+        </table>
+    </div>
 
     {{-- Institutional Footer & Compact QR Verification --}}
     <table class="footer-row">

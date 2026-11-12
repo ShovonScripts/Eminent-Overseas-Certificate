@@ -197,7 +197,7 @@
             <div class="card-head">
                 <div>
                     <h2>Monthly Attendance Breakdown</h2>
-                    <p>Add attendance records per month. Attendance hours cannot exceed class hours.</p>
+                    <p>Add or adjust months freely. Course completion hours on the PDF are calculated from these rows.</p>
                 </div>
                 <button class="btn btn-gold btn-sm" type="button" id="suggest-hours">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -254,6 +254,21 @@
                     @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <div class="attendance-totals" aria-live="polite">
+                <div class="item">
+                    <span class="label">Total class hours</span>
+                    <strong data-total-class>0</strong>
+                </div>
+                <div class="item">
+                    <span class="label">Total attendance hours</span>
+                    <strong data-total-attendance>0</strong>
+                </div>
+                <div class="item">
+                    <span class="label">Overall attendance rate</span>
+                    <strong data-total-rate>0%</strong>
+                </div>
             </div>
 
             <div class="card-body" style="padding-top: var(--space-4);">
@@ -355,13 +370,25 @@
             const suggestError = document.getElementById('suggest-error');
             let nextIndex = {{ count($attendanceRows) }};
 
-            const refreshRates = () => {
+            const refreshTotals = () => {
+                let totalClass = 0;
+                let totalAttendance = 0;
+
                 rows.querySelectorAll('.attendance-row').forEach((row) => {
                     const classHours = Number(row.querySelector('[name$="[class_hours]"]')?.value || 0);
                     const attendance = Number(row.querySelector('[name$="[attendance_hours]"]')?.value || 0);
                     const rate = classHours > 0 ? Math.round(attendance / classHours * 100) : 0;
+
+                    totalClass += classHours;
+                    totalAttendance += attendance;
                     row.querySelector('[data-rate]').textContent = rate + '%';
                 });
+
+                const overallRate = totalClass > 0 ? Math.round(totalAttendance / totalClass * 100) : 0;
+
+                document.querySelector('[data-total-class]').textContent = totalClass;
+                document.querySelector('[data-total-attendance]').textContent = totalAttendance;
+                document.querySelector('[data-total-rate]').textContent = overallRate + '%';
             };
 
             const addRow = (data = {}) => {
@@ -380,7 +407,7 @@
 
             rows.addEventListener('input', (event) => {
                 if (event.target.matches('input[type="number"]')) {
-                    refreshRates();
+                    refreshTotals();
                 }
             });
 
@@ -389,7 +416,7 @@
                 if (!button) return;
                 if (rows.querySelectorAll('.attendance-row').length > 1) {
                     button.closest('.attendance-row').remove();
-                    refreshRates();
+                    refreshTotals();
                 }
             });
 
@@ -471,7 +498,7 @@
                         });
                     });
 
-                    refreshRates();
+                    refreshTotals();
                 } catch (error) {
                     suggestError.textContent = error.message;
                     suggestError.style.display = 'flex';
@@ -481,7 +508,7 @@
                 }
             });
 
-            refreshRates();
+            refreshTotals();
         })();
     </script>
 @endpush
