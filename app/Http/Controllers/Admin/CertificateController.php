@@ -67,12 +67,12 @@ class CertificateController extends Controller
     {
         return view('admin.certificates.form', [
             'certificate' => new Certificate([
-                'study_start' => now()->subMonths(5)->startOfMonth(),
-                'study_end' => now(),
-                'issued_on' => now(),
+                'study_start' => now()->subMonths(3)->startOfMonth(),
+                'study_end' => now()->addMonths(3)->endOfMonth(),
+                'issued_on' => now()->addMonths(3)->endOfMonth(),
                 'hours_per_day' => 3,
-                'days_per_week' => 3,
-                'class_days' => ['Saturday', 'Monday', 'Wednesday'],
+                'days_per_week' => 5,
+                'class_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
                 'national_holidays' => '',
             ]),
             'courses' => Course::orderBy('level_code')->get(),

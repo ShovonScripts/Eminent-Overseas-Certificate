@@ -14,9 +14,9 @@ return [
         'bold' => resource_path('fonts/NotoSansJP-Bold.ttf'),
     ],
     'images' => [
-        'background' => public_path('images/certificate/background.png'),
-        'logo' => public_path('images/certificate/logo.png'),
-        'seal' => public_path('images/certificate/seal.png'),
-        'divider' => public_path('images/certificate/divider.png'),
+        'background' => 'images/certificate/background.png',
+        'logo' => 'images/certificate/logo.png',
+        'seal' => 'images/certificate/seal.png',
+        'divider' => 'images/certificate/divider.png',
     ],
 ];

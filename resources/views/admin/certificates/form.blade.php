@@ -4,6 +4,9 @@
     $isEdit = $certificate->exists;
     $selectedDays = old('class_days', $certificate->class_days ?? []);
     $selectedDays = is_array($selectedDays) ? $selectedDays : [];
+    if (!$isEdit && $selectedDays === []) {
+        $selectedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    }
     $selectedInstructors = array_values((array) old('instructors', $certificate->instructors->pluck('id')->all()));
     $selectedInstructors = array_pad($selectedInstructors, 2, '');
     $attendanceRows = old('attendances', $certificate->attendances->map(fn ($a) => [
@@ -88,19 +91,7 @@
                         @error('student_gender')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
-                    <div class="field">
-                        <label for="student_email">Email <span class="text-muted">(optional)</span></label>
-                        <input id="student_email" class="input" name="student_email" type="email"
-                               value="{{ old('student_email', $certificate->student_email ?? '') }}">
-                        @error('student_email')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="field">
-                        <label for="student_phone">Phone <span class="text-muted">(optional)</span></label>
-                        <input id="student_phone" class="input" name="student_phone" type="text"
-                               value="{{ old('student_phone', $certificate->student_phone ?? '') }}">
-                        @error('student_phone')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -164,7 +155,7 @@
                     <div class="field">
                         <label for="days_per_week">Days per week</label>
                         <input id="days_per_week" class="input" name="days_per_week" type="number" min="1" max="7" required
-                               value="{{ old('days_per_week', $certificate->days_per_week ?? 3) }}">
+                               value="{{ old('days_per_week', $certificate->days_per_week ?? 5) }}">
                         @error('days_per_week')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
@@ -424,24 +415,47 @@
                 addRow().querySelector('input').focus();
             });
 
+            const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            const syncDaysPerWeek = () => {
+                const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
+                if (checked > 0) {
+                    document.getElementById('days_per_week').value = checked;
+                }
+            };
+
+            const syncCheckboxes = (daysPerWeek) => {
+                const checkboxes = form.querySelectorAll('input[name="class_days[]"]');
+                checkboxes.forEach((cb, i) => {
+                    cb.checked = i < daysPerWeek;
+                });
+                syncDaysPerWeek();
+            };
+
             document.getElementById('course_id').addEventListener('change', (event) => {
                 const option = event.target.selectedOptions[0];
                 const hours = option?.dataset.hours;
                 const days = option?.dataset.days;
 
                 if (hours) document.getElementById('hours_per_day').value = hours;
-                if (days) document.getElementById('days_per_week').value = days;
+                if (days) {
+                    document.getElementById('days_per_week').value = days;
+                    syncCheckboxes(parseInt(days, 10));
+                }
+            });
+
+            document.getElementById('days_per_week').addEventListener('change', (event) => {
+                const val = parseInt(event.target.value, 10);
+                if (!isNaN(val) && val >= 1 && val <= 7) {
+                    syncCheckboxes(val);
+                }
             });
 
             form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
-                checkbox.addEventListener('change', () => {
-                    const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
-
-                    if (checked > 0) {
-                        document.getElementById('days_per_week').value = checked;
-                    }
-                });
+                checkbox.addEventListener('change', syncDaysPerWeek);
             });
+
+            syncDaysPerWeek();
 
             suggestButton.addEventListener('click', async () => {
                 suggestError.style.display = 'none';

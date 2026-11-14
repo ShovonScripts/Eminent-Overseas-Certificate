@@ -49,10 +49,10 @@ class CertificatePdfService
 
         $schoolConfig = SchoolConfig::get();
         $images = [
-            'background' => $this->dataUri((string) ($schoolConfig['images']['background'] ?? '')),
-            'logo' => $this->dataUri((string) ($schoolConfig['images']['logo'] ?? '')),
-            'seal' => $this->dataUri((string) ($schoolConfig['images']['seal'] ?? '')),
-            'divider' => $this->dataUri((string) ($schoolConfig['images']['divider'] ?? public_path('images/certificate/divider.png'))),
+            'background' => $this->dataUri(public_path((string) ($schoolConfig['images']['background'] ?? ''))),
+            'logo' => $this->dataUri(public_path((string) ($schoolConfig['images']['logo'] ?? ''))),
+            'seal' => $this->dataUri(public_path((string) ($schoolConfig['images']['seal'] ?? ''))),
+            'divider' => $this->dataUri(public_path((string) ($schoolConfig['images']['divider'] ?? 'images/certificate/divider.png'))),
         ];
 
         $pdf = Pdf::loadView('certificates.pdf', [
