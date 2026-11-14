@@ -42,5 +42,21 @@ class CourseSeeder extends Seeder
             'default_hours_per_day' => 3,
             'default_days_per_week' => 5,
         ]);
+
+        Course::create([
+            'name_en' => 'Standard Level (4-month, 3 days/week)',
+            'name_ja' => '標準コース（4ヶ月・週3日）',
+            'level_code' => 'N5-N4',
+            'aim_level_en' => 'JLPT N5-N4',
+            'aim_level_ja' => 'JLPT N5-N4',
+            'total_hours' => 144,
+            'book_en' => 'Minna no Nihongo I & II',
+            'book_ja' => 'みんなの日本語 I & II',
+            'learning_context' => [
+                ['ja' => '日本で働く・学ぶ', 'en' => 'Work & Study in Japan'],
+            ],
+            'default_hours_per_day' => 3,
+            'default_days_per_week' => 3,
+        ]);
     }
 }

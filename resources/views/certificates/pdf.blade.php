@@ -219,10 +219,17 @@
 
         .student-name {
             font-weight: bold;
+            font-size: 10.5pt;
+        }
+
+        .student-name-gap {
+            display: inline-block;
+            width: 0.5em;
         }
 
         .meta-subnote {
             color: #5A5348;
+            margin-left: 0.5em;
         }
 
         /* ===== ATTENDANCE TABLE ===== */
@@ -348,7 +355,7 @@
         }
 
         .seal-wrap {
-            height: 18mm;
+            height: 24mm;
             margin: 0 auto;
             text-align: center;
             font-size: 0;
@@ -358,8 +365,8 @@
         .seal-img {
             width: auto;
             height: auto;
-            max-width: 27mm;
-            max-height: 18mm;
+            max-width: 36mm;
+            max-height: 24mm;
             display: block;
             margin: 0 auto;
         }
@@ -418,6 +425,7 @@
         td.footer-qr {
             width: 22mm;
             padding-right: 4mm;
+            padding-top: 3mm;
             text-align: center;
         }
 
@@ -538,7 +546,7 @@
                 <tr>
                     <td class="meta-label">学生氏名 / Name:</td>
                     <td class="meta-value">
-                        <span class="student-name">{{ $c->student_name_en }}</span>@if ($c->student_name_ja) （{{ $c->student_name_ja }}）@endif
+                        <span class="student-name">{{ $c->student_name_en }}</span>@if ($c->student_name_ja)<span class="student-name-gap"></span>（{{ $c->student_name_ja }}）@endif
                     </td>
                 </tr>
                 <tr>
@@ -632,7 +640,7 @@
                     <td class="meta-value">
                         {{ $totalClassHours }} 時間 / {{ $totalClassHours }} Hours
                         @if ($c->study_start && $c->study_end)
-                        <span class="meta-subnote">({{ \App\Support\JapaneseDate::range($c->study_start, $c->study_end) }})</span>
+                        <span class="meta-subnote">　({{ \App\Support\JapaneseDate::range($c->study_start, $c->study_end) }})</span>
                         @endif
                     </td>
                 </tr>
