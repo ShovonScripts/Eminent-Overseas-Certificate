@@ -28,8 +28,8 @@ class CertificateObserver
 
     public function deleting(Certificate $certificate): void
     {
-        if (! $certificate->isDraft()) {
-            abort(422, 'Only drafts can be deleted. Revoke an issued certificate instead.');
+        if (! $certificate->isDraft() && ! $certificate->isRevoked()) {
+            abort(422, 'Only draft or revoked certificates can be deleted.');
         }
     }
 }

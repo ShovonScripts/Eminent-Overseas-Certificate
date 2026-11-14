@@ -31,6 +31,15 @@ class CertificateImmutabilityTest extends TestCase
         $certificate->delete();
     }
 
+    public function test_a_revoked_certificate_can_be_deleted(): void
+    {
+        $certificate = Certificate::factory()->revoked()->create();
+
+        $certificate->delete();
+
+        $this->assertSoftDeleted($certificate);
+    }
+
     public function test_a_draft_can_still_be_edited(): void
     {
         $certificate = Certificate::factory()->create();

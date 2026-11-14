@@ -8,13 +8,13 @@
         @font-face {
             font-family: 'NotoJP';
             font-weight: normal;
-            src: url('{{ str_replace(' \\', ' /', $school[' fonts'][' regular'] ?? resource_path(' fonts/NotoSansJP-Regular.ttf')) }}') format('truetype');
+            src: url('{{ str_replace('\\', '/', $school['fonts']['regular'] ?? resource_path('fonts/NotoSansJP-Regular.ttf')) }}') format('truetype');
         }
 
         @font-face {
             font-family: 'NotoJP';
             font-weight: bold;
-            src: url('{{ str_replace(' \\', ' /', $school[' fonts'][' bold'] ?? resource_path(' fonts/NotoSansJP-Bold.ttf')) }}') format('truetype');
+            src: url('{{ str_replace('\\', '/', $school['fonts']['bold'] ?? resource_path('fonts/NotoSansJP-Bold.ttf')) }}') format('truetype');
         }
 
         @page {
@@ -51,7 +51,7 @@
         .page {
             position: relative;
             z-index: 1;
-            padding: 12mm 16mm 6mm;
+            padding: 9mm 16mm 6mm;
         }
 
         .draft-overlay {
@@ -321,7 +321,7 @@
         }
 
         .signature-space {
-            height: 14mm;
+            height: 10mm;
         }
 
         .signature-line {
@@ -355,7 +355,7 @@
         }
 
         .seal-wrap {
-            height: 24mm;
+            height: 20mm;
             margin: 0 auto;
             text-align: center;
             font-size: 0;
@@ -366,7 +366,7 @@
             width: auto;
             height: auto;
             max-width: 36mm;
-            max-height: 24mm;
+            max-height: 20mm;
             display: block;
             margin: 0 auto;
         }
@@ -555,7 +555,7 @@
                 </tr>
                 <tr>
                     <td class="meta-label">性別 / Sex:</td>
-                    <td class="meta-value">{{ $c->studentGenderJapanese() }}</td>
+                    <td class="meta-value">{{ $c->studentGenderBilingual() }}</td>
                 </tr>
                 <tr>
                     <td class="meta-label">学習期間 / Study Period:</td>
@@ -583,7 +583,7 @@
                         @foreach ($c->attendances as $a)
                         <th>{{ \App\Support\JapaneseDate::month($a->month) }}</th>
                         @endforeach
-                        <th class="sum-col">合計 (sum)</th>
+                        <th class="sum-col">合計 (Total)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -611,7 +611,7 @@
                 </tbody>
             </table>
             <div class="holidays-line">
-                <span class="holidays-label">★他の休み / Other Holidays:</span> 祝日 / National Holidays: {{ $c->national_holidays ?: '—' }}
+                <span class="holidays-label">★休校日・祝日 / School &amp; National Holidays:</span> {{ $c->national_holidays ?: '—' }}
             </div>
         </div>
 
@@ -636,7 +636,11 @@
                     <td class="meta-value">{{ $c->course->name_ja }} / {{ $c->course->name_en }}</td>
                 </tr>
                 <tr>
-                    <td class="meta-label">総履修時間 / Course Completion Time:</td>
+                    <td class="meta-label">目標総時間 / Course Target Hours:</td>
+                    <td class="meta-value">{{ $c->course->total_hours ?? '—' }} 時間 / {{ $c->course->total_hours ?? '—' }} Hours</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">実履修時間 / Actual Completed Hours:</td>
                     <td class="meta-value">
                         {{ $totalClassHours }} 時間 / {{ $totalClassHours }} Hours
                         @if ($c->study_start && $c->study_end)
@@ -645,7 +649,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="meta-label">当該コース終了目標レベル / Learning Aim Level:</td>
+                    <td class="meta-label">当該コース修了目標レベル / Learning Aim Level:</td>
                     <td class="meta-value">{{ $c->course->aim_level_ja }}@if ($c->course->aim_level_en !== $c->course->aim_level_ja) / {{ $c->course->aim_level_en }}@endif</td>
                 </tr>
                 <tr>

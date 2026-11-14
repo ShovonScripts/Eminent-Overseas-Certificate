@@ -285,13 +285,16 @@
                     <p class="text-muted mb-0">Revoked certificates cannot be edited or re-issued. Create a new corrected certificate if needed.</p>
                 <?php endif; ?>
 
-                <?php if($certificate->isDraft() && auth()->user()?->isSuperAdmin()): ?>
+                <?php if(($certificate->isDraft() || $certificate->isRevoked()) && auth()->user()?->isSuperAdmin()): ?>
                     <div style="height: 1px; background: var(--color-border); margin: var(--space-5) 0;"></div>
                     <form method="post" action="<?php echo e(route('admin.certificates.destroy', $certificate)); ?>"
-                          onsubmit="return confirm('Delete this draft permanently?')">
+                          onsubmit="return confirm('Delete this certificate permanently?')">
                         <?php echo csrf_field(); ?>
                         <?php echo method_field('delete'); ?>
-                        <button class="btn btn-danger btn-sm" type="submit">Delete Draft Permanently</button>
+                        <button class="btn btn-danger btn-sm" type="submit">
+                            <?php echo e($certificate->isDraft() ? 'Delete Draft Permanently' : 'Delete Revoked Certificate'); ?>
+
+                        </button>
                     </form>
                 <?php endif; ?>
             </div>

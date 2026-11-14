@@ -47,9 +47,12 @@
 
         <div class="card">
             <div class="card-head">
-                <div>
-                    <h2>Student Personal Information</h2>
-                    <p>Enter student details. A master student record will be linked or generated automatically.</p>
+                <div class="card-head-title">
+                    <span class="step-badge">01</span>
+                    <div>
+                        <h2>Student Personal Information</h2>
+                        <p>Enter student details. A master student record will be linked or generated automatically.</p>
+                    </div>
                 </div>
                 @if ($isEdit)
                     <span class="badge badge-draft">Draft #{{ $certificate->id }}</span>
@@ -98,9 +101,12 @@
 
         <div class="card">
             <div class="card-head">
-                <div>
-                    <h2>Course Curriculum</h2>
-                    <p>Select the recognized Japanese curriculum for this completion certificate.</p>
+                <div class="card-head-title">
+                    <span class="step-badge">02</span>
+                    <div>
+                        <h2>Course Curriculum</h2>
+                        <p>Select the recognized Japanese curriculum for this completion certificate.</p>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -126,9 +132,12 @@
 
         <div class="card">
             <div class="card-head">
-                <div>
-                    <h2>Study Period & Schedule</h2>
-                    <p>Class dates, duration, and scheduled days as they will appear on the physical certificate.</p>
+                <div class="card-head-title">
+                    <span class="step-badge">03</span>
+                    <div>
+                        <h2>Study Period & Schedule</h2>
+                        <p>Class dates, duration, and scheduled days as they will appear on the physical certificate.</p>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -160,6 +169,13 @@
                     </div>
 
                     <div class="field span-2">
+                        <div class="schedule-presets">
+                            <span class="preset-title">Presets:</span>
+                            <button type="button" class="preset-btn" data-days="Monday,Wednesday,Friday" data-hours="3">Mon, Wed, Fri (3d×3h)</button>
+                            <button type="button" class="preset-btn" data-days="Monday,Tuesday,Wednesday,Thursday,Friday" data-hours="3">Mon–Fri (5d×3h)</button>
+                            <button type="button" class="preset-btn" data-days="Saturday,Sunday" data-hours="4">Sat &amp; Sun (2d×4h)</button>
+                            <button type="button" class="preset-btn" data-days="Saturday,Monday,Wednesday" data-hours="3">Sat, Mon, Wed (3d×3h)</button>
+                        </div>
                         <span class="label">Class days</span>
                         <div class="check-grid">
                             @foreach (\App\Http\Requests\CertificateRequest::WEEKDAYS as $day)
@@ -178,6 +194,15 @@
                         <textarea id="national_holidays" class="textarea" name="national_holidays"
                                   placeholder="6月9日; 6月11日; 8月16日; 10月1日&#10;or one Y-m-d date per line">{{ old('national_holidays', $certificate->national_holidays) }}</textarea>
                         <div class="help">Separate dates with semicolons, commas or new lines. Both Japanese dates and Y-m-d work.</div>
+                        <div class="holiday-tags">
+                            <span class="holiday-chip" data-holiday="1月1日 (元日)">+ 1月1日 (元日)</span>
+                            <span class="holiday-chip" data-holiday="2月23日 (天皇誕生日)">+ 2月23日 (天皇誕生日)</span>
+                            <span class="holiday-chip" data-holiday="5月3日 (憲法記念日)">+ 5月3日 (憲法記念日)</span>
+                            <span class="holiday-chip" data-holiday="5月5日 (こどもの日)">+ 5月5日 (こどもの日)</span>
+                            <span class="holiday-chip" data-holiday="8月15日 (お盆)">+ 8月15日 (お盆)</span>
+                            <span class="holiday-chip" data-holiday="9月23日 (秋分の日)">+ 9月23日 (秋分の日)</span>
+                            <span class="holiday-chip" data-holiday="11月23日 (勤労感謝の日)">+ 11月23日 (勤労感謝の日)</span>
+                        </div>
                         @error('national_holidays')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
                 </div>
@@ -186,16 +211,27 @@
 
         <div class="card">
             <div class="card-head">
-                <div>
-                    <h2>Monthly Attendance Breakdown</h2>
-                    <p>Add or adjust months freely. Course completion hours on the PDF are calculated from these rows.</p>
+                <div class="card-head-title">
+                    <span class="step-badge">04</span>
+                    <div>
+                        <h2>Monthly Attendance Breakdown</h2>
+                        <p>Add or adjust months freely. Course completion hours on the PDF are calculated from these rows.</p>
+                    </div>
                 </div>
-                <button class="btn btn-gold btn-sm" type="button" id="suggest-hours">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                    </svg>
-                    <span id="suggest-hours-label">Suggest class hours</span>
-                </button>
+                <div class="card-head-actions">
+                    <button class="btn btn-secondary btn-sm" type="button" id="match-attendance" title="Fill attendance hours equal to class hours (100% attendance)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Match 100%</span>
+                    </button>
+                    <button class="btn btn-gold btn-sm" type="button" id="suggest-hours">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        <span id="suggest-hours-label">Suggest class hours</span>
+                    </button>
+                </div>
             </div>
 
             <div id="suggest-error" class="alert alert-danger" style="display: none; margin: 16px 20px 0;"></div>
@@ -260,6 +296,12 @@
                     <span class="label">Overall attendance rate</span>
                     <strong data-total-rate>0%</strong>
                 </div>
+                <div class="item" style="margin-left: auto;">
+                    <span class="label">ISA Guideline</span>
+                    <div id="immigration-badge" class="immigration-threshold-badge unmet">
+                        <span id="immigration-status">⚠️ Calculating…</span>
+                    </div>
+                </div>
             </div>
 
             <div class="card-body" style="padding-top: var(--space-4);">
@@ -276,9 +318,12 @@
 
         <div class="card">
             <div class="card-head">
-                <div>
-                    <h2>Signatures & Issue Date</h2>
-                    <p>Assign authorizing instructors. The primary instructor prints on the left signature line.</p>
+                <div class="card-head-title">
+                    <span class="step-badge">05</span>
+                    <div>
+                        <h2>Signatures & Issue Date</h2>
+                        <p>Assign authorizing instructors. The primary instructor prints on the left signature line.</p>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -328,6 +373,7 @@
                 </button>
             </div>
         </div>
+
     </form>
 
     <template id="attendance-template">
@@ -359,6 +405,7 @@
             const suggestButton = document.getElementById('suggest-hours');
             const suggestLabel = document.getElementById('suggest-hours-label') || suggestButton;
             const suggestError = document.getElementById('suggest-error');
+            const matchButton = document.getElementById('match-attendance');
             let nextIndex = {{ count($attendanceRows) }};
 
             const refreshTotals = () => {
@@ -366,20 +413,73 @@
                 let totalAttendance = 0;
 
                 rows.querySelectorAll('.attendance-row').forEach((row) => {
-                    const classHours = Number(row.querySelector('[name$="[class_hours]"]')?.value || 0);
-                    const attendance = Number(row.querySelector('[name$="[attendance_hours]"]')?.value || 0);
-                    const rate = classHours > 0 ? Math.round(attendance / classHours * 100) : 0;
+                    const classInput = row.querySelector('[name$="[class_hours]"]');
+                    const attendInput = row.querySelector('[name$="[attendance_hours]"]');
+                    const classHours = Number(classInput?.value || 0);
+                    const attendance = Number(attendInput?.value || 0);
 
+                    // Validation: attendance cannot exceed class hours
+                    if (attendance > classHours && classHours > 0) {
+                        attendInput?.classList.add('input-invalid');
+                        attendInput?.setAttribute('title', 'Attendance hours cannot exceed class hours');
+                    } else {
+                        attendInput?.classList.remove('input-invalid');
+                        attendInput?.removeAttribute('title');
+                    }
+
+                    const rate = classHours > 0 ? Math.round(attendance / classHours * 100) : 0;
                     totalClass += classHours;
                     totalAttendance += attendance;
-                    row.querySelector('[data-rate]').textContent = rate + '%';
+
+                    const rateEl = row.querySelector('[data-rate]');
+                    if (rateEl) {
+                        rateEl.textContent = rate + '%';
+                        if (rate < 80 && classHours > 0) {
+                            rateEl.style.color = '#dc2626';
+                            rateEl.style.fontWeight = '700';
+                        } else if (rate >= 90) {
+                            rateEl.style.color = '#15803d';
+                            rateEl.style.fontWeight = '600';
+                        } else {
+                            rateEl.style.color = '';
+                            rateEl.style.fontWeight = '';
+                        }
+                    }
                 });
 
                 const overallRate = totalClass > 0 ? Math.round(totalAttendance / totalClass * 100) : 0;
 
-                document.querySelector('[data-total-class]').textContent = totalClass;
-                document.querySelector('[data-total-attendance]').textContent = totalAttendance;
-                document.querySelector('[data-total-rate]').textContent = overallRate + '%';
+                const totalClassEl = document.querySelector('[data-total-class]');
+                const totalAttendEl = document.querySelector('[data-total-attendance]');
+                const totalRateEl = document.querySelector('[data-total-rate]');
+
+                if (totalClassEl) totalClassEl.textContent = totalClass;
+                if (totalAttendEl) totalAttendEl.textContent = totalAttendance;
+                if (totalRateEl) {
+                    totalRateEl.textContent = overallRate + '%';
+                    if (overallRate < 80 && totalClass > 0) {
+                        totalRateEl.style.color = '#dc2626';
+                    } else if (overallRate >= 90) {
+                        totalRateEl.style.color = '#15803d';
+                    } else {
+                        totalRateEl.style.color = '';
+                    }
+                }
+
+                // Update Japanese Immigration (ISA) Threshold badge
+                const immBadge = document.getElementById('immigration-badge');
+                const immStatus = document.getElementById('immigration-status');
+
+                if (immBadge && immStatus) {
+                    if (totalAttendance >= 150) {
+                        immBadge.className = 'immigration-threshold-badge met';
+                        immStatus.textContent = '✅ ' + totalAttendance + 'h (Meets 150h ISA threshold)';
+                    } else {
+                        immBadge.className = 'immigration-threshold-badge unmet';
+                        const diff = 150 - totalAttendance;
+                        immStatus.textContent = '⚠️ ' + totalAttendance + 'h / 150h (' + diff + 'h needed for ISA standard)';
+                    }
+                }
             };
 
             const addRow = (data = {}) => {
@@ -395,6 +495,52 @@
 
                 return row;
             };
+
+            // Match 100% Attendance Handler
+            if (matchButton) {
+                matchButton.addEventListener('click', () => {
+                    rows.querySelectorAll('.attendance-row').forEach((row) => {
+                        const classInput = row.querySelector('[name$="[class_hours]"]');
+                        const attendInput = row.querySelector('[name$="[attendance_hours]"]');
+                        if (classInput && attendInput) {
+                            attendInput.value = classInput.value;
+                        }
+                    });
+                    refreshTotals();
+                });
+            }
+
+            // Schedule Presets Handler
+            document.querySelectorAll('.preset-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const days = (btn.dataset.days || '').split(',');
+                    const hours = btn.dataset.hours;
+                    if (hours) {
+                        document.getElementById('hours_per_day').value = hours;
+                    }
+                    form.querySelectorAll('input[name="class_days[]"]').forEach((cb) => {
+                        cb.checked = days.includes(cb.value);
+                    });
+                    syncDaysPerWeek();
+                    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Holiday Chips Handler
+            document.querySelectorAll('.holiday-chip').forEach((chip) => {
+                chip.addEventListener('click', () => {
+                    const holiday = chip.dataset.holiday;
+                    const textarea = document.getElementById('national_holidays');
+                    if (!textarea || !holiday) return;
+                    const current = textarea.value.trim();
+                    if (!current) {
+                        textarea.value = holiday;
+                    } else if (!current.includes(holiday)) {
+                        textarea.value = current + '; ' + holiday;
+                    }
+                });
+            });
 
             rows.addEventListener('input', (event) => {
                 if (event.target.matches('input[type="number"]')) {
@@ -414,8 +560,6 @@
             document.getElementById('add-attendance-row').addEventListener('click', () => {
                 addRow().querySelector('input').focus();
             });
-
-            const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
             const syncDaysPerWeek = () => {
                 const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
@@ -452,7 +596,10 @@
             });
 
             form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
-                checkbox.addEventListener('change', syncDaysPerWeek);
+                checkbox.addEventListener('change', () => {
+                    syncDaysPerWeek();
+                    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+                });
             });
 
             syncDaysPerWeek();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Certificate;
+use App\Models\Course;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,7 +15,9 @@ class CertificatePdfContentTest extends TestCase
 
     public function test_course_completion_time_is_calculated_from_attendance_rows(): void
     {
+        $course = Course::factory()->create(['total_hours' => 200]);
         $certificate = Certificate::factory()
+            ->for($course)
             ->withInstructors()
             ->issued()
             ->create([

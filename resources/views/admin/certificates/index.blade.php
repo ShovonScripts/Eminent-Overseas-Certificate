@@ -123,6 +123,15 @@
                                 @if ($certificate->isDraft())
                                     <a class="btn btn-secondary btn-sm" href="{{ route('admin.certificates.edit', $certificate) }}">Edit</a>
                                 @endif
+                                @if (($certificate->isDraft() || $certificate->isRevoked()) && auth()->user()?->isSuperAdmin())
+                                    <form method="post" action="{{ route('admin.certificates.destroy', $certificate) }}"
+                                          style="display: inline-flex; margin: 0;"
+                                          onsubmit="return confirm('Delete this certificate permanently?')">
+                                        @csrf
+                                        @method('delete')
+                                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

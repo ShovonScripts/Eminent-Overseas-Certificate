@@ -49,30 +49,30 @@ class CertificatePdfService
 
         $schoolConfig = SchoolConfig::get();
         $images = [
-            'background' => $this->dataUri(public_path((string) ($schoolConfig['images']['background'] ?? ''))),
-            'logo' => $this->dataUri(public_path((string) ($schoolConfig['images']['logo'] ?? ''))),
-            'seal' => $this->dataUri(public_path((string) ($schoolConfig['images']['seal'] ?? ''))),
-            'divider' => $this->dataUri(public_path((string) ($schoolConfig['images']['divider'] ?? 'images/certificate/divider.png'))),
+            'background' => $this->dataUri((string) ($schoolConfig['images']['background'] ?? '')),
+            'logo' => $this->dataUri((string) ($schoolConfig['images']['logo'] ?? '')),
+            'seal' => $this->dataUri((string) ($schoolConfig['images']['seal'] ?? '')),
+            'divider' => $this->dataUri((string) ($schoolConfig['images']['divider'] ?? 'images/certificate/divider.png')),
         ];
 
-        $pdf = Pdf::loadView('certificates.pdf', [
-            'c' => $certificate,
-            'school' => $schoolConfig,
-            'qrBase64' => $qrBase64,
-            'draft' => $draft,
-            'images' => $images,
+        $pdf = Pdf::setOptions([
+            'font_dir' => storage_path('fonts'),
+            'font_cache' => storage_path('fonts'),
+            'temp_dir' => $tempDir,
+            'chroot' => base_path(),
+            'default_font' => 'NotoJP',
+            'is_remote_enabled' => true,
+            'is_font_subsetting_enabled' => true,
+            'dpi' => 150,
         ])
-            ->setPaper('a4', 'portrait')
-            ->setOption([
-                'font_dir' => storage_path('fonts'),
-                'font_cache' => storage_path('fonts'),
-                'temp_dir' => $tempDir,
-                'chroot' => base_path(),
-                'default_font' => 'NotoJP',
-                'is_remote_enabled' => false,
-                'is_font_subsetting_enabled' => true,
-                'dpi' => 150,
-            ]);
+            ->loadView('certificates.pdf', [
+                'c' => $certificate,
+                'school' => $schoolConfig,
+                'qrBase64' => $qrBase64,
+                'draft' => $draft,
+                'images' => $images,
+            ])
+            ->setPaper('a4', 'portrait');
 
         $fontMetrics = $pdf->getFontMetrics();
 
@@ -111,10 +111,16 @@ class CertificatePdfService
 
     private function dataUri(string $path): ?string
     {
+        if (blank($path)) {
+            return null;
+        }
+
         if (str_starts_with($path, '/storage/')) {
             $path = Storage::disk('public')->path(substr($path, strlen('/storage/')));
         } elseif (str_starts_with($path, 'storage/')) {
             $path = Storage::disk('public')->path(substr($path, strlen('storage/')));
+        } elseif (! file_exists($path) && file_exists(public_path($path))) {
+            $path = public_path($path);
         }
 
         if (! is_file($path)) {

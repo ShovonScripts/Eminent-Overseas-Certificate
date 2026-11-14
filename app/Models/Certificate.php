@@ -139,4 +139,13 @@ class Certificate extends Model
     {
         return $this->student_gender?->japaneseLabel() ?? '';
     }
+
+    public function studentGenderBilingual(): string
+    {
+        if (! $this->student_gender) {
+            return '—';
+        }
+
+        return "{$this->student_gender->japaneseLabel()} / {$this->student_gender->label()}";
+    }
 }

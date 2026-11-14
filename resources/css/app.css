@@ -1352,6 +1352,138 @@ table.table .actions .btn:first-child {
     font-variant-numeric: tabular-nums;
 }
 
+/* ========== Enhanced Certificate Form UX ========== */
+.step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: #EFF6FF;
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    border: 1px solid #BFDBFE;
+    flex-shrink: 0;
+}
+
+.card-head-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.schedule-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: #F8FAFC;
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--color-border);
+}
+
+.preset-title {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 4px;
+}
+
+.preset-btn {
+    appearance: none;
+    border: 1px solid var(--color-border);
+    background: #FFFFFF;
+    color: var(--color-foreground);
+    padding: 3px 9px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.preset-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: var(--color-accent-subtle);
+}
+
+.preset-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #FFFFFF;
+}
+
+.holiday-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.holiday-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    user-select: none;
+}
+
+.holiday-chip:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+    border-color: #CBD5E1;
+}
+
+.card-head-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.immigration-threshold-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    transition: all 0.2s ease;
+}
+
+.immigration-threshold-badge.met {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+    border: 1px solid var(--color-success-border);
+}
+
+.immigration-threshold-badge.unmet {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
+    border: 1px solid var(--color-warning-border);
+}
+
+.attendance-table input.input-invalid {
+    border-color: var(--color-destructive) !important;
+    background-color: var(--color-destructive-bg) !important;
+    color: var(--color-destructive-text) !important;
+}
+
 /* ========== Two-Factor & Security ========== */
 .two-factor-setup {
     display: grid;

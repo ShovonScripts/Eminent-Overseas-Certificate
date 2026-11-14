@@ -31,7 +31,7 @@ class CertificatePolicy
 
     public function delete(User $user, Certificate $certificate): bool
     {
-        return $certificate->isDraft() && $user->isSuperAdmin();
+        return ($certificate->isDraft() || $certificate->isRevoked()) && $user->isSuperAdmin();
     }
 
     public function issue(User $user, Certificate $certificate): bool

@@ -50,7 +50,7 @@ Replace manual editing of a Word file with a system that creates consistent, ver
 | 履修内容 / Learning Context | 会話、語彙、文法、読解、聴解、作文 / Conversation, Vocabulary, Grammar, Reading, Listening, Writing |
 | コース名称 / Course Name | 日本語初級 / Basic Level |
 | 総履修時間 / Course Completion Time | 180時間 / 180 Hours |
-| 当該コース終了目標レベル / Learning Aim Level | JLPT N5 修了相当 / N5 Level |
+| 当該コース修了目標レベル / Learning Aim Level | JLPT N5 修了相当 / N5 Level |
 | 使用教材 / Book Name | みんなの日本語 / Minna No Nihongo |
 | 発行日 / Date of Issued | 2026年1月15日 |
 
