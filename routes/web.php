@@ -8,13 +8,11 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\TwoFactorSecurityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerificationLogController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\CertificateDownloadController;
 use App\Http\Controllers\CertificatePreviewController;
 use App\Http\Controllers\VerifyController;
@@ -53,13 +51,6 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/reset-password', [ResetPasswordController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('password.update');
-
-    Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'create'])
-        ->middleware('throttle:10,1')
-        ->name('two-factor.login');
-    Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
-        ->middleware('throttle:5,1')
-        ->name('two-factor.verify');
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])
@@ -104,15 +95,6 @@ Route::middleware('auth')
             ->name('activity-logs.index');
         Route::get('activity-logs/{log}', [AdminActivityLogController::class, 'show'])
             ->name('activity-logs.show');
-
-        Route::get('security', [TwoFactorSecurityController::class, 'show'])
-            ->name('security.show');
-        Route::post('security/enable', [TwoFactorSecurityController::class, 'enable'])
-            ->name('security.enable');
-        Route::post('security/confirm', [TwoFactorSecurityController::class, 'confirm'])
-            ->name('security.confirm');
-        Route::post('security/disable', [TwoFactorSecurityController::class, 'disable'])
-            ->name('security.disable');
 
         Route::get('settings', [SettingsController::class, 'edit'])
             ->name('settings.edit');

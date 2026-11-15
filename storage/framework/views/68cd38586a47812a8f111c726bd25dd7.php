@@ -1,14 +1,12 @@
-@extends('layouts.guest')
+<?php $__env->startSection('title', 'Two-factor verification'); ?>
 
-@section('title', 'Two-factor verification')
-
-@section('body')
+<?php $__env->startSection('body'); ?>
     <div class="auth-page">
         <section class="auth-art">
             <div class="brand-lockup">
-                <img src="{{ asset($schoolConfig['images']['logo']) }}" alt="{{ $schoolConfig['name'] }}">
+                <img src="<?php echo e(asset($schoolConfig['images']['logo'])); ?>" alt="<?php echo e($schoolConfig['name']); ?>">
                 <div>
-                    <div class="name">{{ $schoolConfig['name'] }}</div>
+                    <div class="name"><?php echo e($schoolConfig['name']); ?></div>
                     <div class="sub">Certificate Administration Portal</div>
                 </div>
             </div>
@@ -23,7 +21,7 @@
                     <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                <span>Authorized Staff Access Only &middot; {{ $schoolConfig['address'] }}</span>
+                <span>Authorized Staff Access Only &middot; <?php echo e($schoolConfig['address']); ?></span>
             </div>
         </section>
 
@@ -33,12 +31,12 @@
                 <h1>Security Check</h1>
                 <p class="lede">Enter the verification code from your authenticator app, or use an emergency recovery code.</p>
 
-                @if ($errors->any())
-                    <div class="alert alert-danger">{{ $errors->first() }}</div>
-                @endif
+                <?php if($errors->any()): ?>
+                    <div class="alert alert-danger"><?php echo e($errors->first()); ?></div>
+                <?php endif; ?>
 
-                <form method="post" action="{{ route('two-factor.verify') }}" novalidate>
-                    @csrf
+                <form method="post" action="<?php echo e(route('two-factor.verify')); ?>" novalidate>
+                    <?php echo csrf_field(); ?>
 
                     <div class="field">
                         <label for="code">6-Digit Authenticator Code</label>
@@ -65,9 +63,11 @@
                 </form>
 
                 <div class="hint">
-                    <a href="{{ route('login') }}" style="font-weight: 600;">&larr; Back to sign in</a>
+                    <a href="<?php echo e(route('login')); ?>" style="font-weight: 600;">&larr; Back to sign in</a>
                 </div>
             </div>
         </section>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.guest', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\2026 New Project\Eminent Overseas Certificate\resources\views/auth/two-factor-challenge.blade.php ENDPATH**/ ?>

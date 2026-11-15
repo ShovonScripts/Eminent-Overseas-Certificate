@@ -41,19 +41,6 @@ class User extends Authenticatable
         return $this->role === self::ROLE_SUPER_ADMIN;
     }
 
-    public function hasEnabledTwoFactor(): bool
-    {
-        return ! blank($this->two_factor_secret) && $this->two_factor_confirmed_at !== null;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function twoFactorRecoveryCodes(): array
-    {
-        return array_values((array) ($this->two_factor_recovery_codes ?? []));
-    }
-
     /**
      * @return array<string, string>
      */
@@ -62,9 +49,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'two_factor_secret' => 'encrypted',
-            'two_factor_recovery_codes' => 'encrypted:array',
-            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 }

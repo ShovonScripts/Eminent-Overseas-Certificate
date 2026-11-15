@@ -12,8 +12,8 @@ class InstructorSeeder extends Seeder
     public function run(): void
     {
         foreach ([
-            'Sheikh Monujurl Islam',
-            'Abdul Kaium Ovi',
+            'Bhuiyan Minhajul Abedin',
+            'Rifat Islam Eram',
         ] as $name) {
             Instructor::updateOrCreate(
                 ['name' => $name],

@@ -23,18 +23,6 @@ class LoginController extends Controller
     {
         $request->authenticate();
 
-        $user = $request->user();
-
-        if ($user?->hasEnabledTwoFactor()) {
-            Auth::logout();
-
-            $request->session()->put('login.id', $user->id);
-            $request->session()->put('login.remember', $request->boolean('remember'));
-            $request->session()->regenerate();
-
-            return redirect()->route('two-factor.login');
-        }
-
         $request->session()->regenerate();
 
         $logger->logLogin($request);
