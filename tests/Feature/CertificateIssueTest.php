@@ -70,6 +70,27 @@ class CertificateIssueTest extends TestCase
         app(CertificateIssuer::class)->issue($certificate);
     }
 
+    public function test_it_refuses_to_issue_when_class_hour_total_does_not_match_course_curriculum(): void
+    {
+        $certificate = Certificate::factory()->withInstructors()->create();
+        $certificate->attendances()->create([
+            'year' => 2025,
+            'month' => 6,
+            'class_hours' => 179,
+            'attendance_hours' => 179,
+        ]);
+
+        try {
+            app(CertificateIssuer::class)->issue($certificate->fresh());
+            $this->fail('A certificate with mismatched curriculum hours must not be issued.');
+        } catch (ValidationException $exception) {
+            $this->assertSame(
+                ['Monthly class-hour total (179) must match course curriculum hours (180).'],
+                $exception->errors()['attendances'],
+            );
+        }
+    }
+
     public function test_it_refuses_to_issue_when_total_class_hours_are_zero(): void
     {
         $certificate = Certificate::factory()->withInstructors()->create();

@@ -22,7 +22,11 @@ class CertificateImportTest extends TestCase
         Storage::fake('local');
 
         $staff = User::factory()->create(['role' => User::ROLE_STAFF]);
-        $course = Course::factory()->create(['level_code' => 'N5', 'name_en' => 'Basic Level']);
+        $course = Course::factory()->create([
+            'level_code' => 'N5',
+            'name_en' => 'Basic Level',
+            'total_hours' => 114,
+        ]);
         $first = Instructor::factory()->create(['name' => 'Taro Yamada', 'is_active' => true]);
         $second = Instructor::factory()->create(['name' => 'Hanako Suzuki', 'is_active' => true]);
 

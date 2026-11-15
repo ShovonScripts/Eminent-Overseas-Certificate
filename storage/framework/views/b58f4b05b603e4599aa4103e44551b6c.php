@@ -81,49 +81,6 @@ unset($__errorArgs, $__bag); ?>
         <div class="card">
             <div class="card-head">
                 <div>
-                    <h2>Verification & Numbering Configuration</h2>
-                    <p>Root URL encoded into QR codes and certificate numbering prefixes.</p>
-                </div>
-            </div>
-
-            <div class="card-body">
-                <div class="form-grid">
-                    <div class="field span-2">
-                        <label for="verify_base_url">Verification Base URL</label>
-                        <input id="verify_base_url" class="input" name="verify_base_url" type="url" required
-                               value="<?php echo e($settings['verify_base_url'] ?? ''); ?>">
-                        <?php $__errorArgs = ['verify_base_url'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><div class="error-text"><?php echo e($message); ?></div><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        <div class="help">Example: https://certificates.eminentoverseas.com/verify</div>
-                    </div>
-
-                    <div class="field">
-                        <label for="number_prefix">Certificate Number Prefix</label>
-                        <input id="number_prefix" class="input mono" name="number_prefix" type="text" required
-                               value="<?php echo e($settings['number_prefix'] ?? 'EOC'); ?>">
-                        <?php $__errorArgs = ['number_prefix'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><div class="error-text"><?php echo e($message); ?></div><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        <div class="help">Prepended to certificate numbers (e.g., EOC-2026-000001)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-head">
-                <div>
                     <h2>Certificate Graphical Assets</h2>
                     <p>High-resolution images embedded directly in DomPDF certificate generation.</p>
                 </div>

@@ -54,6 +54,14 @@ class CertificateIssuer
                     ]);
                 }
 
+                $curriculumHours = (int) $certificate->course->total_hours;
+
+                if ($totals['total_class_hours'] !== $curriculumHours) {
+                    throw ValidationException::withMessages([
+                        'attendances' => "Monthly class-hour total ({$totals['total_class_hours']}) must match course curriculum hours ({$curriculumHours}).",
+                    ]);
+                }
+
                 $certificate->fill($totals);
 
                 if (blank($certificate->certificate_no)) {

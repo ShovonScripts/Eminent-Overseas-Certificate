@@ -355,7 +355,7 @@
         }
 
         .seal-wrap {
-            height: 20mm;
+            height: 26mm;
             margin: 0 auto;
             text-align: center;
             font-size: 0;
@@ -365,8 +365,8 @@
         .seal-img {
             width: auto;
             height: auto;
-            max-width: 36mm;
-            max-height: 20mm;
+            max-width: 45mm;
+            max-height: 26mm;
             display: block;
             margin: 0 auto;
         }
@@ -381,14 +381,14 @@
         .instructor-title {
             font-size: 7.6pt;
             color: #4A4235;
-            margin-top: 0.4mm;
+            margin-top: 0.15mm;
             line-height: 10pt;
         }
 
         .instructor-mail {
             font-size: 7.2pt;
             color: #4A4235;
-            margin-top: 0.4mm;
+            margin-top: 0.15mm;
             line-height: 9.8pt;
         }
 
@@ -401,7 +401,7 @@
         table.footer-row {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1.2mm;
+            margin-top: 1.5mm;
             border-top: 0.5pt solid #D9CFB8;
             page-break-inside: avoid;
         }
@@ -467,6 +467,26 @@
             color: #111827;
             line-height: 6pt;
         }
+
+        .page.roomy .auth-section {
+            margin-top: 2.2mm;
+        }
+
+        .page.roomy {
+            padding-top: 13mm;
+        }
+
+        .page.roomy .signature-space {
+            height: 14mm;
+        }
+
+        .page.roomy table.footer-row {
+            margin-top: 2.2mm;
+        }
+
+        .page.roomy table.footer-row td {
+            padding-top: 1.5mm;
+        }
     </style>
 </head>
 
@@ -507,13 +527,14 @@
     $contextJa = implode('、', array_filter($c->course->learningContextJapanese()));
     $contextEn = implode(', ', array_filter($c->course->learningContextEnglish()));
     $stackLearningContext = $contextJa !== '' && $contextEn !== '' && (mb_strlen($contextJa) + mb_strlen($contextEn)) > 45;
+    $roomySpacing = $monthCount <= 5 && ! $stackLearningContext;
 
     $instructors = $c->instructors->values();
     $leftInstructor = $instructors->get(0);
     $rightInstructor = $instructors->get(1);
     @endphp
 
-    <div class="page">
+    <div class="page{{ $roomySpacing ? ' roomy' : '' }}">
         {{-- Header: Logo, Institution Name, Bilingual Title, Tapered Gold Divider --}}
         <div class="header-block">
             @if (!empty($images['logo']))
@@ -667,7 +688,6 @@
 
         {{-- Dual Instructors & Center Gold Seal --}}
         <div class="section auth-section">
-            <div class="section-title">署名 / Signatures and Seal</div>
             <table class="auth-row">
                 <tr>
                     <td class="instructor-col">

@@ -55,6 +55,8 @@ $totalAttend = $certificate->attendances->sum('attendance_hours');
 $rate        = $totalClass > 0 ? round($totalAttend / $totalClass * 100, 2) : 0;
 ```
 
+Before issuance, the sum of monthly `class_hours` must equal the selected course's `total_hours`. If they differ, correct the monthly class-hour entries before issuing the certificate.
+
 Auto-suggest monthly class hours:
 
 ```php

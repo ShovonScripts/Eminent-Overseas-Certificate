@@ -144,9 +144,17 @@ class AdminCertificateTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
         $course = Course::factory()->create();
         $instructors = Instructor::factory()->count(2)->create();
+        $payload = $this->payload($course, $instructors);
+        $payload['attendances'] = [
+            ['year' => 2025, 'month' => 6, 'class_hours' => 33, 'attendance_hours' => 33],
+            ['year' => 2025, 'month' => 7, 'class_hours' => 39, 'attendance_hours' => 36],
+            ['year' => 2025, 'month' => 8, 'class_hours' => 36, 'attendance_hours' => 36],
+            ['year' => 2025, 'month' => 9, 'class_hours' => 39, 'attendance_hours' => 39],
+            ['year' => 2025, 'month' => 10, 'class_hours' => 33, 'attendance_hours' => 33],
+        ];
 
         $this->actingAs($admin)
-            ->post('/admin/certificates', $this->payload($course, $instructors));
+            ->post('/admin/certificates', $payload);
 
         $certificate = Certificate::firstOrFail();
 
