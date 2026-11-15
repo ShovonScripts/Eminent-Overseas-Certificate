@@ -47,6 +47,43 @@ class AttendanceSuggester
     }
 
     /**
+     * Calculate the study end date based on target total hours, start date,
+     * class days, hours per day, and holidays.
+     *
+     * @param  array<int, string>  $classDays  English day names, e.g. ["Saturday"]
+     * @param  array<int, string>  $holidays  Dates in "Y-m-d" format
+     */
+    public function calculateEndDate(
+        CarbonInterface $start,
+        int $targetHours,
+        array $classDays,
+        int $hoursPerDay,
+        array $holidays = [],
+    ): CarbonImmutable {
+        $accumulated = 0;
+        $date = CarbonImmutable::instance($start)->startOfDay();
+
+        // Safety limit: max 2 years
+        $maxDate = $date->copy()->addYears(2);
+
+        while ($date->lessThanOrEqualTo($maxDate)) {
+            if (in_array($date->englishDayOfWeek, $classDays, true)
+                && ! in_array($date->toDateString(), $holidays, true)) {
+                $accumulated += $hoursPerDay;
+
+                if ($accumulated >= $targetHours) {
+                    return $date;
+                }
+            }
+
+            $date = $date->addDay();
+        }
+
+        // Fallback: return max date if target not reached
+        return $maxDate;
+    }
+
+    /**
      * Parse a free-text holiday list such as "6月9日; 6月11日; 8月16日; 10月1日"
      * into ISO dates for every year the study period spans. Also accepts Y-m-d lines.
      *

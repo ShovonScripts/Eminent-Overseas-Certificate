@@ -76,6 +76,8 @@ Route::middleware('auth')
 
         Route::post('certificates/suggest', [CertificateController::class, 'suggest'])
             ->name('certificates.suggest');
+        Route::post('certificates/calculate-end-date', [CertificateController::class, 'calculateEndDate'])
+            ->name('certificates.calculate-end-date');
         Route::get('certificates/import', [CertificateController::class, 'importForm'])
             ->name('certificates.import.form');
         Route::post('certificates/import', [CertificateController::class, 'import'])

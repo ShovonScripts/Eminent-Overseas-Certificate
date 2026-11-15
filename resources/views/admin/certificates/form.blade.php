@@ -4,21 +4,34 @@
     $isEdit = $certificate->exists;
     $selectedDays = old('class_days', $certificate->class_days ?? []);
     $selectedDays = is_array($selectedDays) ? $selectedDays : [];
-    if (!$isEdit && $selectedDays === []) {
+    if (! $isEdit && $selectedDays === []) {
         $selectedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     }
+
     $selectedInstructors = array_values((array) old('instructors', $certificate->instructors->pluck('id')->all()));
     $selectedInstructors = array_pad($selectedInstructors, 2, '');
+
     $attendanceRows = old('attendances', $certificate->attendances->map(fn ($a) => [
-        'year' => $a->year,
-        'month' => $a->month,
-        'class_hours' => $a->class_hours,
-        'attendance_hours' => $a->attendance_hours,
+        'year' => (int) $a->year,
+        'month' => (int) $a->month,
+        'class_hours' => (int) $a->class_hours,
+        'attendance_hours' => (int) $a->attendance_hours,
     ])->all());
     $attendanceRows = is_array($attendanceRows) ? array_values($attendanceRows) : [];
-    if ($attendanceRows === []) {
-        $attendanceRows = [['year' => now()->year, 'month' => now()->month, 'class_hours' => 0, 'attendance_hours' => 0]];
-    }
+
+    $initialRows = array_values(array_filter(
+        $attendanceRows,
+        static fn ($row) => is_array($row) && (int) ($row['class_hours'] ?? 0) > 0,
+    ));
+    $initialTotalClass = array_sum(array_map(static fn ($row) => (int) ($row['class_hours'] ?? 0), $initialRows));
+    $initialTotalAttendance = array_sum(array_map(static fn ($row) => (int) ($row['attendance_hours'] ?? 0), $initialRows));
+    $initialRate = $initialTotalClass > 0
+        ? (int) round($initialTotalAttendance / $initialTotalClass * 100)
+        : 100;
+    $initialRate = max(0, min(100, $initialRate));
+
+    $attendanceErrorKey = collect($errors->getBag('default')->keys())
+        ->first(fn ($key) => str_starts_with($key, 'attendances'));
 @endphp
 
 @section('title', $isEdit ? 'Edit draft certificate' : 'New certificate')
@@ -45,7 +58,17 @@
             @method('put')
         @endif
 
-        <div class="card">
+        <div id="attendance-inputs"></div>
+
+        <nav class="form-steps" aria-label="Certificate sections">
+            <a class="form-step" href="#step-1"><span>01</span> Student</a>
+            <a class="form-step" href="#step-2"><span>02</span> Course</a>
+            <a class="form-step" href="#step-3"><span>03</span> Schedule</a>
+            <a class="form-step" href="#step-4"><span>04</span> Summary</a>
+            <a class="form-step" href="#step-5"><span>05</span> Sign &amp; issue</a>
+        </nav>
+
+        <div class="card" id="step-1">
             <div class="card-head">
                 <div class="card-head-title">
                     <span class="step-badge">01</span>
@@ -63,6 +86,7 @@
                     <div class="field">
                         <label for="student_name_en">English name</label>
                         <input id="student_name_en" class="input" name="student_name_en" type="text" required
+                               autocomplete="off"
                                value="{{ old('student_name_en', $certificate->student_name_en ?? '') }}">
                         @error('student_name_en')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
@@ -70,6 +94,7 @@
                     <div class="field">
                         <label for="student_name_ja">Japanese name <span class="text-muted">(optional)</span></label>
                         <input id="student_name_ja" class="input" name="student_name_ja" type="text"
+                               autocomplete="off" lang="ja"
                                value="{{ old('student_name_ja', $certificate->student_name_ja ?? '') }}">
                         @error('student_name_ja')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
@@ -77,7 +102,9 @@
                     <div class="field">
                         <label for="student_date_of_birth">Date of birth</label>
                         <input id="student_date_of_birth" class="input" name="student_date_of_birth" type="date" required
+                               max="{{ now()->subDay()->format('Y-m-d') }}"
                                value="{{ old('student_date_of_birth', $certificate->student_date_of_birth?->format('Y-m-d') ?? '') }}">
+                        <div class="help" id="student-age"></div>
                         @error('student_date_of_birth')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
@@ -94,12 +121,26 @@
                         @error('student_gender')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
-                    
+                    <div class="field">
+                        <label for="student_email">Email <span class="text-muted">(optional, never shown publicly)</span></label>
+                        <input id="student_email" class="input" name="student_email" type="email"
+                               autocomplete="off"
+                               value="{{ old('student_email', $certificate->student_email ?? '') }}">
+                        @error('student_email')<div class="error-text">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="field">
+                        <label for="student_phone">Phone <span class="text-muted">(optional, never shown publicly)</span></label>
+                        <input id="student_phone" class="input" name="student_phone" type="tel"
+                               autocomplete="off"
+                               value="{{ old('student_phone', $certificate->student_phone ?? '') }}">
+                        @error('student_phone')<div class="error-text">{{ $message }}</div>@enderror
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="step-2">
             <div class="card-head">
                 <div class="card-head-title">
                     <span class="step-badge">02</span>
@@ -111,14 +152,20 @@
             </div>
             <div class="card-body">
                 <div class="form-grid">
-                    <div class="field">
+                    <div class="field span-2">
                         <label for="course_id">Course</label>
                         <select id="course_id" class="select" name="course_id" required>
                             <option value="">Select a course…</option>
                             @foreach ($courses as $course)
                                 <option value="{{ $course->id }}"
+                                        data-level="{{ $course->level_code }}"
+                                        data-name="{{ $course->name_en }}"
+                                        data-nameja="{{ $course->name_ja }}"
+                                        data-aim="{{ $course->aim_level_en }}"
+                                        data-book="{{ $course->book_en }}"
                                         data-hours="{{ $course->default_hours_per_day }}"
                                         data-days="{{ $course->default_days_per_week }}"
+                                        data-totalhours="{{ $course->total_hours }}"
                                         @selected((string) old('course_id', $certificate->course_id) === (string) $course->id)>
                                     {{ $course->name_en }} ({{ $course->level_code }}) — {{ $course->total_hours }}h
                                 </option>
@@ -126,16 +173,32 @@
                         </select>
                         @error('course_id')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
+
+                    <div class="course-info span-2" id="course-info" hidden>
+                        <div class="course-info-head">
+                            <span class="course-code" id="course-code"></span>
+                            <div>
+                                <strong id="course-name"></strong>
+                                <span class="course-name-ja" id="course-name-ja"></span>
+                            </div>
+                        </div>
+                        <dl class="course-meta">
+                            <div><dt>Aim level</dt><dd id="course-aim">—</dd></div>
+                            <div><dt>Textbook</dt><dd id="course-book">—</dd></div>
+                            <div><dt>Total hours</dt><dd id="course-total">—</dd></div>
+                            <div><dt>Default schedule</dt><dd id="course-default">—</dd></div>
+                        </dl>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="step-3">
             <div class="card-head">
                 <div class="card-head-title">
                     <span class="step-badge">03</span>
                     <div>
-                        <h2>Study Period & Schedule</h2>
+                        <h2>Study Period &amp; Schedule</h2>
                         <p>Class dates, duration, and scheduled days as they will appear on the physical certificate.</p>
                     </div>
                 </div>
@@ -152,37 +215,40 @@
                         <label for="study_end">Study end</label>
                         <input id="study_end" class="input" name="study_end" type="date" required
                                value="{{ old('study_end', $certificate->study_end?->format('Y-m-d')) }}">
+                        <div class="help">Filled automatically when you calculate from the course hours.</div>
                         @error('study_end')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="field">
                         <label for="hours_per_day">Hours per day</label>
                         <input id="hours_per_day" class="input" name="hours_per_day" type="number" min="1" max="12" required
+                               inputmode="numeric"
                                value="{{ old('hours_per_day', $certificate->hours_per_day ?? 3) }}">
                         @error('hours_per_day')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
                     <div class="field">
                         <label for="days_per_week">Days per week</label>
                         <input id="days_per_week" class="input" name="days_per_week" type="number" min="1" max="7" required
+                               inputmode="numeric"
                                value="{{ old('days_per_week', $certificate->days_per_week ?? 5) }}">
                         @error('days_per_week')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="field span-2">
                         <div class="schedule-presets">
-                            <span class="preset-title">Presets:</span>
-                            <button type="button" class="preset-btn" data-days="Monday,Wednesday,Friday" data-hours="3">Mon, Wed, Fri (3d×3h)</button>
-                            <button type="button" class="preset-btn" data-days="Monday,Tuesday,Wednesday,Thursday,Friday" data-hours="3">Mon–Fri (5d×3h)</button>
-                            <button type="button" class="preset-btn" data-days="Saturday,Sunday" data-hours="4">Sat &amp; Sun (2d×4h)</button>
-                            <button type="button" class="preset-btn" data-days="Saturday,Monday,Wednesday" data-hours="3">Sat, Mon, Wed (3d×3h)</button>
+                            <span class="preset-title">Quick presets</span>
+                            <button type="button" class="preset-btn" data-days="Monday,Wednesday,Friday" data-hours="3">Mon, Wed, Fri · 3d × 3h</button>
+                            <button type="button" class="preset-btn" data-days="Monday,Tuesday,Wednesday,Thursday,Friday" data-hours="3">Mon–Fri · 5d × 3h</button>
+                            <button type="button" class="preset-btn" data-days="Saturday,Sunday" data-hours="4">Sat &amp; Sun · 2d × 4h</button>
+                            <button type="button" class="preset-btn" data-days="Saturday,Monday,Wednesday" data-hours="3">Sat, Mon, Wed · 3d × 3h</button>
                         </div>
                         <span class="label">Class days</span>
-                        <div class="check-grid">
+                        <div class="day-toggles" id="day-toggles">
                             @foreach (\App\Http\Requests\CertificateRequest::WEEKDAYS as $day)
-                                <label class="check">
+                                <label class="day-toggle">
                                     <input type="checkbox" name="class_days[]" value="{{ $day }}"
                                            @checked(in_array($day, $selectedDays, true))>
-                                    {{ $day }}
+                                    <span>{{ $day }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -190,138 +256,187 @@
                     </div>
 
                     <div class="field span-2">
-                        <label for="national_holidays">Other holidays <span class="text-muted">(optional)</span></label>
-                        <textarea id="national_holidays" class="textarea" name="national_holidays"
-                                  placeholder="6月9日; 6月11日; 8月16日; 10月1日&#10;or one Y-m-d date per line">{{ old('national_holidays', $certificate->national_holidays) }}</textarea>
-                        <div class="help">Separate dates with semicolons, commas or new lines. Both Japanese dates and Y-m-d work.</div>
-                        <div class="holiday-tags">
-                            <span class="holiday-chip" data-holiday="1月1日 (元日)">+ 1月1日 (元日)</span>
-                            <span class="holiday-chip" data-holiday="2月23日 (天皇誕生日)">+ 2月23日 (天皇誕生日)</span>
-                            <span class="holiday-chip" data-holiday="5月3日 (憲法記念日)">+ 5月3日 (憲法記念日)</span>
-                            <span class="holiday-chip" data-holiday="5月5日 (こどもの日)">+ 5月5日 (こどもの日)</span>
-                            <span class="holiday-chip" data-holiday="8月15日 (お盆)">+ 8月15日 (お盆)</span>
-                            <span class="holiday-chip" data-holiday="9月23日 (秋分の日)">+ 9月23日 (秋分の日)</span>
-                            <span class="holiday-chip" data-holiday="11月23日 (勤労感謝の日)">+ 11月23日 (勤労感謝の日)</span>
+                        <div class="field-label-row">
+                            <label for="national_holidays">Holidays <span class="text-muted">(optional)</span></label>
+                            <span class="count-pill" id="holiday-count">0 selected</span>
+                        </div>
+
+                        <div class="holiday-layout">
+                            <div class="holiday-calendar">
+                                <div class="cal-head">
+                                    <button type="button" class="cal-nav" id="cal-prev" aria-label="Previous month">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                    </button>
+                                    <div class="cal-title">
+                                        <strong id="cal-month-label">—</strong>
+                                        <span id="cal-sub">Click a date to exclude it</span>
+                                    </div>
+                                    <button type="button" class="cal-nav" id="cal-next" aria-label="Next month">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays" aria-hidden="true">
+                                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                                </div>
+                                <div class="cal-grid" id="cal-grid" role="grid" aria-label="Holiday calendar"></div>
+                                <div class="cal-legend">
+                                    <span><i class="legend-dot is-class"></i> Class day</span>
+                                    <span><i class="legend-dot is-holiday"></i> Holiday</span>
+                                </div>
+                            </div>
+
+                            <div class="holiday-side">
+                                <p class="help">Class days are highlighted. Click any date to mark it as a holiday — its scheduled hours are removed from the monthly totals.</p>
+                                <div class="holiday-chips" id="holiday-chips"></div>
+                                <button type="button" class="btn btn-ghost btn-sm" id="clear-holidays">Clear all holidays</button>
+
+                                <details class="holiday-advanced">
+                                    <summary>Edit holidays as text</summary>
+                                    <textarea id="national_holidays" class="textarea" name="national_holidays"
+                                              placeholder="6月9日; 6月11日; 8月16日; 10月1日&#10;or one Y-m-d date per line">{{ old('national_holidays', $certificate->national_holidays) }}</textarea>
+                                    <div class="help">Separate dates with semicolons, commas or new lines. Both Japanese dates and Y-m-d work.</div>
+                                </details>
+                            </div>
                         </div>
                         @error('national_holidays')<div class="error-text">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="field span-2">
+                        <div class="field-label-row">
+                            <label>Course completion</label>
+                            <span class="count-pill" id="calc-target-pill">No course selected</span>
+                        </div>
+                        <div class="calculated-hours-display" id="calculated-hours-display">
+                            <div class="calc-grid">
+                                <div class="calc-stat">
+                                    <span class="label">Target hours</span>
+                                    <span class="value mono" id="calc-target-hours">—</span>
+                                </div>
+                                <div class="calc-stat">
+                                    <span class="label">Calculated end date</span>
+                                    <span class="value" id="calc-end-date">—</span>
+                                </div>
+                                <div class="calc-stat">
+                                    <span class="label">Months</span>
+                                    <span class="value" id="calc-months">—</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-gold" id="calc-end-date-btn">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <span>Fit end date to course hours</span>
+                            </button>
+                            <div id="calc-error" class="error-text" style="display: none;"></div>
+                        </div>
+                        <div class="help" id="calc-help">Select a course to see its target hours. The end date is fitted automatically from your start date and weekly schedule.</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="step-4">
             <div class="card-head">
                 <div class="card-head-title">
                     <span class="step-badge">04</span>
                     <div>
-                        <h2>Monthly Attendance Breakdown</h2>
-                        <p>Add or adjust months freely. Course completion hours on the PDF are calculated from these rows.</p>
+                        <h2>Schedule Summary</h2>
+                        <p>Generated from the study period and weekly schedule. Monthly hours are written to the certificate automatically.</p>
                     </div>
                 </div>
                 <div class="card-head-actions">
-                    <button class="btn btn-secondary btn-sm" type="button" id="match-attendance" title="Fill attendance hours equal to class hours (100% attendance)">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Match 100%</span>
-                    </button>
-                    <button class="btn btn-gold btn-sm" type="button" id="suggest-hours">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                        </svg>
-                        <span id="suggest-hours-label">Suggest class hours</span>
-                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="refresh-summary">Recalculate</button>
                 </div>
             </div>
-
-            <div id="suggest-error" class="alert alert-danger" style="display: none; margin: 16px 20px 0;"></div>
-
-            <div class="table-wrap">
-                <table class="table attendance-table">
-                    <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th>Month</th>
-                        <th class="num">Class hours</th>
-                        <th class="num">Attendance hours</th>
-                        <th class="num">Rate</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody id="attendance-rows">
-                    @foreach ($attendanceRows as $index => $row)
-                        <tr class="attendance-row">
-                            <td>
-                                <input class="input" type="number" name="attendances[{{ $index }}][year]" min="2000" max="2100" required
-                                       value="{{ $row['year'] ?? now()->year }}">
-                            </td>
-                            <td>
-                                <input class="input" type="number" name="attendances[{{ $index }}][month]" min="1" max="12" required
-                                       value="{{ $row['month'] ?? 1 }}">
-                            </td>
-                            <td class="num">
-                                <input class="input" type="number" name="attendances[{{ $index }}][class_hours]" min="0" max="2000" required
-                                       value="{{ $row['class_hours'] ?? 0 }}">
-                            </td>
-                            <td class="num">
-                                <input class="input" type="number" name="attendances[{{ $index }}][attendance_hours]" min="0" max="2000" required
-                                       value="{{ $row['attendance_hours'] ?? 0 }}">
-                            </td>
-                            <td class="rate" data-rate>0%</td>
-                            <td class="actions">
-                                <button class="btn btn-danger btn-sm" type="button" data-remove-row>
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="18" y1="6" x2="6" y2="18"/>
-                                        <line x1="6" y1="6" x2="18" y2="18"/>
-                                    </svg>
-                                    <span>Remove</span>
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="attendance-totals" aria-live="polite">
-                <div class="item">
-                    <span class="label">Total class hours</span>
-                    <strong data-total-class>0</strong>
-                </div>
-                <div class="item">
-                    <span class="label">Total attendance hours</span>
-                    <strong data-total-attendance>0</strong>
-                </div>
-                <div class="item">
-                    <span class="label">Overall attendance rate</span>
-                    <strong data-total-rate>0%</strong>
-                </div>
-                <div class="item" style="margin-left: auto;">
-                    <span class="label">ISA Guideline</span>
-                    <div id="immigration-badge" class="immigration-threshold-badge unmet">
-                        <span id="immigration-status">⚠️ Calculating…</span>
+            <div class="card-body">
+                <div class="summary-toolbar">
+                    <div class="field">
+                        <label for="attendance_rate">Attendance rate</label>
+                        <div class="rate-control">
+                            <input id="attendance_rate" class="input" type="number" min="0" max="100" step="1"
+                                   inputmode="numeric" value="{{ $initialRate }}">
+                            <span class="rate-suffix">%</span>
+                        </div>
+                        <div class="help">Applied to every month. 100% means every class was attended.</div>
+                    </div>
+                    <div class="summary-totals" aria-live="polite">
+                        <div class="summary-total">
+                            <span class="label">Class</span>
+                            <strong class="mono" id="totals-class">—</strong>
+                        </div>
+                        <div class="summary-total">
+                            <span class="label">Attended</span>
+                            <strong class="mono" id="totals-attendance">—</strong>
+                        </div>
+                        <div class="summary-total">
+                            <span class="label">Rate</span>
+                            <strong class="mono" id="totals-rate">—</strong>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card-body" style="padding-top: var(--space-4);">
-                <button class="btn btn-secondary btn-sm" type="button" id="add-attendance-row">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    <span>Add month</span>
-                </button>
-                @error('attendances')<div class="error-text">{{ $message }}</div>@enderror
+                <div id="summary-status" class="status-banner" hidden></div>
+
+                <div class="schedule-summary" id="schedule-summary" hidden>
+                    <div class="summary-grid">
+                        <div class="summary-item is-wide">
+                            <span class="label">Study period</span>
+                            <span class="value" id="summary-period">—</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Months</span>
+                            <span class="value" id="summary-months">—</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Days / week</span>
+                            <span class="value" id="summary-days-week">—</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Hours / day</span>
+                            <span class="value" id="summary-hours-day">—</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Class days</span>
+                            <span class="value value-sm" id="summary-class-days">—</span>
+                        </div>
+                    </div>
+
+                    <div class="monthly-breakdown">
+                        <div class="monthly-breakdown-head">
+                            <h4>Monthly breakdown</h4>
+                            <span class="text-muted" id="summary-row-count"></span>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th class="num">Class hours</th>
+                                    <th class="num">Attendance</th>
+                                </tr>
+                                </thead>
+                                <tbody id="monthly-breakdown-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="summary-error" class="error-text" style="display: none;"></div>
+                <div class="help" id="summary-help">Pick a course, start date and class days — the monthly breakdown appears here automatically.</div>
+
+                @if ($attendanceErrorKey)
+                    <div class="error-text">{{ $errors->first($attendanceErrorKey) }}</div>
+                @endif
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="step-5">
             <div class="card-head">
                 <div class="card-head-title">
                     <span class="step-badge">05</span>
                     <div>
-                        <h2>Signatures & Issue Date</h2>
+                        <h2>Signatures &amp; Issue Date</h2>
                         <p>Assign authorizing instructors. The primary instructor prints on the left signature line.</p>
                     </div>
                 </div>
@@ -354,8 +469,9 @@
                     <div class="field">
                         <label for="issued_on">Date of issue</label>
                         <input id="issued_on" class="input" name="issued_on" type="date" required
+                               min="{{ old('study_end', $certificate->study_end?->format('Y-m-d')) }}"
                                value="{{ old('issued_on', $certificate->issued_on?->format('Y-m-d')) }}">
-                        <div class="help">Must be on or after the study end date.</div>
+                        <div class="help">Automatically kept on or after the study end date.</div>
                         @error('issued_on')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
                 </div>
@@ -375,301 +491,1230 @@
         </div>
 
     </form>
-
-    <template id="attendance-template">
-        <tr class="attendance-row">
-            <td><input class="input" type="number" name="attendances[__INDEX__][year]" min="2000" max="2100" required value="{{ now()->year }}"></td>
-            <td><input class="input" type="number" name="attendances[__INDEX__][month]" min="1" max="12" required value="1"></td>
-            <td class="num"><input class="input" type="number" name="attendances[__INDEX__][class_hours]" min="0" max="2000" required value="0"></td>
-            <td class="num"><input class="input" type="number" name="attendances[__INDEX__][attendance_hours]" min="0" max="2000" required value="0"></td>
-            <td class="rate" data-rate>0%</td>
-            <td class="actions">
-                <button class="btn btn-danger btn-sm" type="button" data-remove-row>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                    <span>Remove</span>
-                </button>
-            </td>
-        </tr>
-    </template>
 @endsection
 
 @push('scripts')
+    <style>
+        [hidden] { display: none !important; }
+
+        .form-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: var(--space-5);
+        }
+        .form-step {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-muted-foreground);
+            background: #FFFFFF;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+        }
+        .form-step span {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--color-accent);
+        }
+        .form-step:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .field-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            margin-bottom: 6px;
+        }
+        .field-label-row label { margin-bottom: 0; }
+        .count-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 9px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--color-muted-foreground);
+            background: #F1F5F9;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+        }
+
+        .course-info {
+            background: linear-gradient(135deg, #F8FAFC, #FFFFFF);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+        .course-info-head {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        .course-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            padding: 6px 10px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.8125rem;
+            color: var(--color-accent);
+            background: var(--color-accent-subtle);
+            border: 1px solid #BFDBFE;
+            border-radius: var(--radius-sm);
+        }
+        .course-info-head strong {
+            display: block;
+            font-size: var(--text-base);
+            color: var(--color-foreground);
+        }
+        .course-name-ja {
+            font-size: 0.75rem;
+            color: var(--color-muted-foreground);
+        }
+        .course-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-3) var(--space-4);
+            margin: 0;
+        }
+        .course-meta dt {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-muted-foreground);
+            margin-bottom: 2px;
+        }
+        .course-meta dd {
+            margin: 0;
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--color-foreground);
+        }
+
+        .day-toggles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .day-toggle {
+            position: relative;
+            display: inline-flex;
+            cursor: pointer;
+            user-select: none;
+            margin: 0;
+        }
+        .day-toggle input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+        .day-toggle span {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 14px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #334155;
+            background: #FFFFFF;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+        .day-toggle:hover span { border-color: var(--color-accent); color: var(--color-accent); }
+        .day-toggle input:focus-visible + span { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); }
+        .day-toggle input:checked + span {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            color: #FFFFFF;
+        }
+
+        .holiday-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+            gap: var(--space-4);
+            background: #F8FAFC;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+        .holiday-calendar {
+            background: #FFFFFF;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+        }
+        .cal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
+        }
+        .cal-title { text-align: center; }
+        .cal-title strong {
+            display: block;
+            font-size: var(--text-sm);
+            color: var(--color-foreground);
+        }
+        .cal-title span {
+            display: block;
+            font-size: 0.6875rem;
+            color: var(--color-muted-foreground);
+            margin-top: 1px;
+        }
+        .cal-nav {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+            background: #FFFFFF;
+            color: var(--color-muted-foreground);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+        .cal-nav:hover { border-color: var(--color-accent); color: var(--color-accent); }
+        .cal-weekdays,
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 4px;
+        }
+        .cal-weekdays { margin-bottom: 4px; }
+        .cal-weekdays span {
+            text-align: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-muted-foreground);
+            padding: 2px 0;
+        }
+        .cal-day {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            color: #475569;
+            background: #FFFFFF;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+        .cal-day:hover { background: #F1F5F9; }
+        .cal-day.is-empty { visibility: hidden; cursor: default; }
+        .cal-day.is-class { background: var(--color-accent-subtle); color: var(--color-accent); }
+        .cal-day.is-class:hover { background: #DBEAFE; }
+        .cal-day.is-holiday {
+            background: var(--color-destructive);
+            border-color: var(--color-destructive);
+            color: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+        }
+        .cal-day.is-holiday:hover { background: #DC2626; }
+        .cal-day.is-today { outline: 2px solid var(--color-gold); outline-offset: 1px; }
+        .cal-legend {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-3);
+            padding-top: var(--space-2);
+            border-top: 1px dashed var(--color-border);
+            font-size: 0.6875rem;
+            color: var(--color-muted-foreground);
+        }
+        .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .legend-dot.is-class { background: var(--color-accent-subtle); border: 1px solid #BFDBFE; }
+        .legend-dot.is-holiday { background: var(--color-destructive); }
+
+        .holiday-side {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            min-width: 0;
+        }
+        .holiday-side .help { margin: 0; }
+        .holiday-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .holiday-chips .chip-empty {
+            font-size: 0.75rem;
+            color: var(--color-muted-foreground);
+            font-style: italic;
+        }
+        .holiday-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 5px 4px 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: var(--color-destructive-bg);
+            color: var(--color-destructive-text);
+            border: 1px solid var(--color-destructive-border);
+            border-radius: var(--radius-full);
+        }
+        .holiday-chip button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(153, 27, 27, 0.1);
+            color: var(--color-destructive-text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+        .holiday-chip button:hover { background: var(--color-destructive); color: #FFFFFF; }
+        .holiday-advanced {
+            border-top: 1px dashed var(--color-border);
+            padding-top: var(--space-3);
+        }
+        .holiday-advanced summary {
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-muted-foreground);
+        }
+        .holiday-advanced summary:hover { color: var(--color-accent); }
+        .holiday-advanced .textarea { margin-top: var(--space-2); min-height: 84px; }
+
+        .calculated-hours-display {
+            background: var(--color-bg-elevated, #F8FAFC);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        .calc-stat { display: flex; flex-direction: column; gap: 2px; }
+        .calc-stat .label {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-muted-foreground);
+        }
+        .calc-stat .value {
+            font-size: var(--text-base);
+            font-weight: 700;
+            color: var(--color-foreground);
+        }
+        .calculated-hours-display .btn { width: 100%; }
+
+        .summary-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-6);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-4);
+        }
+        .summary-toolbar .field { margin-bottom: 0; min-width: 200px; }
+        .rate-control {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        .rate-control .input { width: 100px; font-family: var(--font-mono); }
+        .rate-suffix {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--color-muted-foreground);
+        }
+        .summary-totals {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+        .summary-total {
+            min-width: 108px;
+            padding: var(--space-3) var(--space-4);
+            background: #F8FAFC;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+        }
+        .summary-total .label {
+            display: block;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-muted-foreground);
+            margin-bottom: 2px;
+        }
+        .summary-total strong {
+            font-size: var(--text-lg);
+            color: var(--color-foreground);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-4);
+            border: 1px solid transparent;
+        }
+        .status-banner strong { font-weight: 700; }
+        .status-banner .btn { margin-left: auto; }
+        .status-banner.is-ok {
+            background: var(--color-success-bg);
+            border-color: var(--color-success-border);
+            color: var(--color-success-text);
+        }
+        .status-banner.is-warn {
+            background: var(--color-warning-bg);
+            border-color: var(--color-warning-border);
+            color: var(--color-warning-text);
+        }
+        .status-banner.is-danger {
+            background: var(--color-destructive-bg);
+            border-color: var(--color-destructive-border);
+            color: var(--color-destructive-text);
+        }
+        .status-banner.is-info {
+            background: var(--color-info-bg);
+            border-color: var(--color-info-border);
+            color: var(--color-info-text);
+        }
+
+        .schedule-summary {
+            background: #FFFFFF;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-5);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .summary-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .summary-item.is-wide { grid-column: span 2; }
+        .summary-item .label {
+            color: var(--color-muted-foreground);
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .summary-item .value {
+            font-weight: 700;
+            font-size: var(--text-base);
+            color: var(--color-foreground);
+        }
+        .summary-item .value.mono { font-family: var(--font-mono); }
+        .summary-item .value-sm { font-size: var(--text-sm); font-weight: 600; }
+        .monthly-breakdown-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: var(--space-3);
+            margin-bottom: var(--space-2);
+        }
+        .monthly-breakdown h4 {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--color-foreground);
+            margin: 0;
+        }
+        .monthly-breakdown .table-wrap { max-height: 320px; overflow-y: auto; }
+        .monthly-breakdown table { width: 100%; }
+        .monthly-breakdown td, .monthly-breakdown th { font-variant-numeric: tabular-nums; }
+
+        .spinner {
+            width: 13px;
+            height: 13px;
+            border: 2px solid rgba(255, 255, 255, 0.45);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.7s linear infinite;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 960px) {
+            .holiday-layout { grid-template-columns: minmax(0, 1fr); }
+            .summary-item.is-wide { grid-column: span 1; }
+        }
+        @media (max-width: 720px) {
+            .form-grid { grid-template-columns: minmax(0, 1fr); }
+            .form-grid .span-2 { grid-column: auto; }
+            .summary-toolbar { flex-direction: column; }
+        }
+    </style>
+
     <script>
         (() => {
             const form = document.getElementById('certificate-form');
-            const rows = document.getElementById('attendance-rows');
-            const template = document.getElementById('attendance-template');
-            const suggestButton = document.getElementById('suggest-hours');
-            const suggestLabel = document.getElementById('suggest-hours-label') || suggestButton;
-            const suggestError = document.getElementById('suggest-error');
-            const matchButton = document.getElementById('match-attendance');
-            let nextIndex = {{ count($attendanceRows) }};
+            if (!form) return;
 
-            const refreshTotals = () => {
-                let totalClass = 0;
-                let totalAttendance = 0;
+            const $ = (id) => document.getElementById(id);
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            const routes = {
+                suggest: '{{ route('admin.certificates.suggest') }}',
+                recalc: '{{ route('admin.certificates.calculate-end-date') }}',
+            };
 
-                rows.querySelectorAll('.attendance-row').forEach((row) => {
-                    const classInput = row.querySelector('[name$="[class_hours]"]');
-                    const attendInput = row.querySelector('[name$="[attendance_hours]"]');
-                    const classHours = Number(classInput?.value || 0);
-                    const attendance = Number(attendInput?.value || 0);
+            const startInput = $('study_start');
+            const endInput = $('study_end');
+            const hoursInput = $('hours_per_day');
+            const daysInput = $('days_per_week');
+            const holidayInput = $('national_holidays');
+            const courseSelect = $('course_id');
+            const issuedInput = $('issued_on');
+            const rateInput = $('attendance_rate');
+            const hiddenInputs = $('attendance-inputs');
 
-                    // Validation: attendance cannot exceed class hours
-                    if (attendance > classHours && classHours > 0) {
-                        attendInput?.classList.add('input-invalid');
-                        attendInput?.setAttribute('title', 'Attendance hours cannot exceed class hours');
-                    } else {
-                        attendInput?.classList.remove('input-invalid');
-                        attendInput?.removeAttribute('title');
+            const summary = $('schedule-summary');
+            const summaryHelp = $('summary-help');
+            const summaryError = $('summary-error');
+            const statusEl = $('summary-status');
+            const monthlyRows = $('monthly-breakdown-rows');
+
+            const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const WEEKDAY_JA = { Monday: '月', Tuesday: '火', Wednesday: '水', Thursday: '木', Friday: '金', Saturday: '土', Sunday: '日' };
+
+            const initialRows = @json($initialRows);
+            const isEdit = @json($isEdit);
+            const initialRate = {{ $initialRate }};
+
+            let rows = (Array.isArray(initialRows) ? initialRows : [])
+                .map((row) => ({
+                    year: Number(row.year),
+                    month: Number(row.month),
+                    class_hours: Number(row.class_hours) || 0,
+                    attendance_hours: Number(row.attendance_hours) || 0,
+                }))
+                .filter((row) => row.class_hours > 0)
+                .sort((a, b) => (a.year - b.year) || (a.month - b.month));
+
+            let holidays = new Set();
+            let calCursor = new Date();
+            let refreshTimer = null;
+            let issuedDirty = false;
+
+            const pad = (value) => String(value).padStart(2, '0');
+            const isoOf = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+            const parseDate = (value) => (value ? new Date(value + 'T00:00:00') : null);
+
+            const formatDate = (value) => {
+                const date = parseDate(value);
+                if (!date || Number.isNaN(date.getTime())) return '—';
+                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            };
+
+            const formatMonth = (year, month) => `${year}年${pad(month)}月`;
+
+            const selectedDays = () => [...form.querySelectorAll('input[name="class_days[]"]:checked')]
+                .map((input) => input.value);
+
+            const currentRate = () => {
+                const value = parseInt(rateInput.value, 10);
+                if (Number.isNaN(value)) return 100;
+                return Math.max(0, Math.min(100, value));
+            };
+
+            const targetHours = () => {
+                const option = courseSelect.selectedOptions[0];
+                const value = Number(option?.dataset?.totalhours || 0);
+                return Number.isFinite(value) ? value : 0;
+            };
+
+            // ------------------------------------------------------------------
+            // Holidays
+            // ------------------------------------------------------------------
+
+            const studyYears = () => {
+                const start = parseDate(startInput.value) ?? new Date();
+                const end = parseDate(endInput.value) ?? start;
+                const first = Math.min(start.getFullYear(), end.getFullYear());
+                const last = Math.max(start.getFullYear(), end.getFullYear());
+                const years = [];
+                for (let year = first; year <= last; year++) years.push(year);
+                if (!years.includes(last + 1) && years.length < 3) years.push(last + 1);
+                return years;
+            };
+
+            const parseHolidayText = (text) => {
+                const set = new Set();
+                if (!text) return set;
+                const years = studyYears();
+
+                text.split(/[;,\n]+/u).forEach((raw) => {
+                    const part = raw.trim();
+                    if (!part) return;
+
+                    let match = part.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                    if (match) {
+                        set.add(`${match[1]}-${pad(match[2])}-${pad(match[3])}`);
+                        return;
                     }
 
-                    const rate = classHours > 0 ? Math.round(attendance / classHours * 100) : 0;
-                    totalClass += classHours;
-                    totalAttendance += attendance;
+                    match = part.match(/^(\d{1,2})月(\d{1,2})日$/u);
+                    if (match) {
+                        years.forEach((year) => set.add(`${year}-${pad(match[1])}-${pad(match[2])}`));
+                        return;
+                    }
 
-                    const rateEl = row.querySelector('[data-rate]');
-                    if (rateEl) {
-                        rateEl.textContent = rate + '%';
-                        if (rate < 80 && classHours > 0) {
-                            rateEl.style.color = '#dc2626';
-                            rateEl.style.fontWeight = '700';
-                        } else if (rate >= 90) {
-                            rateEl.style.color = '#15803d';
-                            rateEl.style.fontWeight = '600';
-                        } else {
-                            rateEl.style.color = '';
-                            rateEl.style.fontWeight = '';
-                        }
+                    const parsed = new Date(part);
+                    if (!Number.isNaN(parsed.getTime())) {
+                        set.add(isoOf(parsed));
                     }
                 });
 
-                const overallRate = totalClass > 0 ? Math.round(totalAttendance / totalClass * 100) : 0;
+                return set;
+            };
 
-                const totalClassEl = document.querySelector('[data-total-class]');
-                const totalAttendEl = document.querySelector('[data-total-attendance]');
-                const totalRateEl = document.querySelector('[data-total-rate]');
+            const writeHolidays = () => {
+                holidayInput.value = [...holidays].sort().join('; ');
+            };
 
-                if (totalClassEl) totalClassEl.textContent = totalClass;
-                if (totalAttendEl) totalAttendEl.textContent = totalAttendance;
-                if (totalRateEl) {
-                    totalRateEl.textContent = overallRate + '%';
-                    if (overallRate < 80 && totalClass > 0) {
-                        totalRateEl.style.color = '#dc2626';
-                    } else if (overallRate >= 90) {
-                        totalRateEl.style.color = '#15803d';
-                    } else {
-                        totalRateEl.style.color = '';
-                    }
+            const renderHolidayChips = () => {
+                const container = $('holiday-chips');
+                container.innerHTML = '';
+                const dates = [...holidays].sort();
+
+                $('holiday-count').textContent = dates.length === 1
+                    ? '1 selected'
+                    : `${dates.length} selected`;
+
+                if (dates.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.className = 'chip-empty';
+                    empty.textContent = 'No holidays selected.';
+                    container.appendChild(empty);
+                    return;
                 }
 
-                // Update Japanese Immigration (ISA) Threshold badge
-                const immBadge = document.getElementById('immigration-badge');
-                const immStatus = document.getElementById('immigration-status');
+                dates.forEach((date) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'holiday-chip';
+                    const label = document.createElement('span');
+                    label.textContent = formatDate(date);
+                    const remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.dataset.removeHoliday = date;
+                    remove.setAttribute('aria-label', `Remove ${date}`);
+                    remove.textContent = '×';
+                    chip.append(label, remove);
+                    container.appendChild(chip);
+                });
+            };
 
-                if (immBadge && immStatus) {
-                    if (totalAttendance >= 150) {
-                        immBadge.className = 'immigration-threshold-badge met';
-                        immStatus.textContent = '✅ ' + totalAttendance + 'h (Meets 150h ISA threshold)';
-                    } else {
-                        immBadge.className = 'immigration-threshold-badge unmet';
-                        const diff = 150 - totalAttendance;
-                        immStatus.textContent = '⚠️ ' + totalAttendance + 'h / 150h (' + diff + 'h needed for ISA standard)';
+            const renderCalendar = () => {
+                const year = calCursor.getFullYear();
+                const month = calCursor.getMonth();
+
+                $('cal-month-label').textContent = `${year}年 ${month + 1}月`;
+                const weekdays = selectedDays().length;
+                $('cal-sub').textContent = weekdays > 0
+                    ? `${weekdays} class ${weekdays === 1 ? 'day' : 'days'} per week`
+                    : 'Select class days to highlight them';
+
+                const grid = $('cal-grid');
+                grid.innerHTML = '';
+
+                const first = new Date(year, month, 1);
+                const offset = (first.getDay() + 6) % 7;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const classDays = selectedDays();
+                const today = isoOf(new Date());
+
+                for (let i = 0; i < offset; i++) {
+                    const filler = document.createElement('span');
+                    filler.className = 'cal-day is-empty';
+                    grid.appendChild(filler);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const value = isoOf(date);
+                    const dayName = WEEKDAYS[(date.getDay() + 6) % 7];
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'cal-day';
+                    button.textContent = String(day);
+                    button.dataset.date = value;
+                    button.title = `${value} · ${dayName}`;
+
+                    if (classDays.includes(dayName)) button.classList.add('is-class');
+                    if (holidays.has(value)) {
+                        button.classList.add('is-holiday');
+                        button.setAttribute('aria-pressed', 'true');
                     }
+                    if (value === today) button.classList.add('is-today');
+
+                    button.addEventListener('click', () => toggleHoliday(value));
+                    grid.appendChild(button);
                 }
             };
 
-            const addRow = (data = {}) => {
-                const index = nextIndex++;
-                const html = template.innerHTML.replaceAll('__INDEX__', String(index));
-                rows.insertAdjacentHTML('beforeend', html);
-                const row = rows.lastElementChild;
-
-                if (data.year) row.querySelector('[name$="[year]"]').value = data.year;
-                if (data.month) row.querySelector('[name$="[month]"]').value = data.month;
-                if (data.class_hours !== undefined) row.querySelector('[name$="[class_hours]"]').value = data.class_hours;
-                if (data.attendance_hours !== undefined) row.querySelector('[name$="[attendance_hours]"]').value = data.attendance_hours;
-
-                return row;
+            const toggleHoliday = (date) => {
+                if (holidays.has(date)) {
+                    holidays.delete(date);
+                } else {
+                    holidays.add(date);
+                }
+                writeHolidays();
+                renderCalendar();
+                renderHolidayChips();
+                scheduleRefresh();
             };
 
-            // Match 100% Attendance Handler
-            if (matchButton) {
-                matchButton.addEventListener('click', () => {
-                    rows.querySelectorAll('.attendance-row').forEach((row) => {
-                        const classInput = row.querySelector('[name$="[class_hours]"]');
-                        const attendInput = row.querySelector('[name$="[attendance_hours]"]');
-                        if (classInput && attendInput) {
-                            attendInput.value = classInput.value;
+            const syncCalendarToStart = () => {
+                const start = parseDate(startInput.value);
+                if (start) calCursor = new Date(start.getFullYear(), start.getMonth(), 1);
+            };
+
+            // ------------------------------------------------------------------
+            // Summary rendering
+            // ------------------------------------------------------------------
+
+            const renderHiddenInputs = () => {
+                hiddenInputs.innerHTML = '';
+                rows.forEach((row, index) => {
+                    ['year', 'month', 'class_hours', 'attendance_hours'].forEach((key) => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = `attendances[${index}][${key}]`;
+                        input.value = row[key];
+                        hiddenInputs.appendChild(input);
+                    });
+                });
+            };
+
+            const renderSummary = () => {
+                const classDays = selectedDays();
+                const totalClass = rows.reduce((sum, row) => sum + row.class_hours, 0);
+                const totalAttendance = rows.reduce((sum, row) => sum + row.attendance_hours, 0);
+                const rate = totalClass > 0 ? Math.round((totalAttendance / totalClass) * 100) : 0;
+                const target = targetHours();
+                const months = rows.length;
+
+                $('totals-class').textContent = totalClass + ' h';
+                $('totals-attendance').textContent = totalAttendance + ' h';
+                $('totals-rate').textContent = rate + '%';
+
+                $('calc-months').textContent = months > 0 ? `${months} month${months === 1 ? '' : 's'}` : '—';
+                $('calc-end-date').textContent = formatDate(endInput.value);
+                $('calc-target-hours').textContent = target > 0 ? target + ' h' : '—';
+
+                if (months === 0) {
+                    summary.hidden = true;
+                    summaryHelp.hidden = false;
+                    statusEl.hidden = true;
+                    return;
+                }
+
+                summary.hidden = false;
+                summaryHelp.hidden = true;
+
+                $('summary-period').textContent = `${formatDate(startInput.value)} → ${formatDate(endInput.value)}`;
+                $('summary-months').textContent = String(months);
+                $('summary-days-week').textContent = String(classDays.length);
+                $('summary-hours-day').textContent = `${hoursInput.value || 0} h`;
+                $('summary-class-days').textContent = classDays.map((day) => WEEKDAY_JA[day]).join('・');
+                $('summary-row-count').textContent = `${months} showing`;
+
+                monthlyRows.innerHTML = '';
+                rows.forEach((row) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${formatMonth(row.year, row.month)}</td>
+                        <td class="num">${row.class_hours}</td>
+                        <td class="num">${row.attendance_hours}</td>
+                    `;
+                    monthlyRows.appendChild(tr);
+                });
+
+                renderStatus(target, totalClass, months);
+            };
+
+            const renderStatus = (target, totalClass, months) => {
+                statusEl.hidden = false;
+                statusEl.className = 'status-banner';
+                statusEl.innerHTML = '';
+
+                if (months > 24) {
+                    statusEl.classList.add('is-danger');
+                    const message = document.createElement('span');
+                    message.innerHTML = '<strong>Too many months.</strong> A certificate can hold at most 24 monthly attendance rows. Tighten the study period.';
+                    statusEl.appendChild(message);
+                    return;
+                }
+
+                if (target <= 0) {
+                    statusEl.classList.add('is-info');
+                    const message = document.createElement('span');
+                    message.textContent = 'Select a course to compare the generated hours against its curriculum.';
+                    statusEl.appendChild(message);
+                    return;
+                }
+
+                const difference = totalClass - target;
+
+                if (difference === 0) {
+                    statusEl.classList.add('is-ok');
+                    const message = document.createElement('span');
+                    message.innerHTML = `<strong>${totalClass} h matches the course curriculum.</strong> The schedule is ready to issue.`;
+                    statusEl.appendChild(message);
+                    return;
+                }
+
+                statusEl.classList.add('is-warn');
+                const message = document.createElement('span');
+                const hint = difference < 0
+                    ? `${Math.abs(difference)} h short of`
+                    : `${difference} h over`;
+                message.innerHTML = `<strong>${totalClass} h of ${target} h.</strong> ${hint} the curriculum — fit the end date to correct it.`;
+                statusEl.appendChild(message);
+
+                const fit = document.createElement('button');
+                fit.type = 'button';
+                fit.className = 'btn btn-secondary btn-sm';
+                fit.textContent = `Fit end date to ${target} h`;
+                fit.addEventListener('click', () => runRefresh(true));
+                statusEl.appendChild(fit);
+            };
+
+            const renderAll = () => {
+                renderHiddenInputs();
+                renderSummary();
+            };
+
+            const applyRate = () => {
+                const rate = currentRate();
+                rows = rows.map((row) => ({
+                    ...row,
+                    attendance_hours: Math.max(0, Math.min(row.class_hours, Math.round(row.class_hours * rate / 100))),
+                }));
+                renderAll();
+            };
+
+            // ------------------------------------------------------------------
+            // Server calls
+            // ------------------------------------------------------------------
+
+            const postJson = async (url, payload) => {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    data = {};
+                }
+
+                if (!response.ok) {
+                    const errors = data.errors ? Object.values(data.errors).flat() : [data.message || 'Request failed.'];
+                    throw new Error(errors.join(' '));
+                }
+
+                return data;
+            };
+
+            const showError = (message) => {
+                summaryError.textContent = message;
+                summaryError.style.display = 'flex';
+            };
+
+            const clearError = () => {
+                summaryError.textContent = '';
+                summaryError.style.display = 'none';
+            };
+
+            const withBusy = async (button, busyLabel, task) => {
+                if (!button) return task();
+                const original = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<span class="spinner"></span>${busyLabel}`;
+                try {
+                    return await task();
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = original;
+                }
+            };
+
+            const runRefresh = async (recalculateEnd = false) => {
+                clearError();
+
+                const start = startInput.value;
+                const classDays = selectedDays();
+                const hours = Number(hoursInput.value || 0);
+                const button = recalculateEnd ? $('calc-end-date-btn') : $('refresh-summary');
+
+                if (!start) {
+                    showError('Enter the study start date first.');
+                    return;
+                }
+                if (!classDays.length) {
+                    showError('Select at least one class day.');
+                    return;
+                }
+                if (!hours) {
+                    showError('Enter how many hours are taught per day.');
+                    return;
+                }
+
+                await withBusy(button, 'Calculating…', async () => {
+                    try {
+                        let end = endInput.value;
+
+                        if (recalculateEnd) {
+                            const target = targetHours();
+                            if (!target) {
+                                throw new Error('Select a course so the target hours are known.');
+                            }
+
+                            const result = await postJson(routes.recalc, {
+                                study_start: start,
+                                target_hours: target,
+                                class_days: classDays,
+                                hours_per_day: hours,
+                                national_holidays: holidayInput.value,
+                            });
+
+                            end = result.study_end;
+                            endInput.value = end;
+                            syncCalendarToStart();
+                            renderCalendar();
+
+                            if (!isEdit && !issuedDirty) {
+                                const today = isoOf(new Date());
+                                issuedInput.value = end > today ? end : today;
+                            }
                         }
-                    });
-                    refreshTotals();
-                });
-            }
 
-            // Schedule Presets Handler
-            document.querySelectorAll('.preset-btn').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    const days = (btn.dataset.days || '').split(',');
-                    const hours = btn.dataset.hours;
-                    if (hours) {
-                        document.getElementById('hours_per_day').value = hours;
-                    }
-                    form.querySelectorAll('input[name="class_days[]"]').forEach((cb) => {
-                        cb.checked = days.includes(cb.value);
-                    });
-                    syncDaysPerWeek();
-                    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
-            });
+                        if (!end) {
+                            throw new Error('Enter the study end date.');
+                        }
 
-            // Holiday Chips Handler
-            document.querySelectorAll('.holiday-chip').forEach((chip) => {
-                chip.addEventListener('click', () => {
-                    const holiday = chip.dataset.holiday;
-                    const textarea = document.getElementById('national_holidays');
-                    if (!textarea || !holiday) return;
-                    const current = textarea.value.trim();
-                    if (!current) {
-                        textarea.value = holiday;
-                    } else if (!current.includes(holiday)) {
-                        textarea.value = current + '; ' + holiday;
+                        const result = await postJson(routes.suggest, {
+                            study_start: start,
+                            study_end: end,
+                            class_days: classDays,
+                            hours_per_day: hours,
+                            national_holidays: holidayInput.value,
+                        });
+
+                        const rate = currentRate();
+                        rows = (result.rows || []).map((row) => {
+                            const classHours = Number(row.class_hours) || 0;
+                            return {
+                                year: Number(row.year),
+                                month: Number(row.month),
+                                class_hours: classHours,
+                                attendance_hours: Math.max(0, Math.min(classHours, Math.round(classHours * rate / 100))),
+                            };
+                        });
+
+                        syncIssuedOn();
+                        renderAll();
+                    } catch (error) {
+                        showError(error.message || 'Could not build the schedule.');
                     }
                 });
-            });
+            };
 
-            rows.addEventListener('input', (event) => {
-                if (event.target.matches('input[type="number"]')) {
-                    refreshTotals();
+            const scheduleRefresh = () => {
+                if (!courseSelect.value) return;
+                if (!startInput.value || !endInput.value) return;
+                if (!selectedDays().length || !Number(hoursInput.value || 0)) return;
+
+                clearTimeout(refreshTimer);
+                refreshTimer = setTimeout(() => {
+                    runRefresh(false);
+                }, 400);
+            };
+
+            // ------------------------------------------------------------------
+            // Date helpers
+            // ------------------------------------------------------------------
+
+            const syncIssuedOn = () => {
+                if (!issuedInput) return;
+                const end = endInput.value;
+                issuedInput.min = end || '';
+                if (!issuedInput.value || (end && issuedInput.value < end)) {
+                    issuedInput.value = end || issuedInput.value;
                 }
-            });
+            };
 
-            rows.addEventListener('click', (event) => {
-                const button = event.target.closest('[data-remove-row]');
-                if (!button) return;
-                if (rows.querySelectorAll('.attendance-row').length > 1) {
-                    button.closest('.attendance-row').remove();
-                    refreshTotals();
+            const updateStudentAge = () => {
+                const input = $('student_date_of_birth');
+                const target = $('student-age');
+                if (!input || !target) return;
+
+                if (!input.value) {
+                    target.textContent = '';
+                    return;
                 }
-            });
 
-            document.getElementById('add-attendance-row').addEventListener('click', () => {
-                addRow().querySelector('input').focus();
-            });
+                const birth = parseDate(input.value);
+                if (!birth || Number.isNaN(birth.getTime())) {
+                    target.textContent = '';
+                    return;
+                }
+
+                const today = new Date();
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+
+                target.textContent = age >= 0 ? `Age: ${age} years` : '';
+            };
+
+            // ------------------------------------------------------------------
+            // Course info
+            // ------------------------------------------------------------------
+
+            const updateCourseInfo = () => {
+                const info = $('course-info');
+                const option = courseSelect.selectedOptions[0];
+
+                if (!courseSelect.value || !option) {
+                    info.hidden = true;
+                    $('calc-target-pill').textContent = 'No course selected';
+                    $('calc-target-hours').textContent = '—';
+                    $('calculated-hours-display').hidden = true;
+                    $('calc-help').hidden = false;
+                    return;
+                }
+
+                info.hidden = false;
+                $('course-code').textContent = option.dataset.level || '—';
+                $('course-name').textContent = option.dataset.name || '—';
+                $('course-name-ja').textContent = option.dataset.nameja || '';
+                $('course-aim').textContent = option.dataset.aim || '—';
+                $('course-book').textContent = option.dataset.book || '—';
+                $('course-total').textContent = option.dataset.totalhours ? `${option.dataset.totalhours} h` : '—';
+                $('course-default').textContent = option.dataset.hours && option.dataset.days
+                    ? `${option.dataset.hours} h/day · ${option.dataset.days} days/week`
+                    : '—';
+
+                const target = targetHours();
+                $('calc-target-pill').textContent = target > 0 ? `${target} h curriculum` : 'No target hours';
+                $('calc-target-hours').textContent = target > 0 ? `${target} h` : '—';
+                $('calculated-hours-display').hidden = target <= 0;
+                $('calc-help').hidden = target > 0;
+            };
+
+            // ------------------------------------------------------------------
+            // Day helpers
+            // ------------------------------------------------------------------
 
             const syncDaysPerWeek = () => {
                 const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
-                if (checked > 0) {
-                    document.getElementById('days_per_week').value = checked;
-                }
+                if (checked > 0) daysInput.value = checked;
             };
 
-            const syncCheckboxes = (daysPerWeek) => {
-                const checkboxes = form.querySelectorAll('input[name="class_days[]"]');
-                checkboxes.forEach((cb, i) => {
-                    cb.checked = i < daysPerWeek;
+            const syncCheckboxes = (count) => {
+                const checkboxes = [...form.querySelectorAll('input[name="class_days[]"]')];
+                checkboxes.forEach((checkbox, index) => {
+                    checkbox.checked = index < count;
                 });
                 syncDaysPerWeek();
             };
 
-            document.getElementById('course_id').addEventListener('change', (event) => {
-                const option = event.target.selectedOptions[0];
-                const hours = option?.dataset.hours;
-                const days = option?.dataset.days;
+            const markPreset = (activeButton) => {
+                document.querySelectorAll('.preset-btn').forEach((button) => button.classList.remove('active'));
+                if (activeButton) activeButton.classList.add('active');
+            };
 
-                if (hours) document.getElementById('hours_per_day').value = hours;
-                if (days) {
-                    document.getElementById('days_per_week').value = days;
-                    syncCheckboxes(parseInt(days, 10));
-                }
+            // ------------------------------------------------------------------
+            // Events
+            // ------------------------------------------------------------------
+
+            rateInput.addEventListener('change', applyRate);
+            rateInput.addEventListener('blur', applyRate);
+
+            startInput.addEventListener('change', () => {
+                syncCalendarToStart();
+                renderCalendar();
+                scheduleRefresh();
             });
 
-            document.getElementById('days_per_week').addEventListener('change', (event) => {
-                const val = parseInt(event.target.value, 10);
-                if (!isNaN(val) && val >= 1 && val <= 7) {
-                    syncCheckboxes(val);
+            endInput.addEventListener('change', () => {
+                syncIssuedOn();
+                renderCalendar();
+                scheduleRefresh();
+            });
+
+            hoursInput.addEventListener('change', () => {
+                renderSummary();
+                scheduleRefresh();
+            });
+
+            daysInput.addEventListener('change', () => {
+                const value = parseInt(daysInput.value, 10);
+                if (!Number.isNaN(value) && value >= 1 && value <= 7) {
+                    syncCheckboxes(value);
+                    renderCalendar();
+                    scheduleRefresh();
                 }
             });
 
             form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
                 checkbox.addEventListener('change', () => {
                     syncDaysPerWeek();
-                    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+                    markPreset(null);
+                    renderCalendar();
+                    scheduleRefresh();
                 });
             });
 
-            syncDaysPerWeek();
+            document.querySelectorAll('.preset-btn').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const days = (button.dataset.days || '').split(',').filter(Boolean);
+                    const hours = button.dataset.hours;
 
-            suggestButton.addEventListener('click', async () => {
-                suggestError.style.display = 'none';
-                suggestButton.disabled = true;
-                suggestLabel.textContent = 'Calculating…';
-
-                const payload = {
-                    study_start: document.getElementById('study_start').value,
-                    study_end: document.getElementById('study_end').value,
-                    hours_per_day: document.getElementById('hours_per_day').value,
-                    national_holidays: document.getElementById('national_holidays').value,
-                    class_days: [...form.querySelectorAll('input[name="class_days[]"]:checked')].map((input) => input.value),
-                };
-
-                try {
-                    const response = await fetch('{{ route('admin.certificates.suggest') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        body: JSON.stringify(payload),
+                    if (hours) hoursInput.value = hours;
+                    form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
+                        checkbox.checked = days.includes(checkbox.value);
                     });
 
-                    const data = await response.json();
+                    syncDaysPerWeek();
+                    markPreset(button);
+                    renderCalendar();
+                    scheduleRefresh();
+                });
+            });
 
-                    if (!response.ok) {
-                        const errors = data.errors ? Object.values(data.errors).flat() : [data.message || 'Could not calculate hours.'];
-                        throw new Error(errors.join(' '));
-                    }
+            courseSelect.addEventListener('change', () => {
+                const option = courseSelect.selectedOptions[0];
+                const hours = option?.dataset?.hours;
+                const days = option?.dataset?.days;
 
-                    if (!data.rows || data.rows.length === 0) {
-                        throw new Error('No class days fall inside that study period.');
-                    }
+                if (hours) hoursInput.value = hours;
+                if (days) {
+                    daysInput.value = days;
+                    syncCheckboxes(parseInt(days, 10));
+                }
 
-                    const existing = new Map();
-                    rows.querySelectorAll('.attendance-row').forEach((row) => {
-                        const year = row.querySelector('[name$="[year]"]').value;
-                        const month = row.querySelector('[name$="[month]"]').value;
-                        const attendance = row.querySelector('[name$="[attendance_hours]"]').value;
-                        existing.set(year + '-' + month, attendance);
-                    });
+                updateCourseInfo();
+                renderCalendar();
 
-                    rows.innerHTML = '';
-                    nextIndex = 0;
-
-                    data.rows.forEach((row) => {
-                        addRow({
-                            year: row.year,
-                            month: row.month,
-                            class_hours: row.class_hours,
-                            attendance_hours: existing.get(row.year + '-' + row.month) ?? 0,
-                        });
-                    });
-
-                    refreshTotals();
-                } catch (error) {
-                    suggestError.textContent = error.message;
-                    suggestError.style.display = 'flex';
-                } finally {
-                    suggestButton.disabled = false;
-                    suggestLabel.textContent = 'Suggest class hours';
+                if (courseSelect.value) {
+                    runRefresh(!isEdit);
                 }
             });
 
-            refreshTotals();
+            holidayInput.addEventListener('input', () => {
+                holidays = parseHolidayText(holidayInput.value);
+                renderCalendar();
+                renderHolidayChips();
+                scheduleRefresh();
+            });
+
+            $('holiday-chips').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-remove-holiday]');
+                if (!button) return;
+                toggleHoliday(button.dataset.removeHoliday);
+            });
+
+            $('clear-holidays').addEventListener('click', () => {
+                holidays.clear();
+                writeHolidays();
+                renderCalendar();
+                renderHolidayChips();
+                scheduleRefresh();
+            });
+
+            $('cal-prev').addEventListener('click', () => {
+                calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+                renderCalendar();
+            });
+
+            $('cal-next').addEventListener('click', () => {
+                calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+                renderCalendar();
+            });
+
+            $('calc-end-date-btn').addEventListener('click', () => runRefresh(true));
+            $('refresh-summary').addEventListener('click', () => runRefresh(false));
+
+            $('student_date_of_birth').addEventListener('input', updateStudentAge);
+
+            issuedInput.addEventListener('input', () => {
+                issuedDirty = true;
+            });
+
+            form.addEventListener('submit', (event) => {
+                if (rows.length === 0) {
+                    event.preventDefault();
+                    showError('Generate the schedule before saving. Pick a course and valid study dates.');
+                    document.getElementById('step-4').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+
+            // ------------------------------------------------------------------
+            // Initialise
+            // ------------------------------------------------------------------
+
+            rateInput.value = initialRate;
+            holidays = parseHolidayText(holidayInput.value);
+            syncCalendarToStart();
+            syncIssuedOn();
+            updateStudentAge();
+            updateCourseInfo();
+            renderCalendar();
+            renderHolidayChips();
+            renderAll();
+
+            if (rows.length === 0 && courseSelect.value && startInput.value && endInput.value && selectedDays().length) {
+                runRefresh(false);
+            }
         })();
     </script>
 @endpush

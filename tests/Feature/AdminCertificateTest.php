@@ -9,6 +9,8 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Instructor;
 use App\Models\User;
+use App\Services\AttendanceSuggester;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -135,6 +137,29 @@ class AdminCertificateTest extends TestCase
             ->assertJsonCount(3, 'rows')
             ->assertJsonPath('rows.0.month', 6)
             ->assertJsonPath('rows.0.class_hours', 9);
+    }
+
+    public function test_calculate_end_date_fits_the_course_hours(): void
+    {
+        $staff = User::factory()->create(['role' => User::ROLE_STAFF]);
+
+        $expected = app(AttendanceSuggester::class)->calculateEndDate(
+            CarbonImmutable::parse('2025-06-02'),
+            180,
+            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            3,
+        );
+
+        $this->actingAs($staff)
+            ->postJson('/admin/certificates/calculate-end-date', [
+                'study_start' => '2025-06-02',
+                'target_hours' => 180,
+                'class_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                'hours_per_day' => 3,
+                'national_holidays' => '',
+            ])
+            ->assertOk()
+            ->assertJsonPath('study_end', $expected->toDateString());
     }
 
     public function test_a_draft_can_be_issued_then_revoked(): void

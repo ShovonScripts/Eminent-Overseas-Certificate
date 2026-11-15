@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\CertificateStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CalculateEndDateRequest;
 use App\Http\Requests\CertificateRequest;
 use App\Http\Requests\ImportCertificatesRequest;
 use App\Http\Requests\SuggestAttendanceRequest;
@@ -222,6 +223,24 @@ class CertificateController extends Controller
         }
 
         return response()->json(['rows' => $rows]);
+    }
+
+    public function calculateEndDate(CalculateEndDateRequest $request, AttendanceSuggester $suggester): JsonResponse
+    {
+        $data = $request->validated();
+        $start = CarbonImmutable::parse($data['study_start']);
+
+        $holidays = $suggester->parseHolidays($data['national_holidays'] ?? null, $start->year, $start->year + 2);
+
+        $endDate = $suggester->calculateEndDate(
+            $start,
+            (int) $data['target_hours'],
+            $data['class_days'],
+            (int) $data['hours_per_day'],
+            $holidays,
+        );
+
+        return response()->json(['study_end' => $endDate->toDateString()]);
     }
 
     public function issue(Request $request, Certificate $certificate, CertificateIssuer $issuer, AdminActivityLogger $logger): RedirectResponse

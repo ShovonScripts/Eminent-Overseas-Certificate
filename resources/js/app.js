@@ -1,4 +1,4 @@
-// Application initialization and global utilities
+﻿// Application initialization and global utilities
 
 // ========== Global State ==========
 window.App = {
@@ -254,159 +254,6 @@ function initSidebarToggle() {
     });
 }
 
-// ========== Certificate Form Enhancements ==========
-function initCertificateForm() {
-    const form = document.getElementById('certificate-form');
-    if (!form) return;
-    
-    const rowsContainer = document.getElementById('attendance-rows');
-    const template = document.getElementById('attendance-template');
-    const suggestBtn = document.getElementById('suggest-hours');
-    const suggestError = document.getElementById('suggest-error');
-    const addRowBtn = document.getElementById('add-attendance-row');
-    
-    let nextIndex = $$('#attendance-rows .attendance-row').length;
-    
-    // Refresh attendance rates
-    function refreshRates() {
-        $$('#attendance-rows .attendance-row').forEach(row => {
-            const classHours = parseFloat(row.querySelector('[name$="[class_hours]"]')?.value || 0);
-            const attendance = parseFloat(row.querySelector('[name$="[attendance_hours]"]')?.value || 0);
-            const rate = classHours > 0 ? Math.round(attendance / classHours * 100) : 0;
-            const rateEl = row.querySelector('[data-rate]');
-            if (rateEl) rateEl.textContent = rate + '%';
-        });
-    }
-    
-    // Add new row
-    function addRow(data = {}) {
-        const index = nextIndex++;
-        const html = template.innerHTML.replaceAll('__INDEX__', String(index));
-        rowsContainer.insertAdjacentHTML('beforeend', html);
-        const row = rowsContainer.lastElementChild;
-        
-        if (data.year) row.querySelector('[name$="[year]"]').value = data.year;
-        if (data.month) row.querySelector('[name$="[month]"]').value = data.month;
-        if (data.class_hours !== undefined) row.querySelector('[name$="[class_hours]"]').value = data.class_hours;
-        if (data.attendance_hours !== undefined) row.querySelector('[name$="[attendance_hours]"]').value = data.attendance_hours;
-        
-        return row;
-    }
-    
-    // Event delegation for input changes
-    rowsContainer.addEventListener('input', (e) => {
-        if (e.target.matches('input[type="number"]')) {
-            refreshRates();
-        }
-    });
-    
-    // Remove row
-    rowsContainer.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-remove-row]');
-        if (!btn) return;
-        const rows = rowsContainer.querySelectorAll('.attendance-row');
-        if (rows.length > 1) {
-            btn.closest('.attendance-row').remove();
-            refreshRates();
-        }
-    });
-    
-    // Add row button
-    if (addRowBtn) {
-        addRowBtn.addEventListener('click', () => {
-            const row = addRow();
-            row.querySelector('input').focus();
-        });
-    }
-    
-    // Course change auto-fill
-    const courseSelect = document.getElementById('course_id');
-    if (courseSelect) {
-        courseSelect.addEventListener('change', (e) => {
-            const option = e.target.selectedOptions[0];
-            const hours = option?.dataset.hours;
-            const days = option?.dataset.days;
-            
-            if (hours) document.getElementById('hours_per_day').value = hours;
-            if (days) document.getElementById('days_per_week').value = days;
-        });
-    }
-    
-    // Suggest hours
-    if (suggestBtn) {
-        suggestBtn.addEventListener('click', async () => {
-            suggestError.style.display = 'none';
-            suggestBtn.disabled = true;
-            suggestBtn.textContent = 'Calculating…';
-            
-            const form = document.getElementById('certificate-form');
-            const payload = {
-                study_start: document.getElementById('study_start').value,
-                study_end: document.getElementById('study_end').value,
-                hours_per_day: document.getElementById('hours_per_day').value,
-                national_holidays: document.getElementById('national_holidays').value,
-                class_days: [...form.querySelectorAll('input[name="class_days[]"]:checked')].map(input => input.value),
-            };
-            
-            try {
-                const response = await fetch('{{ route(\'admin.certificates.suggest\') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    body: JSON.stringify(payload),
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    const errors = data.errors ? Object.values(data.errors).flat() : [data.message || 'Could not calculate hours.'];
-                    throw new Error(errors.join(' '));
-                }
-                
-                if (!data.rows || data.rows.length === 0) {
-                    throw new Error('No class days fall inside that study period.');
-                }
-                
-                // Preserve existing attendance hours
-                const existing = new Map();
-                $$('#attendance-rows .attendance-row').forEach(row => {
-                    const year = row.querySelector('[name$="[year]"]').value;
-                    const month = row.querySelector('[name$="[month]"]').value;
-                    const attendance = row.querySelector('[name$="[attendance_hours]"]').value;
-                    existing.set(year + '-' + month, attendance);
-                });
-                
-                // Rebuild rows
-                rowsContainer.innerHTML = '';
-                nextIndex = 0;
-                
-                data.rows.forEach(row => {
-                    addRow({
-                        year: row.year,
-                        month: row.month,
-                        class_hours: row.class_hours,
-                        attendance_hours: existing.get(row.year + '-' + row.month) ?? 0,
-                    });
-                });
-                
-                refreshRates();
-            } catch (error) {
-                suggestError.textContent = error.message;
-                suggestError.style.display = 'flex';
-            } finally {
-                suggestBtn.disabled = false;
-                suggestBtn.textContent = 'Suggest class hours';
-            }
-        });
-    }
-    
-    // Initial rate calculation
-    refreshRates();
-}
-
 // ========== Activity Log Modal ==========
 function initActivityLogModal() {
     const modal = document.getElementById('details-modal');
@@ -432,19 +279,19 @@ window.showDetails = function(logId) {
                     <dt>Action</dt>
                     <dd><span class="badge badge-${data.action_color}">${data.action}</span></dd>
                     <dt>User</dt>
-                    <dd>${data.user?.name ?? 'System'} (${data.user?.email ?? '—'})</dd>
+                    <dd>${data.user?.name ?? 'System'} (${data.user?.email ?? 'â€”'})</dd>
                     <dt>Time</dt>
                     <dd>${data.created_at}</dd>
                     <dt>IP Address</dt>
-                    <dd class="mono">${data.ip_address ?? '—'}</dd>
+                    <dd class="mono">${data.ip_address ?? 'â€”'}</dd>
                     <dt>User Agent</dt>
-                    <dd class="muted" style="font-size: 11px; word-break: break-all;">${data.user_agent ?? '—'}</dd>
+                    <dd class="muted" style="font-size: 11px; word-break: break-all;">${data.user_agent ?? 'â€”'}</dd>
             `;
             
             if (data.model_type) {
                 html += `
                     <dt>Target</dt>
-                    <dd>${data.model_type} #${data.model_id ?? '—'}</dd>
+                    <dd>${data.model_type} #${data.model_id ?? 'â€”'}</dd>
                 `;
             }
             
@@ -494,11 +341,12 @@ function initTableRows() {
 function initFormValidation() {
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', (e) => {
+            if (e.defaultPrevented) return;
             const submitBtn = form.querySelector('[type="submit"]');
             if (submitBtn && !submitBtn.disabled) {
                 submitBtn.disabled = true;
                 submitBtn.dataset.originalText = submitBtn.textContent;
-                submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> Saving…';
+                submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> Savingâ€¦';
             }
         });
         
@@ -572,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize all components
     initDropdowns();
     initSidebarToggle();
-    initCertificateForm();
     initActivityLogModal();
     initTableRows();
     initFormValidation();
