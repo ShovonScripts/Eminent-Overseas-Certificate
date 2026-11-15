@@ -73,7 +73,7 @@ class CertificateController extends Controller
                 'issued_on' => now()->addMonths(3)->endOfMonth(),
                 'hours_per_day' => 3,
                 'days_per_week' => 5,
-                'class_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                'class_days' => ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
                 'national_holidays' => '',
             ]),
             'courses' => Course::orderBy('level_code')->get(),

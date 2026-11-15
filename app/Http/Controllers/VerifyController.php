@@ -43,7 +43,7 @@ class VerifyController extends Controller
 
     public function show(Request $request, string $code): Response
     {
-        $certificate = Certificate::with('course')
+        $certificate = Certificate::with(['course', 'instructors'])
             ->where('verification_code', $code)
             ->select([
                 'id',
