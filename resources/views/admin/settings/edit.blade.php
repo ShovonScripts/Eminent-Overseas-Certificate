@@ -48,6 +48,13 @@
                                value="{{ $settings['school_email'] ?? '' }}">
                         @error('school_email')<div class="error-text">{{ $message }}</div>@enderror
                     </div>
+
+                    <div class="field">
+                        <label for="school_website">Website</label>
+                        <input id="school_website" class="input" name="school_website" type="url"
+                               value="{{ $settings['school_website'] ?? '' }}">
+                        @error('school_website')<div class="error-text">{{ $message }}</div>@enderror
+                    </div>
                 </div>
             </div>
         </div>

@@ -153,7 +153,7 @@
         }
 
         .statement-block .ja {
-            margin-bottom: 0.9mm;
+            margin-bottom: 0;
         }
 
         .statement-block .en {
@@ -735,7 +735,8 @@
                 <td class="footer-center">
                     学校名 / School Name: <?php echo e($school['name']); ?><br>
                     住所 / Address: <?php echo e($school['address']); ?><br>
-                    電話 / TEL: <?php echo e($school['phone']); ?>
+                    電話 / TEL: <?php echo e($school['phone']); ?><br>
+                    Web: <?php echo e($school['website']); ?>
 
                 </td>
                 <td class="footer-qr">

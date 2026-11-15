@@ -36,6 +36,7 @@ class SettingsController extends Controller
             'school_address' => ['required', 'string', 'max:500'],
             'school_phone' => ['required', 'string', 'max:50'],
             'school_email' => ['required', 'email', 'max:255'],
+            'school_website' => ['nullable', 'url', 'max:255'],
             'verify_base_url' => ['nullable', 'url', 'max:255'],
             'number_prefix' => ['nullable', 'string', 'max:10'],
             'logo_path' => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,gif', 'max:2048'],

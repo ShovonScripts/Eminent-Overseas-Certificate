@@ -153,7 +153,7 @@
         }
 
         .statement-block .ja {
-            margin-bottom: 0.9mm;
+            margin-bottom: 0;
         }
 
         .statement-block .en {
@@ -730,7 +730,8 @@
                 <td class="footer-center">
                     学校名 / School Name: {{ $school['name'] }}<br>
                     住所 / Address: {{ $school['address'] }}<br>
-                    電話 / TEL: {{ $school['phone'] }}
+                    電話 / TEL: {{ $school['phone'] }}<br>
+                    Web: {{ $school['website'] }}
                 </td>
                 <td class="footer-qr">
                     @if ($qrBase64)
