@@ -2,10 +2,6 @@
     $isEdit = $certificate->exists;
     $selectedDays = old('class_days', $certificate->class_days ?? []);
     $selectedDays = is_array($selectedDays) ? $selectedDays : [];
-    if (! $isEdit && $selectedDays === []) {
-        $selectedDays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
-    }
-
     $orderedWeekdays = [
         'Saturday',
         'Sunday',
@@ -70,11 +66,11 @@
 
         <!-- Sticky Stepper Navigation -->
         <div class="stepper-sticky-container">
-            <div class="stepper-progress-track">
-                <div class="stepper-progress-fill" id="stepper-progress-fill" style="width: 20%;"></div>
+            <div class="stepper-progress-track" role="progressbar" aria-label="Certificate completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10">
+                <div class="stepper-progress-fill" id="stepper-progress-fill" style="width: 10%;"></div>
             </div>
             <nav class="form-steps" aria-label="Certificate sections">
-                <a class="form-step active" href="#step-1" id="nav-step-1">
+                <a class="form-step active" href="#step-1" id="nav-step-1" aria-current="step">
                     <span class="step-num">01</span>
                     <span class="step-label">Student</span>
                     <span class="step-check" id="step-1-chk">✓</span>
@@ -96,7 +92,7 @@
                 </a>
                 <a class="form-step" href="#step-5" id="nav-step-5">
                     <span class="step-num">05</span>
-                    <span class="step-label">Sign &amp; Issue</span>
+                    <span class="step-label">Review &amp; Save</span>
                     <span class="step-check" id="step-5-chk">✓</span>
                 </a>
             </nav>
@@ -327,43 +323,21 @@ unset($__errorArgs, $__bag); ?>
                     <span class="step-badge">03</span>
                     <div>
                         <h2>Study Period &amp; Schedule</h2>
-                        <p>Dates, weekly schedule, and calendar exclusions. Friday is the official weekly government holiday.</p>
+                        <p>Enter a start date, choose class days and hours per day. The end date is calculated for the course target.</p>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <!-- Bangladesh Government Holiday Banner -->
-                <div class="govt-holiday-banner" role="region" aria-label="Official weekly holiday policy">
-                    <div class="govt-holiday-icon">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                            <line x1="16" x2="16" y1="2" y2="6"/>
-                            <line x1="8" x2="8" y1="2" y2="6"/>
-                            <line x1="3" x2="21" y1="10" y2="10"/>
-                            <path d="M8 14h.01"/>
-                            <path d="M12 14h.01"/>
-                            <path d="M16 14h.01"/>
-                        </svg>
-                    </div>
-                    <div class="govt-holiday-text">
-                        <div class="banner-title-row">
-                            <strong>Government Holiday Notice: Friday is the Only Weekly Government Holiday</strong>
-                            <span class="banner-tag">Weekly Off: Friday</span>
-                        </div>
-                        <p>In accordance with Bangladesh government regulations, <strong>Friday is the designated weekly government holiday</strong>. Classes run from Saturday through Thursday. Friday is excluded from standard schedules.</p>
-                    </div>
+                <div class="schedule-policy-note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 11v5m0-8h.01"/>
+                    </svg>
+                    Friday is a weekly holiday. Select it only when classes are approved on Fridays.
                 </div>
 
                 <div class="form-grid">
                     <div class="field">
-                        <div class="field-label-row">
-                            <label for="study_start">Study Start Date <span class="req-star">*</span></label>
-                            <div class="start-date-quick-chips">
-                                <button type="button" class="btn btn-ghost btn-xs start-chip" data-start-type="this-month-1st">1st of Month</button>
-                                <button type="button" class="btn btn-ghost btn-xs start-chip" data-start-type="next-month-1st">Next Month</button>
-                                <button type="button" class="btn btn-ghost btn-xs start-chip" data-start-type="today">Today</button>
-                            </div>
-                        </div>
+                        <label for="study_start">Study Start Date <span class="req-star">*</span></label>
                         <div class="input-with-icon">
                             <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
                             <input id="study_start" class="input" name="study_start" type="date" required
@@ -381,39 +355,14 @@ unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="field">
-                        <div class="field-label-row">
-                            <label for="study_end">Study End Date <span class="req-star">*</span></label>
-                            <div class="end-date-quick-chips">
-                                <button type="button" class="btn btn-ghost btn-xs session-nudge" data-nudge="-1" title="Subtract 1 class session (-3h)">-1 Class</button>
-                                <button type="button" class="btn btn-ghost btn-xs session-nudge" data-nudge="1" title="Add 1 class session (+3h)">+1 Class</button>
-                                <span class="auto-fit-pill" id="end-date-status-pill">180h Target</span>
-                            </div>
-                        </div>
-                        <div class="input-with-icon">
-                            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
-                            <input id="study_end" class="input" name="study_end" type="date" required
-                                   value="<?php echo e(old('study_end', $certificate->study_end?->format('Y-m-d'))); ?>">
-                        </div>
-                        <div class="help">Fitted automatically to match the standard 180-hour curriculum.</div>
-                        <?php $__errorArgs = ['study_end'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><div class="error-text"><?php echo e($message); ?></div><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                    </div>
-
-                    <div class="field">
-                        <label for="hours_per_day">Hours Per Day <span class="req-star">*</span></label>
+                        <label for="hours_per_day">Class Hours per Day <span class="req-star">*</span></label>
                         <div class="input-with-icon">
                             <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             <input id="hours_per_day" class="input" name="hours_per_day" type="number" min="1" max="12" required
                                    inputmode="numeric" placeholder="3"
                                    value="<?php echo e(old('hours_per_day', $certificate->hours_per_day ?? 3)); ?>">
                         </div>
-                        <div class="help">Standard 3 hours per class session.</div>
+                        <div class="help">Hours taught on each selected class day.</div>
                         <?php $__errorArgs = ['hours_per_day'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -424,16 +373,12 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
 
-                    <div class="field">
-                        <label for="days_per_week">Days Per Week <span class="req-star">*</span></label>
-                        <div class="input-with-icon">
-                            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-                            <input id="days_per_week" class="input" name="days_per_week" type="number" min="1" max="7" required
-                                   inputmode="numeric" placeholder="5"
-                                   value="<?php echo e(old('days_per_week', $certificate->days_per_week ?? 5)); ?>">
-                        </div>
-                        <div class="help">Automatically synced with selected class days.</div>
-                        <?php $__errorArgs = ['days_per_week'];
+                    <div class="field computed-end-field">
+                        <label for="study_end_display">Calculated End Date</label>
+                        <output class="computed-end-date" id="study_end_display" aria-live="polite"><?php echo e(old('study_end', $certificate->study_end?->format('Y-m-d')) ?: 'Calculated automatically'); ?></output>
+                        <input id="study_end" name="study_end" type="hidden" value="<?php echo e(old('study_end', $certificate->study_end?->format('Y-m-d'))); ?>">
+                        <div class="help">Calculated from the class days, daily hours, and course target.</div>
+                        <?php $__errorArgs = ['study_end'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -443,46 +388,13 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
 
-                    <!-- Standard 180-Hour Presets (Friday is Excluded) -->
-                    <div class="field span-2">
-                        <div class="field-label-row">
-                            <label>Standard 180-Hour Batch Presets</label>
-                            <span class="count-pill">Click any preset to auto-fit 180 hours &middot; Friday is excluded</span>
-                        </div>
-                        <div class="schedule-presets-grid" id="schedule-presets">
-                            <button type="button" class="preset-card-btn active" data-days="Saturday,Sunday,Monday,Tuesday,Wednesday" data-hours="3" data-batch="3m-intensive">
-                                <span class="preset-title">3-Month Intensive (180h)</span>
-                                <span class="preset-meta">5 days/wk (Sat–Wed) &middot; 3h/day &middot; 60 Sessions</span>
-                                <span class="preset-tag">12 Weeks &middot; Standard N5</span>
-                            </button>
-                            <button type="button" class="preset-card-btn" data-days="Saturday,Monday,Wednesday" data-hours="3" data-batch="4.5m-std">
-                                <span class="preset-title">4.5-Month Regular (180h)</span>
-                                <span class="preset-meta">3 days/wk (Sat, Mon, Wed) &middot; 3h/day &middot; 60 Sessions</span>
-                                <span class="preset-tag">20 Weeks &middot; Most Popular</span>
-                            </button>
-                            <button type="button" class="preset-card-btn" data-days="Sunday,Tuesday,Thursday" data-hours="3" data-batch="4.5m-alt">
-                                <span class="preset-title">4.5-Month Alternate (180h)</span>
-                                <span class="preset-meta">3 days/wk (Sun, Tue, Thu) &middot; 3h/day &middot; 60 Sessions</span>
-                                <span class="preset-tag">20 Weeks &middot; Alternate Days</span>
-                            </button>
-                            <button type="button" class="preset-card-btn" data-days="Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday" data-hours="3" data-batch="2.5m-fast">
-                                <span class="preset-title">2.5-Month Fast-Track (180h)</span>
-                                <span class="preset-meta">6 days/wk (Sat–Thu, No Fri) &middot; 3h/day &middot; 60 Sessions</span>
-                                <span class="preset-tag">10 Weeks &middot; Super Intensive</span>
-                            </button>
-                            <button type="button" class="preset-card-btn" data-days="Saturday,Sunday" data-hours="4" data-batch="5m-weekend">
-                                <span class="preset-title">5-Month Weekend (180h)</span>
-                                <span class="preset-meta">2 days/wk (Sat &amp; Sun) &middot; 4h/day &middot; 45 Sessions</span>
-                                <span class="preset-tag">22.5 Weeks &middot; Weekend</span>
-                            </button>
-                        </div>
-                    </div>
+                    <input id="days_per_week" name="days_per_week" type="hidden" value="<?php echo e(old('days_per_week', count($selectedDays))); ?>">
 
                     <!-- Weekday Selector (Starts on Saturday; Friday clearly badged as Government Holiday) -->
                     <div class="field span-2">
-                        <div class="field-label-row">
+                        <div class="field-label-row days-field-label-row">
                             <label>Class Days <span class="req-star">*</span></label>
-                            <span class="days-selected-count" id="days-count-badge">5 days selected</span>
+                            <span class="days-selected-count" id="days-count-badge">0 days selected</span>
                         </div>
                         <div class="day-toggles-container">
                             <div class="day-toggles" id="day-toggles">
@@ -522,16 +434,21 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
 
-                    <!-- Interactive Calendar & Holiday Exclusions (All in English) -->
+                    <!-- Optional Holiday Exclusions -->
                     <div class="field span-2">
                         <div class="field-label-row">
                             <div>
-                                <label for="national_holidays">Holidays &amp; Exclusions <span class="text-muted">(Optional)</span></label>
-                                <div class="help" style="margin-top: 2px;">Fridays are automatically non-class days. Use this calendar to exclude other public or national holidays from class hours.</div>
+                                <label>Public holidays <span class="text-muted">(Optional)</span></label>
+                                <div class="help" style="margin-top: 2px;">Excluded dates extend the end date so the course-hour target is still met.</div>
                             </div>
                             <span class="count-pill" id="holiday-count">0 excluded</span>
                         </div>
 
+                        <details class="holiday-details" <?php if($errors->has('national_holidays')): ?> open <?php endif; ?>>
+                            <summary>
+                                <span>Add or edit holiday dates</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                            </summary>
                         <div class="holiday-layout">
                             <div class="holiday-calendar">
                                 <div class="cal-head">
@@ -569,17 +486,6 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="holiday-side">
-                                <div class="holiday-quick-add-section">
-                                    <span class="quick-add-title">Quick add Bangladesh national holidays:</span>
-                                    <div class="quick-holiday-chips">
-                                        <button type="button" class="quick-add-chip" data-bd-holiday="02-21" title="International Mother Language Day">+ 21 Feb (Language Day)</button>
-                                        <button type="button" class="quick-add-chip" data-bd-holiday="03-26" title="Independence Day of Bangladesh">+ 26 Mar (Independence)</button>
-                                        <button type="button" class="quick-add-chip" data-bd-holiday="04-14" title="Bengali New Year">+ 14 Apr (Pohela Boishakh)</button>
-                                        <button type="button" class="quick-add-chip" data-bd-holiday="05-01" title="May Day">+ 01 May (Labour Day)</button>
-                                        <button type="button" class="quick-add-chip" data-bd-holiday="12-16" title="Victory Day of Bangladesh">+ 16 Dec (Victory Day)</button>
-                                    </div>
-                                </div>
-
                                 <div class="chips-container-header">
                                     <span class="label-muted">Excluded holiday dates:</span>
                                     <button type="button" class="btn btn-ghost btn-xs" id="clear-holidays">Clear all</button>
@@ -594,6 +500,7 @@ unset($__errorArgs, $__bag); ?>
                                 </details>
                             </div>
                         </div>
+                        </details>
                         <?php $__errorArgs = ['national_holidays'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -607,13 +514,13 @@ unset($__errorArgs, $__bag); ?>
                     <!-- 180-Hour Curriculum Compliance Gauge & Target Alignment Engine -->
                     <div class="field span-2">
                         <div class="field-label-row">
-                            <label>180-Hour Curriculum Standard &amp; Alignment</label>
+                            <label>Live course-hour calculation</label>
                             <span class="count-pill" id="calc-target-pill">180h Curriculum</span>
                         </div>
                         <div class="calculated-hours-display target-180-compliance-card" id="calculated-hours-display">
                             <div class="compliance-header-row">
                                 <div class="compliance-title-group">
-                                    <span class="compliance-title">Official Standard: <strong>180 Hours</strong> (MOJ &amp; Immigration Requirement)</span>
+                                    <span class="compliance-title">Course target: <strong id="calc-target-label">180 hours</strong></span>
                                     <span class="compliance-badge is-ok" id="compliance-status-badge">Checking schedule…</span>
                                 </div>
                                 <div class="compliance-sessions-counter" id="compliance-sessions-counter">
@@ -634,10 +541,7 @@ unset($__errorArgs, $__bag); ?>
                                     <span class="label">Scheduled Class Hours</span>
                                     <span class="value mono" id="calc-current-hours">—</span>
                                 </div>
-                                <div class="calc-stat">
-                                    <span class="label">Calculated End Date</span>
-                                    <span class="value" id="calc-end-date">—</span>
-                                </div>
+
                                 <div class="calc-stat">
                                     <span class="label">Total Study Months</span>
                                     <span class="value" id="calc-months">—</span>
@@ -645,21 +549,11 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="compliance-action-row">
-                                <button type="button" class="btn btn-gold btn-fit-end" id="calc-end-date-btn">
-                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <polyline points="12 6 12 12 16 14"/>
-                                    </svg>
-                                    <span>Fit end date to course hours</span>
-                                </button>
-                                <label class="auto-compensate-label" title="Automatically extends study end date when holidays are added so the student always completes exactly 180 hours">
-                                    <input type="checkbox" id="auto-compensate-holidays" checked>
-                                    <span>Auto-compensate holidays to lock 180h target</span>
-                                </label>
+                                <span class="auto-schedule-note">End date updates automatically when the schedule or holidays change.</span>
                             </div>
                             <div id="calc-error" class="error-text" style="display: none;"></div>
                         </div>
-                        <div class="help" id="calc-help">Calculates the exact final class date that reaches the standard 180 hours, automatically skipping Friday weekly government holidays and calendar exclusions.</div>
+                        <div class="help" id="calc-help">The end date updates automatically to match the course-hour target and selected holidays.</div>
                     </div>
                 </div>
 
@@ -682,12 +576,6 @@ unset($__errorArgs, $__bag); ?>
                         <h2>Schedule Summary &amp; Attendance Breakdown</h2>
                         <p>Computed from study period and weekly schedule. Monthly attendance hours print automatically.</p>
                     </div>
-                </div>
-                <div class="card-head-actions">
-                    <button type="button" class="btn btn-secondary btn-sm" id="refresh-summary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span>Recalculate</span>
-                    </button>
                 </div>
             </div>
             <div class="card-body">
@@ -798,7 +686,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="step-card-footer">
                     <button type="button" class="btn btn-ghost prev-step-btn" data-prev="step-3">&larr; Back</button>
                     <button type="button" class="btn btn-secondary next-step-btn" data-next="step-5">
-                        <span>Continue to Signatures &amp; Issue</span>
+                        <span>Continue to Review &amp; Save</span>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                     </button>
                 </div>
@@ -811,8 +699,8 @@ unset($__errorArgs, $__bag); ?>
                 <div class="card-head-title">
                     <span class="step-badge">05</span>
                     <div>
-                        <h2>Signatures &amp; Date of Issue</h2>
-                        <p>Designate certifying faculty and official date of certificate issuance.</p>
+                        <h2>Certificate signatories and issue date</h2>
+                        <p>Choose the instructors and issue date, then save this certificate as a draft for review.</p>
                     </div>
                 </div>
             </div>
@@ -880,7 +768,7 @@ unset($__errorArgs, $__bag); ?>
 
                 <!-- Ready to Save Checklist (All in English) -->
                 <div class="form-ready-checklist" id="form-ready-checklist">
-                    <span class="checklist-title">Pre-Submission Verification:</span>
+                    <span class="checklist-title">Draft completeness</span>
                     <div class="checklist-items">
                         <span class="checklist-item" id="chk-item-student">
                             <i class="chk-icon">✓</i> Student Information
@@ -889,7 +777,7 @@ unset($__errorArgs, $__bag); ?>
                             <i class="chk-icon">✓</i> Course Selected
                         </span>
                         <span class="checklist-item" id="chk-item-schedule">
-                            <i class="chk-icon">✓</i> Friday Holiday Respected
+                            <i class="chk-icon">✓</i> Class days selected
                         </span>
                         <span class="checklist-item" id="chk-item-hours">
                             <i class="chk-icon">✓</i> Hours Matched
@@ -903,7 +791,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="form-actions-bar">
                     <div class="actions-left">
                         <a class="btn btn-ghost" href="<?php echo e($isEdit ? route('admin.certificates.show', $certificate) : route('admin.certificates.index')); ?>">
-                            Cancel &amp; Discard
+                            Cancel
                         </a>
                     </div>
                     <div class="actions-right">
@@ -1003,7 +891,7 @@ unset($__errorArgs, $__bag); ?>
             transform: scale(0.6);
             transition: all var(--duration-fast) var(--ease-out);
         }
-        .form-step.is-complete .step-check {
+        .form-step.is-completed .step-check {
             opacity: 1;
             transform: scale(1);
         }
@@ -1122,37 +1010,6 @@ unset($__errorArgs, $__bag); ?>
             color: #B45309;
             border-color: #FDE68A;
         }
-        .start-date-quick-chips,
-        .end-date-quick-chips {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        .start-chip,
-        .session-nudge {
-            padding: 2px 8px;
-            font-size: 0.6875rem;
-            font-weight: 600;
-            height: auto;
-            border-radius: var(--radius-full);
-            background: #F1F5F9;
-            color: #334155;
-            border: 1px solid var(--color-border);
-            cursor: pointer;
-            transition: all var(--duration-fast);
-            line-height: 1.4;
-        }
-        .start-chip:hover,
-        .session-nudge:hover {
-            background: var(--color-accent-subtle);
-            color: var(--color-accent);
-            border-color: #BFDBFE;
-        }
-        .session-nudge:active {
-            transform: scale(0.95);
-        }
-
         /* ========== Government Holiday Banner ========== */
         .govt-holiday-banner {
             display: flex;
@@ -1211,61 +1068,6 @@ unset($__errorArgs, $__bag); ?>
             font-size: 0.8125rem;
             line-height: 1.5;
             color: #92400E;
-        }
-
-        /* ========== Curated Presets Grid ========== */
-        .schedule-presets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: var(--space-2);
-            margin-bottom: var(--space-3);
-        }
-        .preset-card-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 10px 14px;
-            background: #FFFFFF;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            text-align: left;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-        .preset-card-btn:hover {
-            border-color: var(--color-accent);
-            background: #F8FAFC;
-            transform: translateY(-1px);
-        }
-        .preset-card-btn.active {
-            border-color: var(--color-accent);
-            background: var(--color-accent-subtle);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-        }
-        .preset-card-btn .preset-title {
-            font-size: 0.84375rem;
-            font-weight: 700;
-            color: var(--color-foreground);
-        }
-        .preset-card-btn.active .preset-title {
-            color: var(--color-accent);
-        }
-        .preset-card-btn .preset-meta {
-            font-size: 0.72rem;
-            color: var(--color-muted-foreground);
-            margin-top: 2px;
-        }
-        .preset-card-btn .preset-tag {
-            display: inline-block;
-            margin-top: 6px;
-            font-size: 0.625rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #0369A1;
-            background: #E0F2FE;
-            padding: 1px 6px;
-            border-radius: var(--radius-xs);
         }
 
         /* ========== Weekday Selector (Friday Highlighted) ========== */
@@ -1523,48 +1325,12 @@ unset($__errorArgs, $__bag); ?>
         .legend-dot.is-holiday { background: var(--color-destructive); }
         .legend-dot.is-today-dot { background: #FFFFFF; border: 2px solid var(--color-gold); }
 
-        /* Holiday Side & Quick Add */
+        /* Holiday Side */
         .holiday-side {
             display: flex;
             flex-direction: column;
             gap: var(--space-3);
             min-width: 0;
-        }
-        .holiday-quick-add-section {
-            background: #FFFFFF;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-sm);
-            padding: 10px 12px;
-        }
-        .quick-add-title {
-            display: block;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--color-muted-foreground);
-            margin-bottom: 6px;
-        }
-        .quick-holiday-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .quick-add-chip {
-            padding: 3px 8px;
-            font-size: 0.6875rem;
-            font-weight: 600;
-            background: #F1F5F9;
-            color: #334155;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: all var(--duration-fast);
-        }
-        .quick-add-chip:hover {
-            background: var(--color-accent-subtle);
-            color: var(--color-accent);
-            border-color: #BFDBFE;
         }
         .chips-container-header {
             display: flex;
@@ -1808,31 +1574,6 @@ unset($__errorArgs, $__bag); ?>
             margin-top: 10px;
             padding-top: 12px;
             border-top: 1px dashed var(--color-border);
-        }
-        .btn-fit-end {
-            flex: 1;
-            min-width: 240px;
-            width: auto;
-            justify-content: center;
-            font-weight: 700;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-        .auto-compensate-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            color: #334155;
-            cursor: pointer;
-            user-select: none;
-        }
-        .auto-compensate-label input[type="checkbox"] {
-            accent-color: var(--color-accent);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
         }
 
         /* ========== Summary Toolbar & KPI Cards ========== */
@@ -2112,7 +1853,6 @@ unset($__errorArgs, $__bag); ?>
         @media (max-width: 960px) {
             .holiday-layout { grid-template-columns: minmax(0, 1fr); }
             .summary-item.is-wide { grid-column: span 1; }
-            .schedule-presets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 720px) {
             .stepper-sticky-container { top: 56px; }
@@ -2120,7 +1860,140 @@ unset($__errorArgs, $__bag); ?>
             .form-grid .span-2 { grid-column: auto; }
             .summary-toolbar { flex-direction: column; }
             .form-actions-bar { flex-direction: column-reverse; align-items: stretch; }
-            .schedule-presets-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        /* Keep the long certificate workflow calm, readable, and easy to scan. */
+        #certificate-form { width: 100%; max-width: 1180px; margin: 0 auto; }
+        .stepper-sticky-container {
+            top: 76px;
+            padding: 10px 14px 8px;
+            background: rgba(255, 255, 255, .97);
+            border-color: #d9e2ec;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, .07);
+        }
+        .stepper-progress-track { height: 3px; margin-bottom: 10px; background: #e8edf3; }
+        .stepper-progress-fill { background: #315b83; }
+        .form-steps { justify-content: flex-start; gap: 8px; }
+        .form-step {
+            flex: 1 0 auto;
+            justify-content: center;
+            min-height: 40px;
+            padding: 7px 12px;
+            color: #526174;
+            background: #fff;
+            border-color: #e1e7ee;
+            border-radius: 8px;
+            font-size: .8rem;
+        }
+        .form-step .step-num { color: #596b80; background: #f1f4f8; }
+        .form-step.active {
+            color: #fff;
+            background: #17385b;
+            border-color: #17385b;
+            box-shadow: none;
+        }
+        .form-step.active .step-num { color: #fff; background: rgba(255, 255, 255, .16); }
+        .form-step:hover:not(.active) { color: #17385b; background: #f7f9fb; border-color: #b8c7d8; }
+        .form-section-card {
+            margin-bottom: 20px;
+            border-color: #dce4ed;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, .035);
+            scroll-margin-top: 150px;
+        }
+        .form-section-card .card-head { padding: 18px 24px; background: #fbfcfe; }
+        .form-section-card .card-body { padding: 24px; }
+        .step-badge { width: 36px; height: 36px; color: #17385b; background: #eaf0f6; box-shadow: none; }
+        .field label { color: #25364a; }
+        .computed-end-field { align-self: start; }
+        .computed-end-date { display: flex; min-height: 44px; align-items: center; padding: 9px 12px; color: #17385b; background: #f5f8fb; border: 1px solid #d8e2ec; border-radius: 7px; font-size: .94rem; font-weight: 700; }
+        .computed-end-date[aria-busy="true"] { color: #526174; font-weight: 600; }
+        .auto-schedule-note { color: #526174; font-size: .78rem; }
+        .target-180-compliance-card { background: #f8fafc; border-color: #dce4ed; box-shadow: none; }
+        .compliance-bar-track { height: 5px; }
+        .compliance-bar-fill { background: #315b83; }
+        .compliance-action-row { margin-top: 6px; padding-top: 8px; border-top: 0; }
+        #certificate-form .input,
+        #certificate-form .select { min-height: 44px; border-color: #cbd5e1; }
+        #certificate-form .input:focus,
+        #certificate-form .select:focus { border-color: #315b83; box-shadow: 0 0 0 3px rgba(49, 91, 131, .14); }
+        #certificate-form :is(input, select, button, a, summary):focus-visible {
+            outline: 3px solid rgba(49, 91, 131, .32);
+            outline-offset: 2px;
+        }
+        .form-actions-bar { position: sticky; bottom: 12px; z-index: 30; margin-top: 22px; padding: 14px 16px; background: rgba(255, 255, 255, .97); border: 1px solid #dce4ed; border-radius: 12px; box-shadow: 0 5px 18px rgba(15, 23, 42, .1); }
+        .form-ready-checklist { border-radius: 10px; }
+        .step-card-footer { margin-top: 22px; }
+
+        /* Compact study period and schedule controls. */
+        #step-3 .card-body { padding-top: 20px; }
+        #step-3 .form-grid { gap: 16px 22px; }
+        .schedule-policy-note {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 9px 12px;
+            color: #45566b;
+            background: #f5f8fb;
+            border: 1px solid #e1e8ef;
+            border-radius: 8px;
+            font-size: .8rem;
+            line-height: 1.4;
+        }
+        .schedule-policy-note svg { flex: 0 0 16px; color: #647b94; }
+        #step-3 .field-label-row { gap: 10px; }
+        #step-3 .days-field-label-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; }
+        #step-3 .days-field-label-row label { margin: 0; }
+        #step-3 .days-field-label-row .days-selected-count { flex: 0 0 auto; white-space: nowrap; }
+        #step-3 .day-toggles-container { padding: 8px; background: #f8fafc; }
+        #step-3 .day-toggles { justify-content: space-between; gap: 6px; }
+        #step-3 .day-toggle-pill { justify-content: center; min-width: 86px; padding: 7px 10px; font-size: .75rem; }
+        .holiday-details { margin-top: 10px; }
+        .holiday-details > summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 40px;
+            padding: 8px 12px;
+            color: #334155;
+            background: #fff;
+            border: 1px solid #dce4ed;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 650;
+            cursor: pointer;
+            list-style: none;
+        }
+        .holiday-details > summary::-webkit-details-marker { display: none; }
+        .holiday-details > summary svg { color: #64748b; transition: transform .15s ease; }
+        .holiday-details[open] > summary { margin-bottom: 10px; border-color: #b9c8d8; }
+        .holiday-details[open] > summary svg { transform: rotate(180deg); }
+        .holiday-details .holiday-layout { padding: 10px; gap: 12px; }
+        .holiday-details .holiday-calendar { padding: 10px; }
+        .holiday-details .holiday-side { gap: 10px; }
+
+        @media (max-width: 720px) {
+            #certificate-form { max-width: none; }
+            .stepper-sticky-container { top: 60px; padding: 8px; }
+            .form-steps { justify-content: flex-start; gap: 6px; }
+            .form-step { flex: 0 0 auto; min-height: 38px; padding: 6px 9px; }
+            .form-step .step-label { max-width: 118px; overflow: hidden; text-overflow: ellipsis; }
+            .form-section-card .card-head { padding: 16px; }
+            .form-section-card .card-body { padding: 18px 16px; }
+            .form-section-card { scroll-margin-top: 128px; }
+            .form-actions-bar { bottom: 8px; }
+            #step-3 .field-label-row { align-items: center; gap: 8px; }
+            #step-3 .days-field-label-row { flex-direction: row; }
+            #step-3 .day-toggles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            #step-3 .day-toggle-pill { width: 100%; min-width: 0; padding: 7px 5px; }
+            .holiday-details .holiday-layout { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .form-step, .stepper-progress-fill, .step-check { transition: none; }
         }
     </style>
 
@@ -2150,6 +2023,7 @@ unset($__errorArgs, $__bag); ?>
             const summary = $('schedule-summary');
             const summaryHelp = $('summary-help');
             const summaryError = $('summary-error');
+            const scheduleError = $('calc-error');
             const statusEl = $('summary-status');
             const monthlyRows = $('monthly-breakdown-rows');
 
@@ -2175,7 +2049,13 @@ unset($__errorArgs, $__bag); ?>
             let holidays = new Set();
             let calCursor = new Date();
             let refreshTimer = null;
+            let scheduleDirty = false;
             let issuedDirty = false;
+
+            const updateSubmitState = () => {
+                const submitButton = $('btn-submit-draft');
+                if (submitButton) submitButton.disabled = scheduleDirty || rows.length === 0;
+            };
 
             const pad = (value) => String(value).padStart(2, '0');
             const isoOf = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -2217,7 +2097,6 @@ unset($__errorArgs, $__bag); ?>
                 const last = Math.max(start.getFullYear(), end.getFullYear());
                 const years = [];
                 for (let year = first; year <= last; year++) years.push(year);
-                if (!years.includes(last + 1) && years.length < 3) years.push(last + 1);
                 return years;
             };
 
@@ -2355,11 +2234,6 @@ unset($__errorArgs, $__bag); ?>
                 }
             };
 
-            const shouldAutoCompensate = () => {
-                const cb = $('auto-compensate-holidays');
-                return Boolean(cb && cb.checked && courseSelect.value && startInput.value);
-            };
-
             const toggleHoliday = (date) => {
                 if (holidays.has(date)) {
                     holidays.delete(date);
@@ -2369,11 +2243,7 @@ unset($__errorArgs, $__bag); ?>
                 writeHolidays();
                 renderCalendar();
                 renderHolidayChips();
-                if (shouldAutoCompensate()) {
-                    runRefresh(true);
-                } else {
-                    scheduleRefresh();
-                }
+                scheduleRefresh();
             };
 
             const syncCalendarToStart = () => {
@@ -2494,7 +2364,7 @@ unset($__errorArgs, $__bag); ?>
 
                 $('calc-months').textContent = months > 0 ? `${months} month${months === 1 ? '' : 's'}` : '—';
                 $('calc-current-hours').textContent = totalClass > 0 ? `${totalClass} h` : '—';
-                $('calc-end-date').textContent = formatDate(endInput.value);
+                $('study_end_display').textContent = endInput.value ? formatDate(endInput.value) : 'Calculated automatically';
                 $('calc-target-hours').textContent = target > 0 ? target + ' h' : '—';
 
                 $('days-count-badge').textContent = `${classDays.length} day${classDays.length === 1 ? '' : 's'} selected`;
@@ -2563,7 +2433,7 @@ unset($__errorArgs, $__bag); ?>
                 if (difference === 0) {
                     statusEl.classList.add('is-ok');
                     const message = document.createElement('span');
-                    message.innerHTML = `<strong>Curriculum Exact Match (${totalClass} h):</strong> Scheduled hours match course requirements perfectly. Friday government holidays and exclusions have been respected.`;
+                    message.innerHTML = `<strong>Course target reached (${totalClass} h):</strong> The scheduled class hours match the selected course.`;
                     statusEl.appendChild(message);
                     return;
                 }
@@ -2573,15 +2443,8 @@ unset($__errorArgs, $__bag); ?>
                 const hint = difference < 0
                     ? `short by ${Math.abs(difference)} h`
                     : `exceeds by ${difference} h`;
-                message.innerHTML = `<strong>Discrepancy: ${totalClass} h scheduled of ${target} h required.</strong> Schedule is ${hint}. Click below to fit the study end date.`;
+                message.innerHTML = `<strong>Discrepancy: ${totalClass} h scheduled of ${target} h required.</strong> Schedule is ${hint}. Update the start date, class days, hours, or holidays to recalculate.`;
                 statusEl.appendChild(message);
-
-                const fit = document.createElement('button');
-                fit.type = 'button';
-                fit.className = 'btn btn-secondary btn-sm';
-                fit.textContent = `Auto-Fit End Date to ${target} h`;
-                fit.addEventListener('click', () => runRefresh(true));
-                statusEl.appendChild(fit);
             };
 
             const renderAll = () => {
@@ -2633,11 +2496,15 @@ unset($__errorArgs, $__bag); ?>
             const showError = (message) => {
                 summaryError.textContent = message;
                 summaryError.style.display = 'flex';
+                scheduleError.textContent = message;
+                scheduleError.style.display = 'flex';
             };
 
             const clearError = () => {
                 summaryError.textContent = '';
                 summaryError.style.display = 'none';
+                scheduleError.textContent = '';
+                scheduleError.style.display = 'none';
             };
 
             const withBusy = async (button, busyLabel, task) => {
@@ -2653,13 +2520,13 @@ unset($__errorArgs, $__bag); ?>
                 }
             };
 
-            const runRefresh = async (recalculateEnd = false) => {
+            const runRefresh = async () => {
                 clearError();
 
                 const start = startInput.value;
                 const classDays = selectedDays();
                 const hours = Number(hoursInput.value || 0);
-                const button = recalculateEnd ? $('calc-end-date-btn') : $('refresh-summary');
+                const button = null;
 
                 if (!start) {
                     showError('Please enter the study start date first.');
@@ -2674,37 +2541,37 @@ unset($__errorArgs, $__bag); ?>
                     return;
                 }
 
+                scheduleDirty = true;
+                $('study_end_display').textContent = 'Calculating…';
+                $('study_end_display').setAttribute('aria-busy', 'true');
+                statusEl.hidden = true;
+                updateSubmitState();
+                updateChecklist();
+
                 await withBusy(button, 'Calculating…', async () => {
                     try {
-                        let end = endInput.value;
-
-                        if (recalculateEnd) {
-                            const target = targetHours();
-                            if (!target) {
-                                throw new Error('Please select a course so the target hours can be verified.');
-                            }
-
-                            const result = await postJson(routes.recalc, {
-                                study_start: start,
-                                target_hours: target,
-                                class_days: classDays,
-                                hours_per_day: hours,
-                                national_holidays: holidayInput.value,
-                            });
-
-                            end = result.study_end;
-                            endInput.value = end;
-                            syncCalendarToStart();
-                            renderCalendar();
-
-                            if (!isEdit && !issuedDirty) {
-                                const today = isoOf(new Date());
-                                issuedInput.value = end > today ? end : today;
-                            }
+                        const target = targetHours();
+                        if (!target) {
+                            throw new Error('Please select a course so the target hours can be verified.');
                         }
 
-                        if (!end) {
-                            throw new Error('Enter the study end date.');
+                        const endResult = await postJson(routes.recalc, {
+                            study_start: start,
+                            target_hours: target,
+                            class_days: classDays,
+                            hours_per_day: hours,
+                            national_holidays: holidayInput.value,
+                        });
+
+                        const end = endResult.study_end;
+                        endInput.value = end;
+                        $('study_end_display').textContent = formatDate(end);
+                        syncCalendarToStart();
+                        renderCalendar();
+
+                        if (!isEdit && !issuedDirty) {
+                            const today = isoOf(new Date());
+                            issuedInput.value = end > today ? end : today;
                         }
 
                         const result = await postJson(routes.suggest, {
@@ -2726,22 +2593,49 @@ unset($__errorArgs, $__bag); ?>
                             };
                         });
 
+                        scheduleDirty = false;
+                        updateSubmitState();
                         syncIssuedOn();
                         renderAll();
                     } catch (error) {
+                        $('study_end_display').textContent = 'Unable to calculate';
+                        $('study_end_display').removeAttribute('aria-busy');
                         showError(error.message || 'Could not calculate the attendance schedule.');
+                        updateChecklist();
                     }
                 });
+
+                if (!scheduleDirty) $('study_end_display').removeAttribute('aria-busy');
             };
 
             const scheduleRefresh = () => {
-                if (!courseSelect.value) return;
-                if (!startInput.value || !endInput.value) return;
-                if (!selectedDays().length || !Number(hoursInput.value || 0)) return;
+                scheduleDirty = true;
+                statusEl.hidden = true;
+                updateSubmitState();
+                if (!courseSelect.value) {
+                    $('study_end_display').textContent = 'Select a course to calculate';
+                    return;
+                }
+                if (!startInput.value) {
+                    $('study_end_display').textContent = 'Enter a start date';
+                    return;
+                }
+                if (!selectedDays().length) {
+                    $('study_end_display').textContent = 'Choose at least one class day';
+                    return;
+                }
+                if (!Number(hoursInput.value || 0)) {
+                    $('study_end_display').textContent = 'Enter class hours per day';
+                    return;
+                }
+
+                $('study_end_display').textContent = 'Calculating…';
+                $('study_end_display').setAttribute('aria-busy', 'true');
+                updateChecklist();
 
                 clearTimeout(refreshTimer);
                 refreshTimer = setTimeout(() => {
-                    runRefresh(false);
+                    runRefresh();
                 }, 400);
             };
 
@@ -2805,6 +2699,7 @@ unset($__errorArgs, $__bag); ?>
                     info.hidden = true;
                     $('calc-target-pill').textContent = 'No course selected';
                     $('calc-target-hours').textContent = '—';
+                    $('calc-target-label').textContent = 'Select a course';
                     $('calculated-hours-display').hidden = true;
                     $('calc-help').hidden = false;
                     return;
@@ -2823,6 +2718,7 @@ unset($__errorArgs, $__bag); ?>
                 const target = targetHours();
                 $('calc-target-pill').textContent = target > 0 ? `${target} h curriculum` : 'No target hours';
                 $('calc-target-hours').textContent = target > 0 ? `${target} h` : '—';
+                $('calc-target-label').textContent = target > 0 ? `${target} hours` : 'Select a course';
                 $('calculated-hours-display').hidden = target <= 0;
                 $('calc-help').hidden = target > 0;
             };
@@ -2841,7 +2737,7 @@ unset($__errorArgs, $__bag); ?>
                 }
 
                 renderCalendar();
-                runRefresh(true);
+                scheduleRefresh();
             };
 
             // ------------------------------------------------------------------
@@ -2850,7 +2746,7 @@ unset($__errorArgs, $__bag); ?>
 
             const syncDaysPerWeek = () => {
                 const checked = form.querySelectorAll('input[name="class_days[]"]:checked').length;
-                if (checked > 0) daysInput.value = checked;
+                daysInput.value = checked;
                 $('days-count-badge').textContent = `${checked} day${checked === 1 ? '' : 's'} selected`;
                 updateFridayWarning();
             };
@@ -2863,11 +2759,6 @@ unset($__errorArgs, $__bag); ?>
                 syncDaysPerWeek();
             };
 
-            const markPreset = (activeButton) => {
-                document.querySelectorAll('.preset-card-btn').forEach((btn) => btn.classList.remove('active'));
-                if (activeButton) activeButton.classList.add('active');
-            };
-
             // ------------------------------------------------------------------
             // Pre-submission Checklist & Stepper Checkmarks
             // ------------------------------------------------------------------
@@ -2875,7 +2766,7 @@ unset($__errorArgs, $__bag); ?>
             const updateChecklist = () => {
                 const hasStudent = Boolean($('student_name_en')?.value && $('student_date_of_birth')?.value && $('student_gender')?.value);
                 const hasCourse = Boolean(courseSelect?.value);
-                const hasSchedule = Boolean(startInput?.value && endInput?.value && selectedDays().length > 0);
+                const hasSchedule = Boolean(!scheduleDirty && startInput?.value && endInput?.value && selectedDays().length > 0);
                 const target = targetHours();
                 const totalClass = rows.reduce((sum, row) => sum + row.class_hours, 0);
                 const hasHours = target > 0 && totalClass === target;
@@ -2906,7 +2797,9 @@ unset($__errorArgs, $__bag); ?>
                 if (hasSchedule) score += 20;
                 if (rows.length > 0) score += 20;
                 if (hasSign) score += 20;
-                $('stepper-progress-fill').style.width = `${Math.max(10, score)}%`;
+                const progressValue = Math.max(10, score);
+                $('stepper-progress-fill').style.width = `${progressValue}%`;
+                $('stepper-progress-fill').parentElement?.setAttribute('aria-valuenow', String(progressValue));
             };
 
             // ------------------------------------------------------------------
@@ -2930,174 +2823,34 @@ unset($__errorArgs, $__bag); ?>
                 updateChecklist();
             });
 
-            endInput.addEventListener('change', () => {
-                syncIssuedOn();
-                renderCalendar();
-                scheduleRefresh();
-                updateChecklist();
-            });
-
-            const syncActivePresetWithSelection = () => {
-                const days = selectedDays().join(',');
-                const hours = String(hoursInput.value || '');
-                document.querySelectorAll('.preset-card-btn').forEach((btn) => {
-                    btn.classList.toggle('active', btn.dataset.days === days && btn.dataset.hours === hours);
-                });
-            };
-
             hoursInput.addEventListener('change', () => {
-                syncActivePresetWithSelection();
                 renderSummary();
                 scheduleRefresh();
                 updateChecklist();
             });
 
-            daysInput.addEventListener('change', () => {
-                const value = parseInt(daysInput.value, 10);
-                if (!Number.isNaN(value) && value >= 1 && value <= 7) {
-                    syncCheckboxes(value);
-                    syncActivePresetWithSelection();
-                    renderCalendar();
-                    scheduleRefresh();
-                    updateChecklist();
-                }
-            });
+            hoursInput.addEventListener('input', scheduleRefresh);
 
             form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
                 checkbox.addEventListener('change', () => {
                     syncDaysPerWeek();
-                    syncActivePresetWithSelection();
                     renderCalendar();
                     scheduleRefresh();
                     updateChecklist();
-                });
-            });
-
-            document.querySelectorAll('.preset-card-btn').forEach((button) => {
-                button.addEventListener('click', () => {
-                    const days = (button.dataset.days || '').split(',').filter(Boolean);
-                    const hours = button.dataset.hours;
-
-                    if (hours) hoursInput.value = hours;
-                    form.querySelectorAll('input[name="class_days[]"]').forEach((checkbox) => {
-                        checkbox.checked = days.includes(checkbox.value);
-                    });
-
-                    syncDaysPerWeek();
-                    syncActivePresetWithSelection();
-                    renderCalendar();
-
-                    if (!startInput.value) {
-                        const now = new Date();
-                        startInput.value = isoOf(new Date(now.getFullYear(), now.getMonth(), 1));
-                        syncCalendarToStart();
-                    }
-
-                    if (courseSelect.value) {
-                        runRefresh(true);
-                    } else {
-                        scheduleRefresh();
-                    }
-                    updateChecklist();
-                });
-            });
-
-            // Start Date Quick Chips (1st of month, Next month, Today)
-            document.querySelectorAll('.start-chip').forEach((chip) => {
-                chip.addEventListener('click', () => {
-                    const type = chip.dataset.startType;
-                    const now = new Date();
-                    let targetDate;
-
-                    if (type === 'this-month-1st') {
-                        targetDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    } else if (type === 'next-month-1st') {
-                        targetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-                    } else if (type === 'today') {
-                        targetDate = now;
-                    }
-
-                    if (targetDate) {
-                        startInput.value = isoOf(targetDate);
-                        syncCalendarToStart();
-                        renderCalendar();
-                        if (courseSelect.value) {
-                            runRefresh(true);
-                        } else {
-                            scheduleRefresh();
-                        }
-                        updateChecklist();
-                    }
-                });
-            });
-
-            // Session Nudge (+1 Class / -1 Class)
-            const nudgeSession = (direction) => {
-                const classDays = selectedDays();
-                if (!classDays.length) {
-                    showError('Select at least one class day first.');
-                    return;
-                }
-
-                let currentEnd = parseDate(endInput.value);
-                if (!currentEnd || Number.isNaN(currentEnd.getTime())) {
-                    if (startInput.value && courseSelect.value) {
-                        runRefresh(true);
-                    }
-                    return;
-                }
-
-                const stepDays = direction > 0 ? 1 : -1;
-                let candidate = new Date(currentEnd.getTime());
-                let found = false;
-
-                // Look ahead or behind up to 30 days to find the next/prev active class day
-                for (let i = 0; i < 30; i++) {
-                    candidate.setDate(candidate.getDate() + stepDays);
-                    const iso = isoOf(candidate);
-                    const dayName = CAL_WEEKDAYS[(candidate.getDay() + 1) % 7];
-
-                    if (classDays.includes(dayName) && !holidays.has(iso)) {
-                        endInput.value = iso;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    syncCalendarToEnd();
-                    renderCalendar();
-                    syncIssuedOn();
-                    runRefresh(false);
-                    updateChecklist();
-                }
-            };
-
-            document.querySelectorAll('.session-nudge').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    const nudge = parseInt(btn.dataset.nudge, 10);
-                    nudgeSession(nudge);
                 });
             });
 
             courseSelect.addEventListener('change', () => {
                 const option = courseSelect.selectedOptions[0];
                 const hours = option?.dataset?.hours;
-                const days = option?.dataset?.days;
 
                 if (hours) hoursInput.value = hours;
-                if (days) {
-                    daysInput.value = days;
-                    syncCheckboxes(parseInt(days, 10));
-                }
 
                 updateCourseInfo();
-                syncActivePresetWithSelection();
+                syncDaysPerWeek();
                 renderCalendar();
 
-                if (courseSelect.value) {
-                    runRefresh(!isEdit);
-                }
+                scheduleRefresh();
                 updateChecklist();
             });
 
@@ -3107,11 +2860,7 @@ unset($__errorArgs, $__bag); ?>
                 holidays = parseHolidayText(holidayInput.value);
                 renderCalendar();
                 renderHolidayChips();
-                if (shouldAutoCompensate()) {
-                    runRefresh(true);
-                } else {
-                    scheduleRefresh();
-                }
+                scheduleRefresh();
             });
 
             $('holiday-chips').addEventListener('click', (event) => {
@@ -3125,30 +2874,7 @@ unset($__errorArgs, $__bag); ?>
                 writeHolidays();
                 renderCalendar();
                 renderHolidayChips();
-                if (shouldAutoCompensate()) {
-                    runRefresh(true);
-                } else {
-                    scheduleRefresh();
-                }
-            });
-
-            // Quick add Bangladesh national holidays for active study period years
-            document.querySelectorAll('.quick-add-chip').forEach((chip) => {
-                chip.addEventListener('click', () => {
-                    const mmdd = chip.dataset.bdHoliday;
-                    const years = studyYears();
-                    years.forEach((yr) => {
-                        holidays.add(`${yr}-${mmdd}`);
-                    });
-                    writeHolidays();
-                    renderCalendar();
-                    renderHolidayChips();
-                    if (shouldAutoCompensate()) {
-                        runRefresh(true);
-                    } else {
-                        scheduleRefresh();
-                    }
-                });
+                scheduleRefresh();
             });
 
             $('cal-prev').addEventListener('click', () => {
@@ -3170,9 +2896,6 @@ unset($__errorArgs, $__bag); ?>
                 syncCalendarToEnd();
                 renderCalendar();
             });
-
-            $('calc-end-date-btn').addEventListener('click', () => runRefresh(true));
-            $('refresh-summary').addEventListener('click', () => runRefresh(false));
 
             $('student_date_of_birth').addEventListener('input', () => {
                 updateStudentAge();
@@ -3234,7 +2957,10 @@ unset($__errorArgs, $__bag); ?>
                     if (entry.isIntersecting) {
                         const id = entry.target.id;
                         stepNavLinks.forEach((link) => {
-                            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                            const isActive = link.getAttribute('href') === `#${id}`;
+                            link.classList.toggle('active', isActive);
+                            if (isActive) link.setAttribute('aria-current', 'step');
+                            else link.removeAttribute('aria-current');
                         });
                     }
                 });
@@ -3251,10 +2977,15 @@ unset($__errorArgs, $__bag); ?>
             });
 
             form.addEventListener('submit', (event) => {
-                if (rows.length === 0) {
+                if (scheduleDirty || rows.length === 0) {
                     event.preventDefault();
-                    showError('Please generate the schedule breakdown before saving. Pick a course and valid study dates.');
-                    document.getElementById('step-4').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    if (courseSelect.value && startInput.value && selectedDays().length && Number(hoursInput.value || 0)) {
+                        clearTimeout(refreshTimer);
+                        runRefresh();
+                    } else {
+                        showError('Select a course, enter a start date, choose class days, and set class hours to calculate the end date.');
+                    }
+                    document.getElementById('step-3').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
 
@@ -3264,24 +2995,21 @@ unset($__errorArgs, $__bag); ?>
 
             rateInput.value = initialRate;
             rateSlider.value = initialRate;
-            if (!startInput.value && !isEdit) {
-                const now = new Date();
-                startInput.value = isoOf(new Date(now.getFullYear(), now.getMonth(), 1));
-            }
             holidays = parseHolidayText(holidayInput.value);
             syncCalendarToStart();
             syncIssuedOn();
             updateStudentAge();
             updateCourseInfo();
+            syncDaysPerWeek();
             updateFridayWarning();
-            syncActivePresetWithSelection();
             renderCalendar();
             renderHolidayChips();
             renderAll();
             updateChecklist();
+            updateSubmitState();
 
-            if (rows.length === 0 && courseSelect.value && startInput.value && endInput.value && selectedDays().length) {
-                runRefresh(false);
+            if (rows.length === 0 && courseSelect.value && startInput.value && selectedDays().length) {
+                runRefresh();
             }
         })();
     </script>

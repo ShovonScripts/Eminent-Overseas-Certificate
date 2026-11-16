@@ -6,6 +6,8 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') &middot; {{ $schoolConfig['name'] }}</title>
+    <link rel="icon" href="{{ asset($schoolConfig['images']['logo']) }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset($schoolConfig['images']['logo']) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>

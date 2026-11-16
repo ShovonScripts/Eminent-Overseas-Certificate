@@ -6,6 +6,8 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title><?php echo $__env->yieldContent('title', 'Dashboard'); ?> &middot; <?php echo e($schoolConfig['name']); ?></title>
+    <link rel="icon" href="<?php echo e(asset($schoolConfig['images']['logo'])); ?>" type="image/png">
+    <link rel="apple-touch-icon" href="<?php echo e(asset($schoolConfig['images']['logo'])); ?>">
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body>

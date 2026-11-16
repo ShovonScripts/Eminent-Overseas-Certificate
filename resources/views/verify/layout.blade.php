@@ -124,6 +124,16 @@
         .gov-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 32px 18px 48px; width: 100%; }
         .gov-container { width: 100%; max-width: 820px; }
 
+        .gov-footer { width: 100%; max-width: 820px; margin: 28px auto 0; color: var(--color-gov-muted); }
+        .gov-footer-notice { display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; background: #FFFFFF; border: 1px solid var(--color-gov-border); border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; }
+        .gov-footer-notice svg { flex: 0 0 17px; margin-top: 1px; color: var(--color-gov-muted); }
+        .gov-footer-notice strong { color: var(--color-gov-slate); }
+        .gov-footer-notice a { color: #1D4F7A; font-weight: 600; }
+        .gov-footer-legal { padding: 12px 2px 0; font-size: 11px; line-height: 1.6; }
+        .gov-footer-legal strong { color: var(--color-gov-slate); }
+        .toast-copied { position: fixed; right: 20px; bottom: 20px; z-index: 200; padding: 10px 14px; color: #FFFFFF; background: #17385B; border-radius: 7px; box-shadow: 0 4px 14px rgba(15, 23, 42, .18); font-size: 13px; opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
+        .toast-copied.is-visible { opacity: 1; visibility: visible; transform: translateY(0); }
+
         /* ========== Verification Card ========== */
         .credential-card {
             background: var(--color-gov-card);
@@ -336,6 +346,8 @@
             .gov-header-inner { padding: 10px 16px; }
             .gov-brand-title { font-size: 14px; }
             .gov-brand-subtitle { font-size: 10px; }
+            .gov-footer { margin-top: 22px; }
+            .gov-footer-notice { padding: 12px; }
             .status-banner { padding: 18px 18px; flex-direction: column; align-items: flex-start; }
             .status-meta { text-align: left; margin-top: 8px; width: 100%; flex-direction: row; flex-wrap: wrap; }
             .card-body { padding: 22px 18px; }
