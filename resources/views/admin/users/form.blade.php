@@ -18,7 +18,7 @@
             <div class="card-head">
                 <div>
                     <h2>Staff Account Credentials & Role</h2>
-                    <p>Passwords must be at least 12 characters with upper and lower case letters, a number, and a symbol.</p>
+                    <p>Password must be at least 8 characters.</p>
                 </div>
             </div>
 

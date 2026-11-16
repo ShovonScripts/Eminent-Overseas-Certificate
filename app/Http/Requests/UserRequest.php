@@ -36,7 +36,7 @@ class UserRequest extends FormRequest
             'password' => [
                 $target ? 'nullable' : 'required',
                 'confirmed',
-                Password::min(12)->letters()->mixedCase()->numbers()->symbols(),
+                Password::min(8),
             ],
         ];
     }

@@ -10,6 +10,7 @@ use App\Models\Course;
 use App\Services\AdminActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CourseController extends Controller
@@ -85,12 +86,12 @@ class CourseController extends Controller
 
     public function destroy(Course $course, AdminActivityLogger $logger): RedirectResponse
     {
-        if ($course->certificates()->exists()) {
-            return back()->with('error', 'This course is used by certificates and cannot be deleted.');
-        }
-
         $oldValues = $course->toArray();
-        $course->delete();
+
+        DB::transaction(function () use ($course) {
+            DB::table('certificates')->where('course_id', $course->id)->delete();
+            $course->delete();
+        });
 
         $logger->logDeleted('App\Models\Course', $course->id, $oldValues, request());
 

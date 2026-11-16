@@ -10,6 +10,7 @@ use App\Models\Instructor;
 use App\Services\AdminActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class InstructorController extends Controller
@@ -77,12 +78,12 @@ class InstructorController extends Controller
 
     public function destroy(Instructor $instructor, AdminActivityLogger $logger): RedirectResponse
     {
-        if ($instructor->certificates()->exists()) {
-            return back()->with('error', 'This instructor is attached to certificates and cannot be deleted. Mark them inactive instead.');
-        }
-
         $oldValues = $instructor->toArray();
-        $instructor->delete();
+
+        DB::transaction(function () use ($instructor) {
+            DB::table('certificate_instructor')->where('instructor_id', $instructor->id)->delete();
+            $instructor->delete();
+        });
 
         $logger->logDeleted('App\Models\Instructor', $instructor->id, $oldValues, request());
 

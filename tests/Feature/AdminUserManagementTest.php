@@ -94,8 +94,8 @@ class AdminUserManagementTest extends TestCase
                 'name' => 'Weak User',
                 'email' => 'weak@example.com',
                 'role' => User::ROLE_STAFF,
-                'password' => 'password',
-                'password_confirmation' => 'password',
+                'password' => 'pass',
+                'password_confirmation' => 'pass',
             ])
             ->assertSessionHasErrors('password');
 

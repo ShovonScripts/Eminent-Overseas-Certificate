@@ -15,7 +15,7 @@
 
             <div class="pitch">
                 <h1>Choose a strong, unique password.</h1>
-                <p>Use at least 12 characters with upper and lower case letters, a number, and a symbol to ensure strong system protection.</p>
+                <p>Password must be at least 8 characters.</p>
             </div>
 
             <div class="meta">
