@@ -35,7 +35,7 @@ class AdminPanelTest extends TestCase
         $this->get('/admin/instructors/create')->assertOk();
         $this->get('/admin/certificates/create')->assertOk()
             ->assertSee('Schedule Summary')
-            ->assertSee('Fit end date to course hours')
+            ->assertSee('The end date updates automatically to match the course-hour target')
             ->assertSee('Attendance rate');
 
         $this->get("/admin/courses/{$course->id}")->assertOk();

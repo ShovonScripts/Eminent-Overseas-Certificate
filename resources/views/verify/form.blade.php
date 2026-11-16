@@ -6,8 +6,8 @@
     <style>
         .verify-page {
             width: 100%;
-            max-width: 680px;
-            margin: 28px auto 0;
+            max-width: 640px;
+            margin: 32px auto 0;
         }
 
         .gov-header-actions .btn-outline { display: none; }
@@ -15,120 +15,127 @@
         .verify-card {
             overflow: hidden;
             background: #fff;
-            border: 1px solid #dbe3ec;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
         }
 
         .verify-heading {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 16px;
-            padding: 24px 28px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 28px 32px 24px;
+            border-bottom: 1px solid #E2E8F0;
         }
 
         .verify-heading-icon {
             display: grid;
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
             place-items: center;
-            color: #1e3a5f;
-            background: #f1f5f9;
-            border: 1px solid #dbe3ec;
-            border-radius: 10px;
+            color: #0A192F;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
         }
 
         .verify-heading h1 {
             margin: 0;
-            color: #0f2744;
-            font-size: 21px;
-            font-weight: 700;
-            letter-spacing: -.02em;
-            line-height: 1.3;
+            color: #0A192F;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
         }
 
         .verify-heading p {
-            margin: 4px 0 0;
-            color: #526174;
-            font-size: 14px;
+            margin: 6px 0 0;
+            color: #64748B;
+            font-size: 14.5px;
             line-height: 1.5;
         }
 
-        .verify-content { padding: 26px 28px 28px; }
-        .verify-description { margin: 0 0 20px; color: #475569; font-size: 14px; line-height: 1.65; }
-        .verify-label { display: block; margin-bottom: 7px; color: #26384d; font-size: 13px; font-weight: 650; }
+        .verify-content { padding: 30px 32px 32px; }
+        .verify-description { margin: 0 0 24px; color: #475569; font-size: 15px; line-height: 1.65; }
+        .verify-label { display: block; margin-bottom: 8px; color: #0A192F; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
         .verify-input-wrap { position: relative; }
-        .verify-input-wrap svg { position: absolute; top: 50%; left: 14px; color: #748399; transform: translateY(-50%); pointer-events: none; }
+        .verify-input-wrap svg { position: absolute; top: 50%; left: 16px; color: #94A3B8; transform: translateY(-50%); pointer-events: none; }
         .verify-input {
             display: block;
             width: 100%;
-            min-height: 48px;
-            padding: 11px 14px 11px 42px;
-            color: #0f2744;
+            min-height: 52px;
+            padding: 12px 16px 12px 48px;
+            color: #0A192F;
             background: #fff;
-            border: 1px solid #cbd5e1;
-            border-radius: 7px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 10px;
             font-family: var(--font-mono);
-            font-size: 15px;
-            font-weight: 600;
-            transition: border-color .15s ease, box-shadow .15s ease;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
         }
 
-        .verify-input::placeholder { color: #94a3b8; font-weight: 500; }
-        .verify-input:focus { outline: none; border-color: #31577d; box-shadow: 0 0 0 3px rgba(49, 87, 125, .14); }
-        .verify-error { display: flex; align-items: flex-start; gap: 7px; margin-top: 8px; color: #b42318; font-size: 13px; line-height: 1.45; }
-        .verify-error svg { flex: 0 0 15px; margin-top: 1px; }
+        .verify-input::placeholder { color: #94A3B8; font-weight: 500; letter-spacing: 0.01em; }
+        .verify-input:focus { outline: none; border-color: #0A192F; box-shadow: 0 0 0 4px rgba(10, 25, 47, 0.12); background: #FAFAFA; }
+        .verify-input:hover { border-color: #94A3B8; }
+        .verify-error { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; color: #991B1B; font-size: 13px; line-height: 1.5; }
+        .verify-error svg { flex: 0 0 16px; margin-top: 1px; }
 
-        .verify-actions { display: flex; gap: 10px; margin-top: 16px; }
+        .verify-actions { display: flex; gap: 12px; margin-top: 20px; }
         .verify-button, .verify-link {
             display: inline-flex;
-            min-height: 44px;
+            min-height: 48px;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 10px 16px;
+            gap: 10px;
+            padding: 12px 24px;
             border: 1px solid transparent;
-            border-radius: 7px;
-            font-family: inherit;
+            border-radius: 10px;
+            font-family: var(--font-sans);
             font-size: 14px;
-            font-weight: 650;
+            font-weight: 700;
             line-height: 1.2;
             text-decoration: none;
             cursor: pointer;
-            transition: background-color .15s ease, border-color .15s ease;
+            transition: all 0.15s ease;
         }
 
-        .verify-button { color: #fff; background: #17385b; border-color: #17385b; }
-        .verify-button:hover { background: #102b49; border-color: #102b49; }
-        .verify-link { color: #334155; background: #fff; border-color: #cbd5e1; }
-        .verify-link:hover { background: #f8fafc; border-color: #94a3b8; }
-        .verify-button:focus-visible, .verify-link:focus-visible { outline: 3px solid rgba(49, 87, 125, .3); outline-offset: 2px; }
+        .verify-button { color: #fff; background: #0A192F; border-color: #0A192F; }
+        .verify-button:hover { background: #172A45; border-color: #172A45; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10, 25, 47, 0.2); }
+        .verify-button:active { transform: translateY(0); }
+        .verify-link { color: #0A192F; background: #fff; border-color: #E2E8F0; }
+        .verify-link:hover { background: #F8FAFC; border-color: #CBD5E1; }
+        .verify-button:focus-visible, .verify-link:focus-visible { outline: 3px solid rgba(10, 25, 47, 0.3); outline-offset: 2px; }
 
         .verify-privacy {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 13px 14px;
-            color: #526174;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 7px;
-            font-size: 12.5px;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 16px 20px;
+            color: #475569;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 13px;
             line-height: 1.55;
         }
 
-        .verify-privacy svg { flex: 0 0 16px; margin-top: 1px; color: #64748b; }
-        .verify-privacy strong { color: #334155; }
+        .verify-privacy svg { flex: 0 0 18px; margin-top: 1px; color: #B45309; }
+        .verify-privacy strong { color: #0A192F; font-weight: 700; }
+
+        /* Input focus-within for label highlight */
+        .verify-input-wrap:focus-within svg { color: #0A192F; }
 
         @media (max-width: 600px) {
-            .verify-page { margin-top: 12px; }
-            .verify-heading { align-items: flex-start; padding: 20px; }
-            .verify-heading-icon { width: 40px; height: 40px; flex-basis: 40px; }
-            .verify-heading h1 { font-size: 19px; }
-            .verify-content { padding: 20px; }
+            .verify-page { margin-top: 16px; }
+            .verify-heading { align-items: flex-start; padding: 24px 20px; }
+            .verify-heading-icon { width: 44px; height: 44px; flex-basis: 44px; }
+            .verify-heading h1 { font-size: 20px; }
+            .verify-content { padding: 24px 20px 28px; }
+            .verify-input { min-height: 48px; font-size: 15px; }
             .verify-actions { flex-direction: column; }
             .verify-button, .verify-link { width: 100%; }
         }
@@ -140,9 +147,9 @@
         <div class="verify-card">
             <div class="verify-heading">
                 <div class="verify-heading-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="7.5" />
-                        <path d="m16.5 16.5 4 4" />
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                 </div>
                 <div>
@@ -158,7 +165,7 @@
                     @csrf
                     <label class="verify-label" for="certificate_no">Certificate registration number</label>
                     <div class="verify-input-wrap">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M7 3h7l5 5v13H5V3h2Z" />
                             <path d="M14 3v6h6M8 13h8M8 17h8" />
                         </svg>
@@ -176,7 +183,7 @@
                     </div>
                     @error('certificate_no')
                         <div class="verify-error" id="certificate_no_error" role="alert">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M12 8v4m0 4h.01" />
                             </svg>
@@ -194,17 +201,18 @@
                         <a class="verify-link" href="{{ $school['website'] ?? config('school.website', 'https://eminentoverseas.uk') }}" target="_blank" rel="noopener noreferrer">
                             Visit school website
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M14 3h7v7m-1-6L10 14" />
-                                <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" />
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <polyline points="15 3 21 3 21 9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
                             </svg>
                         </a>
                     </div>
                 </form>
 
                 <aside class="verify-privacy">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="4" y="10" width="16" height="11" rx="2" />
-                        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M9 12l2 2 4-4"/>
                     </svg>
                     <div><strong>Privacy:</strong> The public record confirms certificate details without showing private contact information or date of birth.</div>
                 </aside>

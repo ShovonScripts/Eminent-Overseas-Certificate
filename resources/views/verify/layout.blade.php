@@ -124,13 +124,19 @@
         .gov-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 32px 18px 48px; width: 100%; }
         .gov-container { width: 100%; max-width: 820px; }
 
-        .gov-footer { width: 100%; max-width: 820px; margin: 28px auto 0; color: var(--color-gov-muted); }
-        .gov-footer-notice { display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; background: #FFFFFF; border: 1px solid var(--color-gov-border); border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; }
-        .gov-footer-notice svg { flex: 0 0 17px; margin-top: 1px; color: var(--color-gov-muted); }
-        .gov-footer-notice strong { color: var(--color-gov-slate); }
-        .gov-footer-notice a { color: #1D4F7A; font-weight: 600; }
-        .gov-footer-legal { padding: 12px 2px 0; font-size: 11px; line-height: 1.6; }
-        .gov-footer-legal strong { color: var(--color-gov-slate); }
+        .gov-footer { width: 100%; max-width: 820px; margin: 24px auto 0; color: var(--color-gov-muted); }
+        .gov-footer-inner { padding-top: 20px; border-top: 1px solid var(--color-gov-border); }
+        .gov-footer-notice { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid var(--color-gov-border); border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.6; }
+        .gov-footer-notice svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--color-gold-accent); }
+        .gov-footer-notice strong { color: var(--color-gov-navy); }
+        .gov-footer-notice a { color: #1D4F7A; font-weight: 600; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s ease; }
+        .gov-footer-notice a:hover { border-color: #1D4F7A; }
+        .gov-footer-legal { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 4px 4px; font-size: 11.5px; line-height: 1.5; color: var(--color-gov-muted); }
+        .gov-footer-legal strong { color: var(--color-gov-slate); font-weight: 700; }
+        .gov-footer-links { display: flex; align-items: center; gap: 16px; }
+        .gov-footer-links a { color: var(--color-gov-muted); text-decoration: none; font-weight: 500; transition: color 0.15s ease; }
+        .gov-footer-links a:hover { color: var(--color-gov-navy); }
+        .gov-footer-divider { width: 1px; height: 16px; background: var(--color-gov-border); }
         .toast-copied { position: fixed; right: 20px; bottom: 20px; z-index: 200; padding: 10px 14px; color: #FFFFFF; background: #17385B; border-radius: 7px; box-shadow: 0 4px 14px rgba(15, 23, 42, .18); font-size: 13px; opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
         .toast-copied.is-visible { opacity: 1; visibility: visible; transform: translateY(0); }
 
@@ -298,56 +304,72 @@
 
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important; }
-            html, body { background: #fff !important; color: #0F172A !important; margin: 0 !important; padding: 0 !important; font-size: 10.5px !important; line-height: 1.45 !important; }
-            .screen-only, .gov-header, .actions, .btn-copy, #toast-copied, .gov-nav-btn, .privacy-notice, .gov-footer-notice, .watermark, .status-banner, .cert-ref { display: none !important; }
+            html, body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; font-size: 10.5px !important; line-height: 1.5 !important; }
+            .screen-only, .gov-header, .actions, .btn-copy, #toast-copied, .gov-nav-btn, .privacy-notice, .gov-footer, .gov-footer-notice, .watermark, .status-banner, .cert-ref, .sha256 { display: none !important; }
             .print-only { display: block !important; }
             .gov-main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
             .gov-container { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
             .credential-card { border: none !important; border-radius: 0 !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; page-break-inside: avoid !important; break-inside: avoid !important; }
             .card-body { padding: 0 !important; }
-            .print-header { display: flex !important; align-items: center; gap: 14px; padding-bottom: 8px !important; border-bottom: 2px solid #0A192F !important; margin-bottom: 12px !important; }
-            .print-header::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 0.75px; background: #0A192F; }
-            .print-logo-wrap { width: 48px; height: 48px; flex-shrink: 0; }
+
+            /* Print Header */
+            .print-header { display: flex !important; align-items: center; gap: 16px; padding: 0 0 12px 0 !important; border-bottom: 2px solid #000 !important; margin-bottom: 20px !important; }
+            .print-logo-wrap { width: 56px; height: 56px; flex-shrink: 0; }
             .print-logo-wrap img { width: 100%; height: 100%; object-fit: contain; }
-            .print-header-titles h2 { font-family: var(--font-serif); font-size: 16.5px; font-weight: 800; color: #0A192F; margin: 0; line-height: 1.15; letter-spacing: 0.02em; }
-            .print-subhead { font-size: 10px; font-weight: 800; color: #B45309; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-            .print-meta { font-size: 8.5px; color: #475569; margin-top: 2px; line-height: 1.35; }
-            .print-record { display: flex !important; align-items: center; justify-content: space-between; padding: 8px 14px !important; background: #F8FAFC !important; border: 1px solid #CBD5E1 !important; border-radius: 4px !important; margin-bottom: 14px !important; font-size: 9.5px !important; }
-            .rec-no { font-family: var(--font-mono); font-size: 12.5px; font-weight: 800; color: #0A192F; }
-            .rec-status { font-weight: 800; color: #065F46; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 2px 8px; border-radius: 3px; font-size: 9px; letter-spacing: 0.03em; }
-            .rec-meta { color: #475569; font-size: 8.5px; font-weight: 600; }
-            .section { margin-bottom: 10px !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-            .section h2 { font-size: 10px !important; font-weight: 800 !important; letter-spacing: 0.05em !important; text-transform: uppercase !important; color: #0A192F !important; border-bottom: 1px solid #0A192F !important; padding-bottom: 3px !important; margin-bottom: 6px !important; }
-            .section-num { background: transparent !important; border: none !important; font-size: 10.5px !important; min-width: auto !important; height: auto !important; padding: 0 !important; margin-right: 2px !important; }
-            .info-grid { gap: 5px 18px !important; }
-            .item dt { font-size: 8px !important; font-weight: 700 !important; color: #475569 !important; }
-            .item dd { font-size: 11px !important; font-weight: 600 !important; color: #0F172A !important; }
-            .name { font-size: 13.5px !important; font-weight: 800 !important; }
-            .ja-tag { font-size: 10px !important; padding: 1px 6px !important; border: 1px solid #CBD5E1 !important; background: #F8FAFC !important; color: #1E293B !important; }
-            .level-badge { font-size: 9px !important; padding: 1px 5px !important; border: 1px solid #94A3B8 !important; background: #fff !important; color: #0F172A !important; }
-            .attendance-table { margin-top: 6px !important; border: 1px solid #334155 !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-            .attendance-table th { background-color: #F1F5F9 !important; color: #0F172A !important; font-size: 8.5px !important; font-weight: 800 !important; padding: 6px 8px !important; border: 1px solid #CBD5E1 !important; }
-            .attendance-table td { padding: 6px 8px !important; border: 1px solid #CBD5E1 !important; }
-            .attendance-table .num { font-size: 13px !important; font-weight: 800 !important; color: #0A192F !important; }
-            .attendance-table .badge.done { font-size: 8.5px !important; padding: 1px 5px !important; border: 1px solid #059669 !important; color: #065F46 !important; background: #ECFDF5 !important; }
-            .sha256-box { padding: 3px 6px !important; background: #F8FAFC !important; border: 1px solid #CBD5E1 !important; margin-top: 2px !important; }
-            .sha256-box code { font-size: 8px !important; color: #334155 !important; }
-            .attestation { display: grid !important; grid-template-columns: 1fr 110px !important; gap: 14px !important; align-items: center !important; padding: 10px 12px !important; border: 1px solid #CBD5E1 !important; border-radius: 4px !important; background: #FAFAFA !important; margin-top: 8px !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-            .attestation-text { font-size: 8px !important; line-height: 1.45 !important; color: #334155 !important; }
-            .attestation-meta { margin-top: 5px !important; padding-top: 5px !important; font-size: 8px !important; }
-            .seal { width: 80px !important; height: 80px !important; margin: 0 auto !important; }
-            .seal svg { width: 80px !important; height: 80px !important; }
-            .privacy-notice { display: none !important; }
-            .actions { display: none !important; }
-            .gov-header, .gov-footer, .gov-footer-notice, .watermark, .status-banner, .cert-ref, .btn-copy { display: none !important; }
+            .print-header-titles h2 { font-family: var(--font-serif); font-size: 18px; font-weight: 800; color: #000; margin: 0; line-height: 1.2; letter-spacing: 0.01em; }
+            .print-subhead { font-size: 10px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+            .print-meta { font-size: 8.5px; color: #555; margin-top: 3px; line-height: 1.4; }
+
+            /* Print Record Bar */
+            .print-record { display: flex !important; align-items: center; justify-content: space-between; padding: 10px 14px !important; border: 1px solid #ccc !important; border-radius: 0 !important; margin-bottom: 20px !important; font-size: 9.5px !important; background: #fafafa !important; }
+            .rec-no { font-family: var(--font-mono); font-size: 13px; font-weight: 800; color: #000; }
+            .rec-status { font-weight: 800; color: #000; border: 1px solid #999; padding: 3px 10px; font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; background: #fff !important; }
+            .rec-meta { color: #555; font-size: 8.5px; font-weight: 600; }
+
+            /* Sections */
+            .section { margin-bottom: 18px !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+            .section h2 { font-size: 10px !important; font-weight: 800 !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; color: #000 !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 4px !important; margin-bottom: 10px !important; }
+            .section-num { background: transparent !important; border: none !important; font-size: 10px !important; min-width: auto !important; height: auto !important; padding: 0 !important; margin-right: 6px !important; font-family: var(--font-serif); font-weight: 700; }
+
+            /* Info Grid */
+            .info-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px 24px !important; }
+            .item { display: flex !important; flex-direction: column !important; gap: 3px !important; }
+            .item.span-2 { grid-column: span 2 !important; }
+            .item dt { font-size: 8px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; color: #555 !important; }
+            .item dd { font-size: 11px !important; font-weight: 600 !important; color: #000 !important; line-height: 1.4 !important; margin: 0 !important; }
+            .name { font-size: 14px !important; font-weight: 800 !important; letter-spacing: -0.01em !important; }
+            .ja-tag { font-size: 10px !important; font-weight: 600 !important; color: #333 !important; border: 1px solid #ccc !important; background: #fafafa !important; border-radius: 3px !important; padding: 1px 8px !important; display: inline-block !important; margin-top: 2px !important; }
+            .level-badge { font-size: 9px !important; font-weight: 700 !important; color: #000 !important; border: 1px solid #999 !important; background: #fff !important; border-radius: 2px !important; padding: 1px 6px !important; display: inline-block !important; margin-top: 2px !important; }
+
+            /* Attendance Table */
+            .attendance-table { width: 100% !important; border-collapse: collapse !important; margin-top: 8px !important; font-size: 11px !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+            .attendance-table th { background-color: #f5f5f5 !important; color: #000 !important; font-size: 8.5px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; padding: 8px 10px !important; border: 1px solid #ccc !important; text-align: center !important; }
+            .attendance-table td { padding: 8px 10px !important; border: 1px solid #ccc !important; text-align: center !important; color: #000 !important; }
+            .attendance-table .num { font-size: 13px !important; font-weight: 800 !important; font-family: var(--font-mono) !important; color: #000 !important; }
+            .attendance-table .badge { font-size: 8.5px !important; font-weight: 700 !important; padding: 2px 8px !important; border: 1px solid #999 !important; border-radius: 2px !important; background: #fff !important; color: #000 !important; text-transform: uppercase !important; letter-spacing: 0.03em !important; }
+
+            /* Attestation + Seal */
+            .attestation { display: grid !important; grid-template-columns: 1fr 120px !important; gap: 20px !important; align-items: center !important; padding: 14px 16px !important; border: 1px solid #ccc !important; border-radius: 0 !important; margin-top: 16px !important; page-break-inside: avoid !important; break-inside: avoid !important; background: #fafafa !important; }
+            .attestation-text { font-size: 9px !important; line-height: 1.55 !important; color: #333 !important; }
+            .attestation-text strong { color: #000 !important; font-weight: 700 !important; }
+            .attestation-meta { margin-top: 6px !important; padding-top: 6px !important; border-top: 1px dashed #ccc !important; font-size: 8px !important; color: #555 !important; display: flex !important; gap: 14px !important; flex-wrap: wrap !important; }
+            .attestation-meta code { font-family: var(--font-mono) !important; font-size: 8px !important; color: #333 !important; }
+            .seal { width: 110px !important; height: 110px !important; flex-shrink: 0 !important; margin: 0 !important; }
+            .seal svg { width: 100% !important; height: 100% !important; display: block !important; }
+
+            /* Footer note on first page */
+            .print-footer-note { margin-top: 30px !important; padding-top: 12px !important; border-top: 1px solid #ccc !important; font-size: 8px !important; color: #666 !important; text-align: center !important; line-height: 1.5 !important; }
+
+            .gov-footer { display: none !important; }
         }
 
         @media (max-width: 680px) {
             .gov-header-inner { padding: 10px 16px; }
             .gov-brand-title { font-size: 14px; }
             .gov-brand-subtitle { font-size: 10px; }
-            .gov-footer { margin-top: 22px; }
-            .gov-footer-notice { padding: 12px; }
+            .gov-footer { margin-top: 14px; }
+            .gov-footer-notice { grid-template-columns: 17px minmax(0, 1fr); gap: 9px; padding: 11px 12px; font-size: 12px; line-height: 1.5; }
+            .gov-footer-legal { padding: 9px 2px 0; font-size: 11px; line-height: 1.5; }
             .status-banner { padding: 18px 18px; flex-direction: column; align-items: flex-start; }
             .status-meta { text-align: left; margin-top: 8px; width: 100%; flex-direction: row; flex-wrap: wrap; }
             .card-body { padding: 22px 18px; }
@@ -373,7 +395,7 @@
                 <div class="gov-brand-text">
                     <span class="gov-brand-title">{{ $school['name'] }}</span>
                     <span class="gov-brand-subtitle">
-                        Official Credential Registry <span class="dot"></span> Japanese Studies
+                        Official Credential Registry
                     </span>
                 </div>
             </a>
@@ -408,20 +430,32 @@
 
         <!-- Institutional Footer -->
         <footer class="gov-footer">
-            <div class="gov-footer-notice">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <div>
-                    <strong>Notice to Consulates, Embassies, and Immigration Authorities (出入国在留管理庁):</strong>
-                    This verification portal validates certified records issued by {{ $school['name'] }}. Records displayed here reflect the verified archival database. For diplomatic or consular queries, contact the Registrar at <a href="mailto:{{ $school['email'] }}">{{ $school['email'] }}</a> or telephone {{ $school['phone'] }}.
+            <div class="gov-footer-inner">
+                <div class="gov-footer-notice">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    <div>
+                        <strong>Official Verification Portal:</strong>
+                        This service validates certified records issued by {{ $school['name'] }}.
+                        Records reflect the verified archival database. For consular or diplomatic queries,
+                        contact the Registrar at <a href="mailto:{{ $school['email'] }}">{{ $school['email'] }}</a>
+                        or telephone {{ $school['phone'] }}.
+                    </div>
                 </div>
-            </div>
 
-            <div class="gov-footer-legal">
-                <strong>{{ $school['name'] }}</strong> &middot; {{ $school['address'] }}<br>
-                <span>Official Japanese Language Education Registry &middot; Cryptographically Signed Credential System</span>
+                <div class="gov-footer-legal">
+                    <div>
+                        <strong>{{ $school['name'] }}</strong> &middot; {{ $school['address'] }}
+                    </div>
+                    <div class="gov-footer-links">
+                        <span>Official Japanese Language Education Registry</span>
+                        <span class="gov-footer-divider" aria-hidden="true"></span>
+                        <a href="{{ $school['website'] ?? 'https://eminentoverseas.uk' }}" target="_blank" rel="noopener noreferrer">Website</a>
+                        <a href="{{ route('verify.form') }}">Verify Another</a>
+                    </div>
+                </div>
             </div>
         </footer>
     </main>

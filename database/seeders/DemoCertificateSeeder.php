@@ -45,20 +45,18 @@ class DemoCertificateSeeder extends Seeder
                 'issued_on' => now()->format('Y-m-d'),
             ]);
 
-            // Add attendances
+            // Add attendances (must total 180 hours to match course curriculum)
             $months = [
-                ['year' => 2025, 'month' => 1, 'class_hours' => 36, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 2, 'class_hours' => 32, 'attendance_hours' => 32],
-                ['year' => 2025, 'month' => 3, 'class_hours' => 40, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 4, 'class_hours' => 36, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 5, 'class_hours' => 40, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 6, 'class_hours' => 36, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 7, 'class_hours' => 40, 'attendance_hours' => 40],
-                ['year' => 2025, 'month' => 8, 'class_hours' => 36, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 9, 'class_hours' => 40, 'attendance_hours' => 40],
-                ['year' => 2025, 'month' => 10, 'class_hours' => 36, 'attendance_hours' => 36],
-                ['year' => 2025, 'month' => 11, 'class_hours' => 40, 'attendance_hours' => 40],
-                ['year' => 2025, 'month' => 12, 'class_hours' => 36, 'attendance_hours' => 36],
+                ['year' => 2025, 'month' => 1, 'class_hours' => 18, 'attendance_hours' => 18],
+                ['year' => 2025, 'month' => 2, 'class_hours' => 16, 'attendance_hours' => 16],
+                ['year' => 2025, 'month' => 3, 'class_hours' => 18, 'attendance_hours' => 18],
+                ['year' => 2025, 'month' => 4, 'class_hours' => 16, 'attendance_hours' => 16],
+                ['year' => 2025, 'month' => 5, 'class_hours' => 18, 'attendance_hours' => 18],
+                ['year' => 2025, 'month' => 6, 'class_hours' => 16, 'attendance_hours' => 16],
+                ['year' => 2025, 'month' => 7, 'class_hours' => 18, 'attendance_hours' => 18],
+                ['year' => 2025, 'month' => 8, 'class_hours' => 16, 'attendance_hours' => 16],
+                ['year' => 2025, 'month' => 9, 'class_hours' => 18, 'attendance_hours' => 18],
+                ['year' => 2025, 'month' => 10, 'class_hours' => 26, 'attendance_hours' => 26],
             ];
 
             foreach ($months as $m) {

@@ -74,7 +74,7 @@
         }
 
         .header-logo {
-            height: 15mm;
+            height: 27mm;
             margin: 0 auto 0.6mm;
             text-align: center;
             font-size: 0;
@@ -83,9 +83,9 @@
 
         .header-logo img {
             width: auto;
-            height: auto;
-            max-width: 40mm;
-            max-height: 15mm;
+            height: 27mm;
+            max-width: none;
+            max-height: none;
             display: block;
             margin: 0 auto;
         }
