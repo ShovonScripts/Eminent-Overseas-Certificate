@@ -71,6 +71,6 @@ class CertificateDownloadTest extends TestCase
         $this->assertFalse($staff->can('delete', $draft));
         $this->assertTrue($admin->can('delete', $draft));
 
-        $this->assertFalse($admin->can('delete', $issued));
+        $this->assertTrue($admin->can('delete', $issued));
     }
 }

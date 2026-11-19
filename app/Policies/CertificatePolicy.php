@@ -26,12 +26,12 @@ class CertificatePolicy
 
     public function update(User $user, Certificate $certificate): bool
     {
-        return $certificate->isDraft();
+        return true;
     }
 
     public function delete(User $user, Certificate $certificate): bool
     {
-        return ($certificate->isDraft() || $certificate->isRevoked()) && $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 
     public function issue(User $user, Certificate $certificate): bool

@@ -175,4 +175,73 @@ class CertificateIssuer
             throw ValidationException::withMessages($errors);
         }
     }
+
+    public function regeneratePdf(Certificate $certificate): Certificate
+    {
+        if (! $certificate->exists) {
+            throw ValidationException::withMessages(['certificate' => 'Save the certificate before regenerating PDF.']);
+        }
+
+        $pdfPath = null;
+
+        try {
+            DB::transaction(function () use ($certificate, &$pdfPath): void {
+                $locked = Certificate::query()
+                    ->whereKey($certificate->getKey())
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $locked) {
+                    throw ValidationException::withMessages(['certificate' => 'Certificate not found.']);
+                }
+
+                $certificate->refresh()->load(['attendances', 'instructors', 'course']);
+
+                $this->validateForIssue($certificate);
+
+                $totals = $this->totals->calculate($certificate->attendances);
+
+                if ($totals['total_class_hours'] <= 0) {
+                    throw ValidationException::withMessages([
+                        'attendances' => 'Total class hours must be greater than zero.',
+                    ]);
+                }
+
+                $curriculumHours = (int) $certificate->course->total_hours;
+
+                if ($totals['total_class_hours'] !== $curriculumHours) {
+                    throw ValidationException::withMessages([
+                        'attendances' => "Monthly class-hour total ({$totals['total_class_hours']}) must match course curriculum hours ({$curriculumHours}).",
+                    ]);
+                }
+
+                $certificate->fill($totals);
+
+                if (blank($certificate->certificate_no)) {
+                    $certificate->certificate_no = $this->numbers->make($certificate->issued_on);
+                }
+
+                if (blank($certificate->verification_code)) {
+                    $certificate->verification_code = $this->codes->make();
+                }
+
+                $certificate->save();
+
+                $pdfPath = $this->pdf->generate($certificate);
+
+                $certificate->forceFill([
+                    'pdf_path' => $pdfPath,
+                    'pdf_sha256' => hash_file('sha256', $pdfPath),
+                ])->save();
+            });
+        } catch (Throwable $exception) {
+            if ($pdfPath !== null && Storage::disk('local')->exists($pdfPath)) {
+                Storage::disk('local')->delete($pdfPath);
+            }
+
+            throw $exception;
+        }
+
+        return $certificate->refresh();
+    }
 }

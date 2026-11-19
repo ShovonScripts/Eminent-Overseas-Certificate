@@ -43,7 +43,7 @@ class AdminPanelTest extends TestCase
         $this->get("/admin/instructors/{$instructor->id}/edit")->assertOk();
         $this->get("/admin/certificates/{$certificate->id}")->assertOk();
         $this->get("/admin/certificates/{$draft->id}/edit")->assertOk();
-        $this->get("/admin/certificates/{$certificate->id}/edit")->assertForbidden();
+        $this->get("/admin/certificates/{$certificate->id}/edit")->assertOk();
     }
 
     public function test_staff_cannot_delete_or_revoke(): void

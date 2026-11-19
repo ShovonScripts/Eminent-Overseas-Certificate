@@ -159,19 +159,24 @@ class CertificateController extends Controller
         ]);
     }
 
-    public function update(CertificateRequest $request, Certificate $certificate, AdminActivityLogger $logger, CertificateTotals $totals): RedirectResponse
+    public function update(CertificateRequest $request, Certificate $certificate, AdminActivityLogger $logger, CertificateTotals $totals, CertificateIssuer $issuer): RedirectResponse
     {
         $this->authorize('update', $certificate);
 
         $oldValues = $certificate->toArray();
+        $wasIssued = $certificate->isIssued() || $certificate->isRevoked();
 
         $this->persist($certificate, $request->validated(), $totals);
+
+        if ($wasIssued) {
+            $issuer->regeneratePdf($certificate->refresh());
+        }
 
         $logger->logUpdated('App\Models\Certificate', $certificate->id, $oldValues, $certificate->fresh()->toArray(), $request);
 
         return redirect()
             ->route('admin.certificates.show', $certificate)
-            ->with('status', 'Draft certificate was updated.');
+            ->with('status', $wasIssued ? 'Certificate updated and PDF regenerated.' : 'Draft certificate was updated.');
     }
 
     public function destroy(Certificate $certificate, AdminActivityLogger $logger): RedirectResponse

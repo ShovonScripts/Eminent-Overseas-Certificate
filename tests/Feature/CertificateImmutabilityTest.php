@@ -5,30 +5,37 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Certificate;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class CertificateImmutabilityTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_issued_certificate_cannot_be_edited(): void
+    public function test_an_issued_certificate_can_be_edited(): void
     {
         $certificate = Certificate::factory()->issued()->create();
-
-        $this->expectException(HttpException::class);
 
         $certificate->update(['study_end' => '2026-02-01']);
+
+        $this->assertSame('2026-02-01', $certificate->fresh()->study_end->toDateString());
     }
 
-    public function test_an_issued_certificate_cannot_be_deleted(): void
+    public function test_an_issued_certificate_can_be_deleted_by_super_admin(): void
     {
+        $this->actingAs($this->createSuperAdmin());
+
         $certificate = Certificate::factory()->issued()->create();
 
-        $this->expectException(HttpException::class);
-
         $certificate->delete();
+
+        $this->assertSoftDeleted($certificate);
+    }
+
+    private function createSuperAdmin(): User
+    {
+        return User::factory()->create(['role' => 'super_admin']);
     }
 
     public function test_a_revoked_certificate_can_be_deleted(): void
